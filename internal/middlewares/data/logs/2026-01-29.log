@@ -1,0 +1,3 @@
+{"error":"strconv.Atoi: parsing \"\": invalid syntax","level":"warning","msg":"[JWT][getJwt] failed to convert string to int","time":"2026-01-29T16:37:27+07:00"}
+{"error":"failed to get bearer token","level":"warning","msg":"[MIDDLEWARE][Authentication] failed to get bearer token","time":"2026-01-29T16:37:27+07:00"}
+{"error":"invalid token","level":"warning","msg":"[MIDDLEWARE][Authentication] failed to validate token","time":"2026-01-29T16:37:27+07:00"}

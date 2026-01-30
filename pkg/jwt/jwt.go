@@ -8,12 +8,13 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/BangNopall/paskihub-be/domain"
+	"github.com/BangNopall/paskihub-be/domain/entity"
 	"github.com/BangNopall/paskihub-be/internal/infra/env"
 	"github.com/BangNopall/paskihub-be/pkg/log"
 )
 
 type JwtInterface interface {
-	GenerateToken(userId uuid.UUID, entity string, adminRole string) (string, error)
+	GenerateToken(userId uuid.UUID, payload entity.User) (string, error)
 	ValidateToken(tokenString string) (uuid.UUID, string, string, error)
 }
 
@@ -24,8 +25,8 @@ type JwtStruct struct {
 
 type Claims struct {
 	Id        uuid.UUID
-	Entity    string
-	AdminRole string
+	Email	  string
+	Role	  string
 	jwt.RegisteredClaims
 }
 
@@ -46,11 +47,11 @@ func getJwt() JwtInterface {
 	}
 }
 
-func (j *JwtStruct) GenerateToken(id uuid.UUID, entity string, adminRole string) (string, error) {
+func (j *JwtStruct) GenerateToken(id uuid.UUID, payload entity.User) (string, error) {
 	claim := &Claims{
 		Id:        id,
-		Entity:    entity,
-		AdminRole: adminRole, 
+		Email:     payload.Email,
+		Role:      payload.Role,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Duration(j.ExpiredTime) * time.Hour)),
 		},
@@ -93,8 +94,8 @@ func (j *JwtStruct) ValidateToken(tokenString string) (uuid.UUID, string, string
 	}
 
 	id = claims.Id
-	entity := claims.Entity
-	adminRole := claims.AdminRole
+	email := claims.Email
+	role := claims.Role
 
-	return id, entity, adminRole, nil
+	return id, email, role, nil
 }

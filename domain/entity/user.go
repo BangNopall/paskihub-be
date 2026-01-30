@@ -16,6 +16,7 @@ type User struct {
 	EmailIsVerified     bool          `json:"email_is_verified" gorm:"type:bool"`
 	ExpiredToken		time.Time 	`json:"-" gorm:"type:timestamp"`
 	ExpiredTokenForgot	time.Time 	`json:"-" gorm:"type:timestamp"`
+	
 	CreatedAt			time.Time 	`json:"created_at" gorm:"autoCreateTime;"`
 	UpdatedAt			time.Time 	`json:"updated_at" gorm:"autoUpdateTime;"`
 }

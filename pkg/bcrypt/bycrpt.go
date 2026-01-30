@@ -1,4 +1,4 @@
-package bycrpt
+package bcrypt
 
 import (
 	"github.com/BangNopall/paskihub-be/pkg/log"

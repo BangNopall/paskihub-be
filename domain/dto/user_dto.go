@@ -46,3 +46,12 @@ type UserResponse struct {
 	ExpiredToken        time.Time          `json:"-"`
 	ExpiredTokenForgot  time.Time          `json:"-"`
 }
+
+type UserUpdate struct {
+	Password            string    `json:"password" binding:"omitempty,validpassword"`
+	EmailIsVerified     bool      `json:"-"`
+	EmailVerifiedToken  string    `json:"-"`
+	ForgotPasswordToken string    `json:"-"`
+	ExpiredToken        time.Time `json:"-"`
+	ExpiredTokenForgot  time.Time `json:"-"`
+}

@@ -1,10 +1,11 @@
-package contract
+package contracts
 
 import (
+	// "github.com/gofiber/fiber/v2"
 	"context"
 	// "mime/multipart"
 
-	// "github.com/google/uuid"
+	"github.com/google/uuid"
 	"github.com/BangNopall/paskihub-be/domain/dto"
 	"github.com/BangNopall/paskihub-be/domain/entity"
 )
@@ -19,14 +20,14 @@ type UserRepository interface {
 	// 	preload ...string,
 	// ) ([]entity.User, dto.PaginationResponse, error)
 	FindUser(user *entity.User, userParam *dto.UserParam, relations ...string) error
-	// UpdateUser(updateUser *dto.UserUpdate, userId uuid.UUID) error
+	UpdateUser(updateUser *dto.UserUpdate, userId uuid.UUID) error
 	DeleteUnverifiedUser() error
 }
 
 type UserService interface {
 	Register(ctx context.Context, user dto.UserRegister, referer string) error
 	VerifyEmail(ctx context.Context, email string, emailVerPass string) error
-	LoginWithEmail(ctx context.Context, user dto.UserLogin) (dto.UserLoginResponse, error)
+	Login(ctx context.Context, user dto.UserLogin) (dto.UserLoginResponse, error)
 	ResetPassword(ctx context.Context, user dto.UserResetPassword, forgotPasswordToken string) error
 	ForgotPassword(ctx context.Context, user dto.UserForgotPassword, referer string) error
 	// FetchByParam(ctx context.Context, userParam *dto.UserParam) (dto.UserResponse, error)

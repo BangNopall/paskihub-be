@@ -5,9 +5,9 @@ import (
 
 	"gorm.io/gorm"
 
-	// "github.com/google/uuid"
+	"github.com/google/uuid"
 	"github.com/BangNopall/paskihub-be/domain"
-	"github.com/BangNopall/paskihub-be/domain/contract"
+	"github.com/BangNopall/paskihub-be/domain/contracts"
 	"github.com/BangNopall/paskihub-be/domain/dto"
 	"github.com/BangNopall/paskihub-be/domain/entity"
 	"github.com/BangNopall/paskihub-be/pkg/log"
@@ -17,7 +17,7 @@ type userRepository struct {
 	conn *gorm.DB
 }
 
-func NewUserRepository(conn *gorm.DB) contract.UserRepository {
+func NewUserRepository(conn *gorm.DB) contracts.UserRepository {
 	return &userRepository{conn}
 }
 
@@ -70,6 +70,24 @@ func (r *userRepository) FindUser(user *entity.User, userParam *dto.UserParam, r
 		log.Warn(log.LogInfo{
 			"error": err.Error(),
 		}, "[USER REPOSITORY][FindUser] failed to find user")
+		return domain.ErrInternalServer
+	}
+
+	return nil
+}
+
+func (r *userRepository) UpdateUser(updateUser *dto.UserUpdate, userId uuid.UUID) error {
+	err := r.conn.Model(&entity.User{}).Where("id = ?", userId).Updates(updateUser).Error
+	if err != nil {
+
+		if err == gorm.ErrDuplicatedKey {
+			return domain.ErrDuplicateEntry
+		}
+
+		log.Warn(log.LogInfo{
+			"error": err.Error(),
+		}, "[USER REPOSITORY][UpdateUser] failed to update user")
+
 		return domain.ErrInternalServer
 	}
 
