@@ -17,6 +17,7 @@ import (
 	"github.com/BangNopall/paskihub-be/domain/contracts"
 	"github.com/BangNopall/paskihub-be/domain/dto"
 	"github.com/BangNopall/paskihub-be/domain/entity"
+	"github.com/BangNopall/paskihub-be/domain/enums"
 	"github.com/BangNopall/paskihub-be/internal/infra/env"
 
 	// "github.com/BangNopall/paskihub-be/internal/infra/env"
@@ -69,7 +70,7 @@ func NewUserService(
 	}
 }
 
-func (s *userService) Register(ctx context.Context, user dto.UserRegister, referer string) error {
+func (s *userService) Register(ctx context.Context, role string, user dto.UserRegister) error {
 	ctx, cancel := context.WithTimeout(ctx, s.timeout)
 	defer cancel()
 
@@ -94,7 +95,7 @@ func (s *userService) Register(ctx context.Context, user dto.UserRegister, refer
 
 	link := "https://paskihub.com/" + "auth/verify-email/" + user.Email + "/" + emailVerPass
 
-	subject := "Verifikasi Email Akun Hology 8.0"
+	subject := "Verifikasi Email Akun PaskiHub"
 	HTMLbody := html_content.GetEmailVerifHTML(link)
 
 	sendEmail := func(email string) <-chan error {
@@ -158,10 +159,16 @@ func (s *userService) Register(ctx context.Context, user dto.UserRegister, refer
 		return err
 	}
 
+	if role != constants.ROLE_PESERTA && role != constants.ROLE_EO {
+		return domain.ErrInvalidRole
+	} else if role == constants.ROLE_ADMIN {
+		return domain.ErrInternalServer
+	}
+
 	newUser := entity.User{
 		Id:                 uuid,
 		Email:              user.Email,
-		Role:               constants.ROLE_PESERTA,
+		Role:               enums.Role(role),
 		Password:           hashPassword,
 		EmailVerifiedToken: emailVerPWhash,
 		ExpiredToken:       expiredToken,
@@ -317,7 +324,7 @@ func (s *userService) ResetPassword(ctx context.Context, user dto.UserResetPassw
 	}
 }
 
-func (s *userService) ForgotPassword(ctx context.Context, user dto.UserForgotPassword, referer string) error {
+func (s *userService) ForgotPassword(ctx context.Context, user dto.UserForgotPassword) error {
 	ctx, cancel := context.WithTimeout(ctx, s.timeout)
 	defer cancel()
 

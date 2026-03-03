@@ -1,46 +1,68 @@
 package enums
 
-type Status string
-
-type Phase string
-
-type WinnerPlace string
+type EventStatus string
+type Role string
+type InstitutionType string
+type TeamType string
+type RegistrationStatus string
+type WalletType string
+type TransactionStatus string
 
 const (
-	Waiting      Status      = "Waiting"
-	Rejected     Status      = "Rejected"
-	Verified     Status      = "Verified"
-	Elimination  Phase       = "Elimination"
-	Eliminated   Phase       = "Eliminated"
-	Final        Phase       = "Final"
-	Disqualified Phase       = "Disqualified"
-	First        WinnerPlace = "First"
-	Second       WinnerPlace = "Second"
-	Third        WinnerPlace = "Third"
-	Default      WinnerPlace = "Default"
+	Organizer Role = "ORGANIZER"
+	Peserta   Role = "PESERTA"
+	Admin     Role = "ADMIN"
+
+	Draft    EventStatus = "DRAFT"
+	Open     EventStatus = "OPEN"
+	Closed   EventStatus = "CLOSED"
+	Archived EventStatus = "ARCHIVED"
+
+	SD    InstitutionType = "SD"
+	SMP   InstitutionType = "SMP"
+	SMA   InstitutionType = "SMA"
+	PURNA InstitutionType = "PURNA"
+	UMUM  InstitutionType = "UMUM"
+
+	Pasukan  TeamType = "PASUKAN"
+	Danpas   TeamType = "DANPAS"
+	Official TeamType = "OFFICIAL"
+	Pelatih  TeamType = "PELATIH"
+
+	Waiting  RegistrationStatus = "WAITING"
+	DPPaid   RegistrationStatus = "DP_PAID"
+	FullPaid RegistrationStatus = "FULL_PAID"
+	Rejected RegistrationStatus = "REJECTED"
+
+	TopUp    WalletType = "TOPUP"
+	Withdraw WalletType = "WITHDRAW"
+
+	Pending    TransactionStatus = "PENDING"
+	Approve    TransactionStatus = "APPROVE"
+	TSRejected TransactionStatus = "REJECTED"
 )
 
-func IsValidStatus(s string) bool {
-	switch Status(s) {
-	case Waiting, Rejected, Verified:
+func IsValidEventStatus(s string) bool {
+	switch EventStatus(s) {
+	case Draft, Open, Closed, Archived:
 		return true
 	default:
 		return false
 	}
 }
 
-func IsValidPhase(p string) bool {
-	switch Phase(p) {
-	case Elimination, Final, Disqualified, Eliminated:
+func IsValidRole(r string) bool {
+	switch Role(r) {
+	case Organizer, Peserta, Admin:
 		return true
 	default:
 		return false
 	}
 }
 
-func IsValidWinnerPlace(wp string) bool {
-	switch WinnerPlace(wp) {
-	case First, Second, Third, Default:
+func IsValidInstitutionType(s string) bool {
+	switch InstitutionType(s) {
+	case SD, SMP, SMA, PURNA, UMUM:
 		return true
 	default:
 		return false

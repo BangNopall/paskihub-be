@@ -1,0 +1,5 @@
+{"level":"info","msg":"Application is running on development mode","time":"2026-02-01T16:16:20+07:00"}
+{"level":"info","msg":"[PGSQL CONN][Migrate] Auto Migrating Tables","time":"2026-02-01T16:16:20+07:00"}
+{"level":"info","msg":"Application is running on development mode","time":"2026-02-01T18:34:00+07:00"}
+{"level":"info","msg":"[PGSQL CONN][Migrate] Dropping All Tables","time":"2026-02-01T18:34:00+07:00"}
+{"level":"info","msg":"[PGSQL CONN][Migrate] Auto Migrating Tables","time":"2026-02-01T18:34:00+07:00"}

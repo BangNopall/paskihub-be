@@ -30,7 +30,7 @@ func InitUserController(
 	}
 
 	userRouter := router.Group("/api/v1/users")
-	userRouter.Post("/register", middleware.RateLimiter(), userController.Register)
+	userRouter.Post("/register/:role", middleware.RateLimiter(), userController.Register)
 	userRouter.Post("/login", middleware.RateLimiter(), userController.Login)
 	userRouter.Post("/logout", middleware.Authentication, userController.Logout)
 	userRouter.Get("/verify-email/:email/:emailVerPass", middleware.RateLimiter(), userController.VerifyEmail)
@@ -60,15 +60,15 @@ func (c *userController) Register(ctx *fiber.Ctx) error {
 
 	var user dto.UserRegister
 
+	role := ctx.Params("role")
+
 	err = ctx.BodyParser(&user)
 
 	if err != nil {
 		return nil
 	}
 
-	referer := ctx.Get("Referer")
-
-	err = c.userSvc.Register(ctx.Context(), user, referer)
+	err = c.userSvc.Register(ctx.Context(), role, user)
 	code = domain.GetCode(err)
 
 	if err != nil {
@@ -220,9 +220,7 @@ func (c *userController) ForgotPassword(ctx *fiber.Ctx) error {
 		return nil
 	}
 
-	referer := ctx.Get("Referer")
-
-	err = c.userSvc.ForgotPassword(ctx.Context(), user, referer)
+	err = c.userSvc.ForgotPassword(ctx.Context(), user)
 	code = domain.GetCode(err)
 
 	if err != nil {

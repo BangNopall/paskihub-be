@@ -34,6 +34,8 @@ var (
 	ErrTeamFull                = errors.New("team is full")
 	ErrInvalidProofType        = errors.New("invalid proof type")
 	ErrBadRequest              = errors.New("bad data request")
+	ErrInvalidRole             = errors.New("invalid user data")
+	ErrForbidden               = errors.New("forbidden access")
 )
 
 func GetCode(err error) int {
@@ -76,9 +78,9 @@ func GetCode(err error) int {
 		return http.StatusUnauthorized
 	case ErrFileTooBig:
 		return http.StatusRequestEntityTooLarge
-	case ErrForbiddenUpdate:
+	case ErrForbiddenUpdate, ErrForbidden:
 		return http.StatusForbidden
-	case ErrConfirmPasswordNotMatch:
+	case ErrConfirmPasswordNotMatch, ErrInvalidRole:
 		return http.StatusBadRequest
 	default:
 		return http.StatusInternalServerError

@@ -3,6 +3,7 @@ package dto
 import (
 	"time"
 
+	"github.com/BangNopall/paskihub-be/domain/entity"
 	"github.com/google/uuid"
 )
 
@@ -54,4 +55,22 @@ type UserUpdate struct {
 	ForgotPasswordToken string    `json:"-"`
 	ExpiredToken        time.Time `json:"-"`
 	ExpiredTokenForgot  time.Time `json:"-"`
+}
+
+type UserPaginationResponse struct {
+	Users []UserResponse `json:"users"`
+	Pagination PaginationResponse `json:"pagination"`
+}
+
+func UserEntityToResponse(user *entity.User) *UserResponse {
+	return &UserResponse{
+		Id:                  user.Id,
+		Email:               user.Email,
+		Password:            user.Password,
+		EmailVerifiedToken:  user.EmailVerifiedToken,
+		ForgotPasswordToken: user.ForgotPasswordToken,
+		EmailIsVerified:     user.EmailIsVerified,
+		ExpiredToken:        user.ExpiredToken,
+		ExpiredTokenForgot:  user.ExpiredTokenForgot,
+	}
 }

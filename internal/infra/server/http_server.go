@@ -20,6 +20,14 @@ import (
 	userCtr "github.com/BangNopall/paskihub-be/internal/app/user/controller"
 	userRepo "github.com/BangNopall/paskihub-be/internal/app/user/repository"
 	userSvc "github.com/BangNopall/paskihub-be/internal/app/user/service"
+
+	eventCtr "github.com/BangNopall/paskihub-be/internal/app/event/controller"
+	eventRepo "github.com/BangNopall/paskihub-be/internal/app/event/repository"
+	eventSvc "github.com/BangNopall/paskihub-be/internal/app/event/service"
+
+	walletCtr "github.com/BangNopall/paskihub-be/internal/app/wallet/controller"
+	walletRepo "github.com/BangNopall/paskihub-be/internal/app/wallet/repository"
+	walletSvc "github.com/BangNopall/paskihub-be/internal/app/wallet/service"
 )
 
 type Server interface {
@@ -52,6 +60,7 @@ func (s *httpServer) Start(port string) {
 		port = ":" + port
 	}
 
+	s.app.Static("/public", "./public")
 	err := s.app.Listen(port)
 
 	if err != nil {
@@ -83,6 +92,8 @@ func (s *httpServer) MountRoutes(db *gorm.DB) {
 
 	// Repository
 	userRepo := userRepo.NewUserRepository(db)
+	eventRepo := eventRepo.NewEventRepository(db)
+	walletRepo := walletRepo.NewWalletRepository(db)
 
 	// middleware
 	middleware := middlewares.NewMiddleware(
@@ -93,9 +104,13 @@ func (s *httpServer) MountRoutes(db *gorm.DB) {
 
 	// Service
 	userSvc := userSvc.NewUserService(userRepo, uuid, bcrypt, timePkg, gomail, jwt, redis, time.Second*15)
+	eventSvc := eventSvc.NewEventService(eventRepo, walletRepo, uuid, timePkg, time.Second*15)
+	walletSvc := walletSvc.NewWalletService(walletRepo, eventRepo, uuid, time.Second*15)
 
 	// Controller
 	userCtr.InitUserController(userSvc, s.app, middleware, redis)
+	eventCtr.InitEventController(eventSvc, s.app, middleware, redis)
+	walletCtr.InitWalletController(walletSvc, s.app, middleware, redis)
 
 	// cronjob
 	_, err := s.scheduler.AddFunc("0 0 * * 0", userSvc.DeleteUnverifiedUsers)

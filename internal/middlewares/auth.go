@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/BangNopall/paskihub-be/domain/enums"
 	"github.com/BangNopall/paskihub-be/pkg/helpers/http/response"
 	"github.com/BangNopall/paskihub-be/pkg/log"
 	"github.com/gofiber/fiber/v2"
@@ -87,4 +88,51 @@ func (m *Middleware) Authentication(ctx *fiber.Ctx) error {
 	ctx.Locals("role", role)
 	ctx.Next()
 	return nil
+}
+
+func (m *Middleware) AuthOrganizer(ctx *fiber.Ctx) error {
+	role := ctx.Locals("role")
+	if role != string(enums.Organizer) {
+		response.SendErrResp(
+			ctx,
+			http.StatusForbidden,
+			response.Fail,
+			"forbidden access",
+			errors.New("you don't have permission to access this resource"),
+		)
+		return nil
+	}
+
+	return ctx.Next()
+}
+
+func (m *Middleware) AuthPeserta(ctx *fiber.Ctx) error {
+	role := ctx.Locals("role")
+	if role != string(enums.Peserta) {
+		response.SendErrResp(
+			ctx,
+			http.StatusForbidden,
+			response.Fail,
+			"forbidden access",
+			errors.New("you don't have permission to access this resource"),
+		)
+		return nil
+	}
+
+	return ctx.Next()
+}
+func (m *Middleware) AuthAdmin(ctx *fiber.Ctx) error {
+	role := ctx.Locals("role")
+	if role != string(enums.Admin) {
+		response.SendErrResp(
+			ctx,
+			http.StatusForbidden,
+			response.Fail,
+			"forbidden access",
+			errors.New("you don't have permission to access this resource"),
+		)
+		return nil
+	}
+
+	return ctx.Next()
 }

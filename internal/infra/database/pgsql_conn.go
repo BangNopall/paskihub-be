@@ -20,6 +20,11 @@ const SEEDERS_PROD_PATH = SEEDERS_FILE_PATH + "prod/"
 func getInterfaces() []interface{} {
 	return []interface{}{
 		&entity.User{},
+		&entity.Event{},
+		&entity.EventLevel{},
+		&entity.Registration{},
+		&entity.Wallet{},
+		&entity.WalletTransaction{},
 	}
 }
 
@@ -64,6 +69,82 @@ func Migrate(db *gorm.DB, args []string) {
 	}
 
 	log.Info(nil, "[PGSQL CONN][Migrate] Auto Migrating Tables")
+
+	db.Exec(`
+		DO $$ BEGIN
+			CREATE TYPE role AS ENUM (
+				'ADMIN',
+				'ORGANIZER',
+				'PESERTA'
+			);
+		EXCEPTION
+			WHEN duplicate_object THEN null;
+		END $$;
+
+		DO $$ BEGIN
+			CREATE TYPE event_status AS ENUM (
+				'DRAFT',
+				'OPEN',
+				'CLOSED',
+				'ARCHIVED'
+			);
+		EXCEPTION
+			WHEN duplicate_object THEN null;
+		END $$;
+
+		DO $$ BEGIN
+			CREATE TYPE institution_type AS ENUM (
+				'SD',
+				'SMP',
+				'SMA',
+				'PURNA',
+				'UMUM'
+			);
+		EXCEPTION
+			WHEN duplicate_object THEN null;
+		END $$;
+
+		DO $$ BEGIN
+			CREATE TYPE team_type AS ENUM (
+				'PASUKAN',
+				'DANPAS',
+				'OFFICIAL',
+				'PELATIH'
+			);
+		EXCEPTION
+			WHEN duplicate_object THEN null;
+		END $$;
+
+		DO $$ BEGIN
+			CREATE TYPE registration_status AS ENUM (
+				'WAITING',
+				'DP_PAID',
+				'FULL_PAID',
+				'REJECTED'
+			);
+		EXCEPTION
+			WHEN duplicate_object THEN null;
+		END $$;
+
+		DO $$ BEGIN
+			CREATE TYPE wallet_type AS ENUM (
+				'TOPUP',
+				'WITHDRAW'
+			);
+		EXCEPTION
+			WHEN duplicate_object THEN null;
+		END $$;
+
+		DO $$ BEGIN
+			CREATE TYPE transaction_status AS ENUM (
+				'PENDING',
+				'APPROVE',
+				'REJECTED'
+			);
+		EXCEPTION
+			WHEN duplicate_object THEN null;
+		END $$;
+	`)
 
 	db.AutoMigrate(getInterfaces()...)
 }
