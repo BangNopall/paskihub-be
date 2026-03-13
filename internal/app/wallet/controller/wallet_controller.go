@@ -37,8 +37,8 @@ func InitWalletController(
 	walletRouter.Post("/:eventId/topup", middleware.Authentication, middleware.RateLimiter(), middleware.AuthOrganizer, walletController.RequestTopUp)
 
 	// Admin Route
-	walletRouter.Put("/transactions/:transactionId/approve", middleware.Authentication, middleware.RateLimiter(), middleware.AuthAdmin, walletController.ApproveTopUp)
-	walletRouter.Put("/transactions/:transactionId/reject", middleware.Authentication, middleware.RateLimiter(), middleware.AuthAdmin, walletController.RejectTopUp)
+	walletRouter.Put("/admin/transactions/:transactionId/approve", middleware.Authentication, middleware.RateLimiter(), middleware.AuthAdmin, walletController.ApproveTopUp)
+	walletRouter.Put("/admin/transactions/:transactionId/reject", middleware.Authentication, middleware.RateLimiter(), middleware.AuthAdmin, walletController.RejectTopUp)
 }
 
 func (c *walletController) GetWalletInfo(ctx *fiber.Ctx) error {
