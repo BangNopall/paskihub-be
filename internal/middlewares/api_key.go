@@ -13,16 +13,14 @@ import (
 
 func ApiKey() fiber.Handler {
 	return func(ctx *fiber.Ctx) error {
-		// Skip API key check for Swagger UI
+		// Bypass API key check for Swagger UI paths
 		if strings.HasPrefix(ctx.Path(), "/swagger") {
 			return ctx.Next()
 		}
 
 		headerReq := ctx.Get("x-api-key")
 
-		splitted := strings.Split(headerReq, " ")
-
-		if len(splitted) < 2 {
+		if headerReq == "" {
 			response.SendErrResp(
 				ctx,
 				http.StatusBadRequest,
@@ -33,6 +31,17 @@ func ApiKey() fiber.Handler {
 			return nil
 		}
 
+		splitted := strings.Split(headerReq, " ")
+		if len(splitted) != 2 || splitted[0] != "Key" {
+			response.SendErrResp(
+				ctx,
+				http.StatusBadRequest,
+				response.Fail,
+				"failed to authenticate request",
+				fmt.Errorf("invalid api key format, use: Key <api_key>"),
+			)
+			return nil
+		}
 		headerKey := splitted[1]
 
 		if headerKey != env.AppEnv.ApiKey {

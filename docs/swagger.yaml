@@ -360,14 +360,8 @@ definitions:
     - Rejected
 host: localhost:3010
 info:
-  contact:
-    email: support@swagger.io
-    name: API Support
-  description: This is the API documentation for Paskihub Backend.
-  license:
-    name: Apache 2.0
-    url: http://www.apache.org/licenses/LICENSE-2.0.html
-  termsOfService: http://swagger.io/terms/
+  contact: {}
+  description: This is Paskihub API Documentation
   title: Paskihub API
   version: "1.0"
 paths:
@@ -2007,8 +2001,16 @@ paths:
       summary: Reject top-up (Admin)
       tags:
       - Wallets
+schemes:
+- http
 securityDefinitions:
+  ApiKeyAuth:
+    description: 'API Key for all endpoints. Format: Key {api_key}. Example: Key abc123'
+    in: header
+    name: x-api-key
+    type: apiKey
   BearerAuth:
+    description: 'JWT Bearer token. Format: Bearer {token}'
     in: header
     name: Authorization
     type: apiKey

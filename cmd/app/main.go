@@ -9,22 +9,20 @@ import (
 	"github.com/BangNopall/paskihub-be/internal/infra/server"
 )
 
-// @title Paskihub API
-// @version 1.0
-// @description This is the API documentation for Paskihub Backend.
-// @termsOfService http://swagger.io/terms/
-
-// @contact.name API Support
-// @contact.email support@swagger.io
-
-// @license.name Apache 2.0
-// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
-
-// @host localhost:3010
-// @BasePath /
-// @securityDefinitions.apikey BearerAuth
-// @in header
-// @name Authorization
+// @title						Paskihub API
+// @version					1.0
+// @description				This is Paskihub API Documentation
+// @host						localhost:3010
+// @schemes					http
+// @BasePath 				/
+// @securityDefinitions.apikey	BearerAuth
+// @in							header
+// @name						Authorization
+// @description				JWT Bearer token. Format: Bearer {token}
+// @securityDefinitions.apikey	ApiKeyAuth
+// @in							header
+// @name						x-api-key
+// @description				API Key for all endpoints. Format: Key {api_key}. Example: Key abc123
 func main() {
 	server := server.NewHttpServer()
 	pgsqldb := database.NewPgsqlConn()

@@ -9,15 +9,7 @@ const docTemplate = `{
     "info": {
         "description": "{{escape .Description}}",
         "title": "{{.Title}}",
-        "termsOfService": "http://swagger.io/terms/",
-        "contact": {
-            "name": "API Support",
-            "email": "support@swagger.io"
-        },
-        "license": {
-            "name": "Apache 2.0",
-            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
-        },
+        "contact": {},
         "version": "{{.Version}}"
     },
     "host": "{{.Host}}",
@@ -3108,7 +3100,14 @@ const docTemplate = `{
         }
     },
     "securityDefinitions": {
+        "ApiKeyAuth": {
+            "description": "API Key for all endpoints. Format: Key {api_key}. Example: Key abc123",
+            "type": "apiKey",
+            "name": "x-api-key",
+            "in": "header"
+        },
         "BearerAuth": {
+            "description": "JWT Bearer token. Format: Bearer {token}",
             "type": "apiKey",
             "name": "Authorization",
             "in": "header"
@@ -3121,9 +3120,9 @@ var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
 	Host:             "localhost:3010",
 	BasePath:         "/",
-	Schemes:          []string{},
+	Schemes:          []string{"http"},
 	Title:            "Paskihub API",
-	Description:      "This is the API documentation for Paskihub Backend.",
+	Description:      "This is Paskihub API Documentation",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

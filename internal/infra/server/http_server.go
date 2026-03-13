@@ -3,6 +3,7 @@ package server
 import (
 	"time"
 
+	"github.com/BangNopall/paskihub-be/internal/infra/env"
 	"github.com/BangNopall/paskihub-be/internal/middlewares"
 	"github.com/BangNopall/paskihub-be/pkg/bcrypt"
 	validators "github.com/BangNopall/paskihub-be/pkg/fiber"
@@ -82,7 +83,6 @@ func (s *httpServer) Start(port string) {
 	}
 
 	s.app.Static("/public", "./public")
-	s.app.Get("/swagger/*", swagger.HandlerDefault)
 	err := s.app.Listen(port)
 
 	if err != nil {
@@ -93,6 +93,10 @@ func (s *httpServer) Start(port string) {
 }
 
 func (s *httpServer) MountMiddlewares() {
+	if env.AppEnv.AppEnv == "development" {
+		s.app.Get("/swagger/*", swagger.HandlerDefault)
+	}
+
 	s.app.Use(middlewares.CORS())
 	s.app.Use(middlewares.ApiKey())
 }
