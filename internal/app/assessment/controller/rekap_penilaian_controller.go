@@ -30,6 +30,15 @@ func InitRekapController(
 	routes.Put("/publish/:eventLevelId", middleware.Authentication, middleware.RateLimiter(), middleware.AuthOrganizer, c.PublishScoreboard)
 }
 
+// GetTeamAssessmentDetail godoc
+// @Summary Get team assessment detail
+// @Description Get specific assessment detail for a team registration
+// @Tags Rekap Assessment
+// @Security BearerAuth
+// @Produce json
+// @Param regisId path string true "Registration ID"
+// @Success 200 {object} map[string]interface{}
+// @Router /api/v1/rekap/detail/{regisId} [get]
 func (c *rekapController) GetTeamAssessmentDetail(ctx *fiber.Ctx) error {
 	var (
 		err     error
@@ -59,6 +68,15 @@ func (c *rekapController) GetTeamAssessmentDetail(ctx *fiber.Ctx) error {
 	return nil
 }
 
+// GetScoreboard godoc
+// @Summary Get scoreboard
+// @Description Get scoreboard for an event level
+// @Tags Rekap Assessment
+// @Security BearerAuth
+// @Produce json
+// @Param eventLevelId path string true "Event Level ID"
+// @Success 200 {object} map[string]interface{}
+// @Router /api/v1/rekap/scoreboard/{eventLevelId} [get]
 func (c *rekapController) GetScoreboard(ctx *fiber.Ctx) error {
 	var (
 		err     error
@@ -88,6 +106,17 @@ func (c *rekapController) GetScoreboard(ctx *fiber.Ctx) error {
 	return nil
 }
 
+// GetLeaderboardCustom godoc
+// @Summary Get custom leaderboard
+// @Description Generate a custom leaderboard
+// @Tags Rekap Assessment
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param eventLevelId path string true "Event Level ID"
+// @Param req body dto.CustomLeaderboardRequest true "Custom Leaderboard Criteria"
+// @Success 200 {object} map[string]interface{}
+// @Router /api/v1/rekap/leaderboard/custom/{eventLevelId} [post]
 func (c *rekapController) GetLeaderboardCustom(ctx *fiber.Ctx) error {
 	var (
 		err     error
@@ -122,6 +151,17 @@ func (c *rekapController) GetLeaderboardCustom(ctx *fiber.Ctx) error {
 	return nil
 }
 
+// PublishScoreboard godoc
+// @Summary Publish scoreboard
+// @Description Publish the scoreboard for an event level
+// @Tags Rekap Assessment
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param eventLevelId path string true "Event Level ID"
+// @Param req body dto.PublishScoreboardRequest true "Publish Settings"
+// @Success 200 {object} map[string]interface{}
+// @Router /api/v1/rekap/publish/{eventLevelId} [put]
 func (c *rekapController) PublishScoreboard(ctx *fiber.Ctx) error {
 	var (
 		err     error

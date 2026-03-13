@@ -13,6 +13,11 @@ import (
 
 func ApiKey() fiber.Handler {
 	return func(ctx *fiber.Ctx) error {
+		// Skip API key check for Swagger UI
+		if strings.HasPrefix(ctx.Path(), "/swagger") {
+			return ctx.Next()
+		}
+
 		headerReq := ctx.Get("x-api-key")
 
 		splitted := strings.Split(headerReq, " ")
@@ -44,4 +49,4 @@ func ApiKey() fiber.Handler {
 		ctx.Next()
 		return nil
 	}
-}	
+}

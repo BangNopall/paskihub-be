@@ -47,6 +47,16 @@ func InitEventController(
 	eventRouter.Delete("/:id/levels/:levelId", middleware.Authentication, middleware.RateLimiter(), middleware.AuthOrganizer, eventController.DeleteEventLevel)
 }
 
+// CreateEvent godoc
+// @Summary Create a new event
+// @Description Create an event for the organizer
+// @Tags Events
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param event body dto.EventCreate true "Event details"
+// @Success 200 {object} map[string]interface{}
+// @Router /api/v1/events/create [post]
 func (c *eventController) CreateEvent(ctx *fiber.Ctx) error {
 	var (
 		err     error
@@ -82,6 +92,15 @@ func (c *eventController) CreateEvent(ctx *fiber.Ctx) error {
 	return nil
 }
 
+// ShowEventData godoc
+// @Summary Show event data (Admin)
+// @Description Get specific event details by ID
+// @Tags Events
+// @Security BearerAuth
+// @Produce json
+// @Param id path string true "Event ID"
+// @Success 200 {object} map[string]interface{}
+// @Router /api/v1/events/admin/show/{id} [get]
 func (c *eventController) ShowEventData(ctx *fiber.Ctx) error {
 	var (
 		err     error
@@ -111,6 +130,15 @@ func (c *eventController) ShowEventData(ctx *fiber.Ctx) error {
 	return nil
 }
 
+// ShowUserEvent godoc
+// @Summary Show auth user's events
+// @Description Get all events created by specific user/organizer
+// @Tags Events
+// @Security BearerAuth
+// @Produce json
+// @Param userId path string true "User ID"
+// @Success 200 {object} map[string]interface{}
+// @Router /api/v1/events/user/{userId} [get]
 func (c *eventController) ShowUserEvent(ctx *fiber.Ctx) error {
 	var (
 		err     error
@@ -148,6 +176,17 @@ func (c *eventController) ShowUserEvent(ctx *fiber.Ctx) error {
 	return nil
 }
 
+// UploadLogo godoc
+// @Summary Upload event logo
+// @Description Upload logo image for an event
+// @Tags Events
+// @Security BearerAuth
+// @Accept multipart/form-data
+// @Produce json
+// @Param id path string true "Event ID"
+// @Param logo formData file true "Logo Image"
+// @Success 200 {object} map[string]interface{}
+// @Router /api/v1/events/upload/{id}/logo [post]
 func (c *eventController) UploadLogo(ctx *fiber.Ctx) error {
 	var (
 		err     error
@@ -179,6 +218,17 @@ func (c *eventController) UploadLogo(ctx *fiber.Ctx) error {
 	return nil
 }
 
+// UploadPoster godoc
+// @Summary Upload event poster
+// @Description Upload poster image for an event
+// @Tags Events
+// @Security BearerAuth
+// @Accept multipart/form-data
+// @Produce json
+// @Param id path string true "Event ID"
+// @Param poster formData file true "Poster Image"
+// @Success 200 {object} map[string]interface{}
+// @Router /api/v1/events/upload/{id}/poster [post]
 func (c *eventController) UploadPoster(ctx *fiber.Ctx) error {
 	var (
 		err     error
@@ -210,6 +260,17 @@ func (c *eventController) UploadPoster(ctx *fiber.Ctx) error {
 	return nil
 }
 
+// UpdateEvent godoc
+// @Summary Update an event
+// @Description Update event details
+// @Tags Events
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param id path string true "Event ID"
+// @Param event body dto.EventUpdate true "Updated details"
+// @Success 200 {object} map[string]interface{}
+// @Router /api/v1/events/update/{id} [put]
 func (c *eventController) UpdateEvent(ctx *fiber.Ctx) error {
 	var (
 		err     error
@@ -241,6 +302,15 @@ func (c *eventController) UpdateEvent(ctx *fiber.Ctx) error {
 	return nil
 }
 
+// DeleteEvent godoc
+// @Summary Delete an event
+// @Description Remove an event by ID
+// @Tags Events
+// @Security BearerAuth
+// @Produce json
+// @Param id path string true "Event ID"
+// @Success 200 {object} map[string]interface{}
+// @Router /api/v1/events/delete/{id} [delete]
 func (c *eventController) DeleteEvent(ctx *fiber.Ctx) error {
 	var (
 		err     error
@@ -267,6 +337,17 @@ func (c *eventController) DeleteEvent(ctx *fiber.Ctx) error {
 	return nil
 }
 
+// CreateEventLevel godoc
+// @Summary Create event level
+// @Description Create a new level category under an event
+// @Tags Events
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param id path string true "Event ID"
+// @Param level body dto.EventLevelCreate true "Level details"
+// @Success 200 {object} map[string]interface{}
+// @Router /api/v1/events/{id}/levels [post]
 func (c *eventController) CreateEventLevel(ctx *fiber.Ctx) error {
 	var (
 		err     error
@@ -298,6 +379,18 @@ func (c *eventController) CreateEventLevel(ctx *fiber.Ctx) error {
 	return nil
 }
 
+// UpdateEventLevel godoc
+// @Summary Update event level
+// @Description Update a level's detail under an event
+// @Tags Events
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param id path string true "Event ID"
+// @Param levelId path string true "Level ID"
+// @Param level body dto.EventLevelUpdate true "Updated level details"
+// @Success 200 {object} map[string]interface{}
+// @Router /api/v1/events/{id}/levels/{levelId} [put]
 func (c *eventController) UpdateEventLevel(ctx *fiber.Ctx) error {
 	var (
 		err     error
@@ -344,6 +437,16 @@ func (c *eventController) UpdateEventLevel(ctx *fiber.Ctx) error {
 	return nil
 }
 
+// DeleteEventLevel godoc
+// @Summary Delete event level
+// @Description Remove a level from an event
+// @Tags Events
+// @Security BearerAuth
+// @Produce json
+// @Param id path string true "Event ID"
+// @Param levelId path string true "Level ID"
+// @Success 200 {object} map[string]interface{}
+// @Router /api/v1/events/{id}/levels/{levelId} [delete]
 func (c *eventController) DeleteEventLevel(ctx *fiber.Ctx) error {
 	var (
 		err     error

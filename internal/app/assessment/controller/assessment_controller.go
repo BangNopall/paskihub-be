@@ -66,7 +66,17 @@ func getUserId(ctx *fiber.Ctx) (uuid.UUID, error) {
 	return uuid.Parse(userIdStr)
 }
 
-// Judge Handlers
+// CreateJudge godoc
+// @Summary Create judge
+// @Description Create a judge for an event
+// @Tags Judges
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param eventId path string true "Event ID"
+// @Param req body dto.CreateJudgeReq true "Judge Details"
+// @Success 201 {object} map[string]interface{}
+// @Router /api/v1/eo/events/{eventId}/assessment/judges [post]
 func (c *assessmentController) CreateJudge(ctx *fiber.Ctx) error {
 	var (
 		err     error
@@ -98,6 +108,15 @@ func (c *assessmentController) CreateJudge(ctx *fiber.Ctx) error {
 	return nil
 }
 
+// GetJudges godoc
+// @Summary Get judges
+// @Description Get all judges for an event
+// @Tags Judges
+// @Security BearerAuth
+// @Produce json
+// @Param eventId path string true "Event ID"
+// @Success 200 {object} map[string]interface{}
+// @Router /api/v1/eo/events/{eventId}/assessment/judges [get]
 func (c *assessmentController) GetJudges(ctx *fiber.Ctx) error {
 	var (
 		err     error
@@ -119,6 +138,18 @@ func (c *assessmentController) GetJudges(ctx *fiber.Ctx) error {
 	return nil
 }
 
+// UpdateJudge godoc
+// @Summary Update judge
+// @Description Update judge details
+// @Tags Judges
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param eventId path string true "Event ID"
+// @Param id path string true "Judge ID"
+// @Param req body dto.UpdateJudgeReq true "Updated Judge Details"
+// @Success 200 {object} map[string]interface{}
+// @Router /api/v1/eo/events/{eventId}/assessment/judges/{id} [put]
 func (c *assessmentController) UpdateJudge(ctx *fiber.Ctx) error {
 	var (
 		err     error
@@ -147,6 +178,16 @@ func (c *assessmentController) UpdateJudge(ctx *fiber.Ctx) error {
 	return nil
 }
 
+// DeleteJudge godoc
+// @Summary Delete judge
+// @Description Remove judge from an event
+// @Tags Judges
+// @Security BearerAuth
+// @Produce json
+// @Param eventId path string true "Event ID"
+// @Param id path string true "Judge ID"
+// @Success 200 {object} map[string]interface{}
+// @Router /api/v1/eo/events/{eventId}/assessment/judges/{id} [delete]
 func (c *assessmentController) DeleteJudge(ctx *fiber.Ctx) error {
 	var (
 		err     error
@@ -169,7 +210,17 @@ func (c *assessmentController) DeleteJudge(ctx *fiber.Ctx) error {
 	return nil
 }
 
-// ViolationType Handlers
+// CreateViolationType godoc
+// @Summary Create violation type
+// @Description Create a new violation type
+// @Tags Violation Types
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param eventId path string true "Event ID"
+// @Param req body dto.CreateViolationTypeReq true "Violation Type Details"
+// @Success 201 {object} map[string]interface{}
+// @Router /api/v1/eo/events/{eventId}/assessment/violation-types [post]
 func (c *assessmentController) CreateViolationType(ctx *fiber.Ctx) error {
 	var (
 		err     error
@@ -199,6 +250,15 @@ func (c *assessmentController) CreateViolationType(ctx *fiber.Ctx) error {
 	return nil
 }
 
+// GetViolationTypes godoc
+// @Summary Get violation types
+// @Description Get all violation types for an event
+// @Tags Violation Types
+// @Security BearerAuth
+// @Produce json
+// @Param eventId path string true "Event ID"
+// @Success 200 {object} map[string]interface{}
+// @Router /api/v1/eo/events/{eventId}/assessment/violation-types [get]
 func (c *assessmentController) GetViolationTypes(ctx *fiber.Ctx) error {
 	var (
 		err     error
@@ -220,6 +280,18 @@ func (c *assessmentController) GetViolationTypes(ctx *fiber.Ctx) error {
 	return nil
 }
 
+// UpdateViolationType godoc
+// @Summary Update violation type
+// @Description Update violation type details
+// @Tags Violation Types
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param eventId path string true "Event ID"
+// @Param id path string true "Violation Type ID"
+// @Param req body dto.UpdateViolationTypeReq true "Updated Violation Type Details"
+// @Success 200 {object} map[string]interface{}
+// @Router /api/v1/eo/events/{eventId}/assessment/violation-types/{id} [put]
 func (c *assessmentController) UpdateViolationType(ctx *fiber.Ctx) error {
 	var (
 		err     error
@@ -248,6 +320,16 @@ func (c *assessmentController) UpdateViolationType(ctx *fiber.Ctx) error {
 	return nil
 }
 
+// DeleteViolationType godoc
+// @Summary Delete violation type
+// @Description Remove violation type from an event
+// @Tags Violation Types
+// @Security BearerAuth
+// @Produce json
+// @Param eventId path string true "Event ID"
+// @Param id path string true "Violation Type ID"
+// @Success 200 {object} map[string]interface{}
+// @Router /api/v1/eo/events/{eventId}/assessment/violation-types/{id} [delete]
 func (c *assessmentController) DeleteViolationType(ctx *fiber.Ctx) error {
 	var (
 		err     error
@@ -270,7 +352,17 @@ func (c *assessmentController) DeleteViolationType(ctx *fiber.Ctx) error {
 	return nil
 }
 
-// ScoreCategory Handlers
+// CreateScoreCategory godoc
+// @Summary Create score category
+// @Description Create a new score category
+// @Tags Score Categories
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param eventId path string true "Event ID"
+// @Param req body dto.CreateScoreCategoryReq true "Score Category Details"
+// @Success 201 {object} map[string]interface{}
+// @Router /api/v1/eo/events/{eventId}/assessment/score-categories [post]
 func (c *assessmentController) CreateScoreCategory(ctx *fiber.Ctx) error {
 	var (
 		err     error
@@ -300,6 +392,15 @@ func (c *assessmentController) CreateScoreCategory(ctx *fiber.Ctx) error {
 	return nil
 }
 
+// GetScoreCategories godoc
+// @Summary Get score categories
+// @Description Get all score categories for an event
+// @Tags Score Categories
+// @Security BearerAuth
+// @Produce json
+// @Param eventId path string true "Event ID"
+// @Success 200 {object} map[string]interface{}
+// @Router /api/v1/eo/events/{eventId}/assessment/score-categories [get]
 func (c *assessmentController) GetScoreCategories(ctx *fiber.Ctx) error {
 	var (
 		err     error
@@ -321,6 +422,18 @@ func (c *assessmentController) GetScoreCategories(ctx *fiber.Ctx) error {
 	return nil
 }
 
+// UpdateScoreCategory godoc
+// @Summary Update score category
+// @Description Update score category details
+// @Tags Score Categories
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param eventId path string true "Event ID"
+// @Param id path string true "Score Category ID"
+// @Param req body dto.UpdateScoreCategoryReq true "Updated Score Category Details"
+// @Success 200 {object} map[string]interface{}
+// @Router /api/v1/eo/events/{eventId}/assessment/score-categories/{id} [put]
 func (c *assessmentController) UpdateScoreCategory(ctx *fiber.Ctx) error {
 	var (
 		err     error
@@ -349,6 +462,16 @@ func (c *assessmentController) UpdateScoreCategory(ctx *fiber.Ctx) error {
 	return nil
 }
 
+// DeleteScoreCategory godoc
+// @Summary Delete score category
+// @Description Remove score category from an event
+// @Tags Score Categories
+// @Security BearerAuth
+// @Produce json
+// @Param eventId path string true "Event ID"
+// @Param id path string true "Score Category ID"
+// @Success 200 {object} map[string]interface{}
+// @Router /api/v1/eo/events/{eventId}/assessment/score-categories/{id} [delete]
 func (c *assessmentController) DeleteScoreCategory(ctx *fiber.Ctx) error {
 	var (
 		err     error
@@ -371,7 +494,17 @@ func (c *assessmentController) DeleteScoreCategory(ctx *fiber.Ctx) error {
 	return nil
 }
 
-// ScoreSubCategory Handlers
+// CreateScoreSubCategory godoc
+// @Summary Create score sub category
+// @Description Create a new score sub category
+// @Tags Score Sub Categories
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param eventId path string true "Event ID"
+// @Param req body dto.CreateScoreSubCategoryReq true "Score Sub Category Details"
+// @Success 201 {object} map[string]interface{}
+// @Router /api/v1/eo/events/{eventId}/assessment/score-sub-categories [post]
 func (c *assessmentController) CreateScoreSubCategory(ctx *fiber.Ctx) error {
 	var (
 		err     error
@@ -401,6 +534,18 @@ func (c *assessmentController) CreateScoreSubCategory(ctx *fiber.Ctx) error {
 	return nil
 }
 
+// UpdateScoreSubCategory godoc
+// @Summary Update score sub category
+// @Description Update score sub category details
+// @Tags Score Sub Categories
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param eventId path string true "Event ID"
+// @Param id path string true "Score Sub Category ID"
+// @Param req body dto.UpdateScoreSubCategoryReq true "Updated Score Sub Category Details"
+// @Success 200 {object} map[string]interface{}
+// @Router /api/v1/eo/events/{eventId}/assessment/score-sub-categories/{id} [put]
 func (c *assessmentController) UpdateScoreSubCategory(ctx *fiber.Ctx) error {
 	var (
 		err     error
@@ -429,6 +574,16 @@ func (c *assessmentController) UpdateScoreSubCategory(ctx *fiber.Ctx) error {
 	return nil
 }
 
+// DeleteScoreSubCategory godoc
+// @Summary Delete score sub category
+// @Description Remove score sub category from an event
+// @Tags Score Sub Categories
+// @Security BearerAuth
+// @Produce json
+// @Param eventId path string true "Event ID"
+// @Param id path string true "Score Sub Category ID"
+// @Success 200 {object} map[string]interface{}
+// @Router /api/v1/eo/events/{eventId}/assessment/score-sub-categories/{id} [delete]
 func (c *assessmentController) DeleteScoreSubCategory(ctx *fiber.Ctx) error {
 	var (
 		err     error
@@ -451,7 +606,17 @@ func (c *assessmentController) DeleteScoreSubCategory(ctx *fiber.Ctx) error {
 	return nil
 }
 
-// GradeRules Handlers
+// SetupGradeRules godoc
+// @Summary Setup grade rules
+// @Description Configure grade rule mapping for an event
+// @Tags Assessment
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param eventId path string true "Event ID"
+// @Param req body dto.SetupGradeRulesReq true "Grade Rules Details"
+// @Success 200 {object} map[string]interface{}
+// @Router /api/v1/eo/events/{eventId}/assessment/grade-rules [post]
 func (c *assessmentController) SetupGradeRules(ctx *fiber.Ctx) error {
 	var (
 		err     error
@@ -478,6 +643,15 @@ func (c *assessmentController) SetupGradeRules(ctx *fiber.Ctx) error {
 	return nil
 }
 
+// GetGradeRules godoc
+// @Summary Get grade rules
+// @Description Get existing grade rules for an event
+// @Tags Assessment
+// @Security BearerAuth
+// @Produce json
+// @Param eventId path string true "Event ID"
+// @Success 200 {object} map[string]interface{}
+// @Router /api/v1/eo/events/{eventId}/assessment/grade-rules [get]
 func (c *assessmentController) GetGradeRules(ctx *fiber.Ctx) error {
 	var (
 		err     error
@@ -499,7 +673,17 @@ func (c *assessmentController) GetGradeRules(ctx *fiber.Ctx) error {
 	return nil
 }
 
-// Score Handlers
+// InputScore godoc
+// @Summary Input single score
+// @Description Input an individual score
+// @Tags Assessment
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param eventId path string true "Event ID"
+// @Param req body dto.InputScoreReq true "Score Input Details"
+// @Success 201 {object} map[string]interface{}
+// @Router /api/v1/eo/events/{eventId}/assessment/scores [post]
 func (c *assessmentController) InputScore(ctx *fiber.Ctx) error {
 	var (
 		err     error

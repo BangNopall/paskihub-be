@@ -27,6 +27,16 @@ func InitFormPenilaianController(
 	routes.Post("/violations/bulk", middleware.Authentication, middleware.RateLimiter(), middleware.AuthOrganizer, c.BulkInsertViolations)
 }
 
+// BulkInsertScores godoc
+// @Summary Bulk insert scores
+// @Description Insert multiple scores for a team
+// @Tags Assessment
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param req body dto.BulkInsertScoresRequest true "Bulk Scores Request"
+// @Success 200 {object} map[string]interface{}
+// @Router /api/v1/assessment/scores/bulk [post]
 func (c *formPenilaianController) BulkInsertScores(ctx *fiber.Ctx) error {
 	var (
 		err     error
@@ -55,6 +65,16 @@ func (c *formPenilaianController) BulkInsertScores(ctx *fiber.Ctx) error {
 	return nil
 }
 
+// BulkInsertViolations godoc
+// @Summary Bulk insert violations
+// @Description Insert multiple violations for a team
+// @Tags Assessment
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param req body dto.BulkInsertViolationsRequest true "Bulk Violations Request"
+// @Success 200 {object} map[string]interface{}
+// @Router /api/v1/assessment/violations/bulk [post]
 func (c *formPenilaianController) BulkInsertViolations(ctx *fiber.Ctx) error {
 	var (
 		err     error

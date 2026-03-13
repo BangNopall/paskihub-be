@@ -14,6 +14,7 @@ import (
 	"github.com/BangNopall/paskihub-be/pkg/uuid"
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/swagger"
 	"github.com/robfig/cron/v3"
 	"gorm.io/gorm"
 
@@ -32,6 +33,22 @@ import (
 	assessmentCtr "github.com/BangNopall/paskihub-be/internal/app/assessment/controller"
 	assessmentRepo "github.com/BangNopall/paskihub-be/internal/app/assessment/repository"
 	assessmentSvc "github.com/BangNopall/paskihub-be/internal/app/assessment/service"
+
+	pProfileCtr "github.com/BangNopall/paskihub-be/internal/app/participant_profile/controller"
+	pProfileRepo "github.com/BangNopall/paskihub-be/internal/app/participant_profile/repository"
+	pProfileSvc "github.com/BangNopall/paskihub-be/internal/app/participant_profile/service"
+
+	pTeamCtr "github.com/BangNopall/paskihub-be/internal/app/participant_team/controller"
+	pTeamRepo "github.com/BangNopall/paskihub-be/internal/app/participant_team/repository"
+	pTeamSvc "github.com/BangNopall/paskihub-be/internal/app/participant_team/service"
+
+	pEventCtr "github.com/BangNopall/paskihub-be/internal/app/participant_event/controller"
+	pEventRepo "github.com/BangNopall/paskihub-be/internal/app/participant_event/repository"
+	pEventSvc "github.com/BangNopall/paskihub-be/internal/app/participant_event/service"
+
+	pAssessCtr "github.com/BangNopall/paskihub-be/internal/app/participant_assessment/controller"
+	pAssessRepo "github.com/BangNopall/paskihub-be/internal/app/participant_assessment/repository"
+	pAssessSvc "github.com/BangNopall/paskihub-be/internal/app/participant_assessment/service"
 )
 
 type Server interface {
@@ -65,6 +82,7 @@ func (s *httpServer) Start(port string) {
 	}
 
 	s.app.Static("/public", "./public")
+	s.app.Get("/swagger/*", swagger.HandlerDefault)
 	err := s.app.Listen(port)
 
 	if err != nil {
@@ -101,6 +119,11 @@ func (s *httpServer) MountRoutes(db *gorm.DB) {
 	formPenilaianRepo := assessmentRepo.NewFormPenilaianRepository(db)
 	rekapRepo := assessmentRepo.NewRekapRepository(db)
 
+	pProfileRepoIns := pProfileRepo.NewParticipantProfileRepository(db)
+	pTeamRepoIns := pTeamRepo.NewParticipantTeamRepository(db)
+	pEventRepoIns := pEventRepo.NewParticipantEventRepository(db)
+	pAssessRepoIns := pAssessRepo.NewParticipantAssessmentRepository(db)
+
 	// middleware
 	middleware := middlewares.NewMiddleware(
 		jwt,
@@ -115,12 +138,31 @@ func (s *httpServer) MountRoutes(db *gorm.DB) {
 	formPenilaianSvc := assessmentSvc.NewFormPenilaianService(formPenilaianRepo, db, s.validator)
 	rekapSvc := assessmentSvc.NewRekapService(rekapRepo)
 
+	pProfileSvcIns := pProfileSvc.NewParticipantProfileService(pProfileRepoIns)
+	pTeamSvcIns := pTeamSvc.NewParticipantTeamService(pTeamRepoIns, pProfileRepoIns)
+	pEventSvcIns := pEventSvc.NewParticipantEventService(pEventRepoIns)
+	pAssessSvcIns := pAssessSvc.NewParticipantAssessmentService(pAssessRepoIns)
+
 	// Controller
 	userCtr.InitUserController(userSvc, s.app, middleware, redis)
 	eventCtr.InitEventController(eventSvc, s.app, middleware, redis)
 	walletCtr.InitWalletController(walletSvc, s.app, middleware, redis)
 	assessmentCtr.InitFormPenilaianController(formPenilaianSvc, s.app, middleware)
 	assessmentCtr.InitRekapController(rekapSvc, s.app, middleware)
+
+	pesertaGrp := s.app.Group("/api/v1/peserta", middleware.Authentication, middleware.RateLimiter(), middleware.AuthPeserta)
+
+	pProfileController := pProfileCtr.NewParticipantProfileController(pProfileSvcIns, s.validator)
+	pProfileController.Route(pesertaGrp)
+
+	pTeamController := pTeamCtr.NewParticipantTeamController(pTeamSvcIns, s.validator)
+	pTeamController.Route(pesertaGrp)
+
+	pEventController := pEventCtr.NewParticipantEventController(pEventSvcIns, s.validator)
+	pEventController.Route(pesertaGrp)
+
+	pAssessController := pAssessCtr.NewParticipantAssessmentController(pAssessSvcIns)
+	pAssessController.Route(pesertaGrp)
 
 	// cronjob
 	_, err := s.scheduler.AddFunc("0 0 * * 0", userSvc.DeleteUnverifiedUsers)

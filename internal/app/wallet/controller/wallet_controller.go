@@ -41,6 +41,15 @@ func InitWalletController(
 	walletRouter.Put("/admin/transactions/:transactionId/reject", middleware.Authentication, middleware.RateLimiter(), middleware.AuthAdmin, walletController.RejectTopUp)
 }
 
+// GetWalletInfo godoc
+// @Summary Get wallet info
+// @Description Get wallet information for an event
+// @Tags Wallets
+// @Security BearerAuth
+// @Produce json
+// @Param eventId path string true "Event ID"
+// @Success 200 {object} map[string]interface{}
+// @Router /api/v1/wallets/{eventId} [get]
 func (c *walletController) GetWalletInfo(ctx *fiber.Ctx) error {
 	var (
 		err     error
@@ -67,6 +76,15 @@ func (c *walletController) GetWalletInfo(ctx *fiber.Ctx) error {
 	return nil
 }
 
+// GetTransactionLogs godoc
+// @Summary Get transaction logs
+// @Description Get all transaction logs for an event wallet
+// @Tags Wallets
+// @Security BearerAuth
+// @Produce json
+// @Param eventId path string true "Event ID"
+// @Success 200 {object} map[string]interface{}
+// @Router /api/v1/wallets/{eventId}/logs [get]
 func (c *walletController) GetTransactionLogs(ctx *fiber.Ctx) error {
 	var (
 		err     error
@@ -93,6 +111,19 @@ func (c *walletController) GetTransactionLogs(ctx *fiber.Ctx) error {
 	return nil
 }
 
+// RequestTopUp godoc
+// @Summary Request wallet top-up
+// @Description Submit a top-up request for an event wallet
+// @Tags Wallets
+// @Security BearerAuth
+// @Accept multipart/form-data
+// @Produce json
+// @Param eventId path string true "Event ID"
+// @Param amount formData number true "Top-up Amount"
+// @Param coupon_code formData string false "Coupon Code"
+// @Param proof formData file true "Transfer Proof Image"
+// @Success 200 {object} map[string]interface{}
+// @Router /api/v1/wallets/{eventId}/topup [post]
 func (c *walletController) RequestTopUp(ctx *fiber.Ctx) error {
 	var (
 		err     error
@@ -141,6 +172,15 @@ func (c *walletController) RequestTopUp(ctx *fiber.Ctx) error {
 	return nil
 }
 
+// ApproveTopUp godoc
+// @Summary Approve top-up (Admin)
+// @Description Approve a pending top-up transaction
+// @Tags Wallets
+// @Security BearerAuth
+// @Produce json
+// @Param transactionId path string true "Transaction ID"
+// @Success 200 {object} map[string]interface{}
+// @Router /api/v1/wallets/admin/transactions/{transactionId}/approve [put]
 func (c *walletController) ApproveTopUp(ctx *fiber.Ctx) error {
 	var (
 		err     error
@@ -167,6 +207,15 @@ func (c *walletController) ApproveTopUp(ctx *fiber.Ctx) error {
 	return nil
 }
 
+// RejectTopUp godoc
+// @Summary Reject top-up (Admin)
+// @Description Reject a pending top-up transaction
+// @Tags Wallets
+// @Security BearerAuth
+// @Produce json
+// @Param transactionId path string true "Transaction ID"
+// @Success 200 {object} map[string]interface{}
+// @Router /api/v1/wallets/admin/transactions/{transactionId}/reject [put]
 func (c *walletController) RejectTopUp(ctx *fiber.Ctx) error {
 	var (
 		err     error

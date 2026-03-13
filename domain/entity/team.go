@@ -31,7 +31,7 @@ type TeamMember struct {
 	FullName   string         `json:"full_name" gorm:"type:varchar(255);"`
 	Role       enums.TeamType `json:"role" gorm:"type:team_type;"`
 	IdCardPath string         `json:"id_card_path" gorm:"type:varchar(255);"`
-
+	PhotoPath  string         `json:"photo_path" gorm:"type:varchar(255);"`
 	CreatedAt time.Time `json:"created_at" gorm:"autoCreateTime;"`
 	UpdatedAt time.Time `json:"updated_at" gorm:"autoUpdateTime;"`
 

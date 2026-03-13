@@ -38,6 +38,16 @@ func InitUserController(
 	userRouter.Post("/forgot-password", middleware.RateLimiter(), userController.ForgotPassword)
 }
 
+// Register godoc
+// @Summary Register a new user
+// @Description Register a new user with specific role (eo or peserta)
+// @Tags Users
+// @Accept json
+// @Produce json
+// @Param role path string true "User Role"
+// @Param user body dto.UserRegister true "User Data"
+// @Success 200 {object} map[string]interface{}
+// @Router /api/v1/users/register/{role} [post]
 func (c *userController) Register(ctx *fiber.Ctx) error {
 	var (
 		err     error
@@ -79,6 +89,15 @@ func (c *userController) Register(ctx *fiber.Ctx) error {
 	return nil
 }
 
+// Login godoc
+// @Summary User login
+// @Description Login with email and password
+// @Tags Users
+// @Accept json
+// @Produce json
+// @Param user body dto.UserLogin true "Login Credentials"
+// @Success 200 {object} map[string]interface{}
+// @Router /api/v1/users/login [post]
 func (c *userController) Login(ctx *fiber.Ctx) error {
 	var (
 		err     error
@@ -118,6 +137,15 @@ func (c *userController) Login(ctx *fiber.Ctx) error {
 	return nil
 }
 
+// VerifyEmail godoc
+// @Summary Verify user email
+// @Description Verify email using token sent to user email
+// @Tags Users
+// @Produce json
+// @Param email path string true "User Email"
+// @Param emailVerPass path string true "Verification Password"
+// @Success 200 {object} map[string]interface{}
+// @Router /api/v1/users/verify-email/{email}/{emailVerPass} [get]
 func (c *userController) VerifyEmail(ctx *fiber.Ctx) error {
 	var (
 		err     error
@@ -152,6 +180,16 @@ func (c *userController) VerifyEmail(ctx *fiber.Ctx) error {
 	return nil
 }
 
+// ResetPassword godoc
+// @Summary Reset user password
+// @Description Reset password using reset token
+// @Tags Users
+// @Accept json
+// @Produce json
+// @Param token path string true "Reset Token"
+// @Param user body dto.UserResetPassword true "New Password"
+// @Success 200 {object} map[string]interface{}
+// @Router /api/v1/users/reset-password/{token} [put]
 func (c *userController) ResetPassword(ctx *fiber.Ctx) error {
 	var (
 		err     error
@@ -192,6 +230,15 @@ func (c *userController) ResetPassword(ctx *fiber.Ctx) error {
 	return nil
 }
 
+// ForgotPassword godoc
+// @Summary Forgot user password
+// @Description Request a password reset link to user email
+// @Tags Users
+// @Accept json
+// @Produce json
+// @Param user body dto.UserForgotPassword true "User Email"
+// @Success 200 {object} map[string]interface{}
+// @Router /api/v1/users/forgot-password [post]
 func (c *userController) ForgotPassword(ctx *fiber.Ctx) error {
 	var (
 		err     error
@@ -231,6 +278,14 @@ func (c *userController) ForgotPassword(ctx *fiber.Ctx) error {
 	return nil
 }
 
+// Logout godoc
+// @Summary User logout
+// @Description Logout user and invalidate token
+// @Tags Users
+// @Security BearerAuth
+// @Produce json
+// @Success 200 {object} map[string]interface{}
+// @Router /api/v1/users/logout [post]
 func (c *userController) Logout(ctx *fiber.Ctx) error {
 	var (
 		err     error

@@ -55,6 +55,16 @@ func setCodeFromError(err error) int {
 	return http.StatusBadRequest
 }
 
+// GetListTeam godoc
+// @Summary Get list of teams
+// @Description Retrieve a list of team registrations for an event (Event Organizer)
+// @Tags EO Team
+// @Security BearerAuth
+// @Produce json
+// @Param eventId path string true "Event ID"
+// @Param event_level_id query string false "Event Level ID filter"
+// @Success 200 {object} map[string]interface{}
+// @Router /api/v1/eo/events/{eventId}/teams [get]
 func (c *eoTeamController) GetListTeam(ctx *fiber.Ctx) error {
 	var (
 		err     error
@@ -95,6 +105,16 @@ func (c *eoTeamController) GetListTeam(ctx *fiber.Ctx) error {
 	return nil
 }
 
+// GetDetailTeam godoc
+// @Summary Get team details
+// @Description Retrieve details of a specific team registration
+// @Tags EO Team
+// @Security BearerAuth
+// @Produce json
+// @Param eventId path string true "Event ID"
+// @Param registrationId path string true "Registration ID"
+// @Success 200 {object} map[string]interface{}
+// @Router /api/v1/eo/events/{eventId}/teams/{registrationId} [get]
 func (c *eoTeamController) GetDetailTeam(ctx *fiber.Ctx) error {
 	var (
 		err     error
@@ -134,6 +154,18 @@ func (c *eoTeamController) GetDetailTeam(ctx *fiber.Ctx) error {
 	return nil
 }
 
+// ApproveTeam godoc
+// @Summary Approve team registration
+// @Description Approve a team's registration
+// @Tags EO Team
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param eventId path string true "Event ID"
+// @Param registrationId path string true "Registration ID"
+// @Param req body dto.EOTeamApproveReq true "Approval Details"
+// @Success 200 {object} map[string]interface{}
+// @Router /api/v1/eo/events/{eventId}/teams/{registrationId}/approve [put]
 func (c *eoTeamController) ApproveTeam(ctx *fiber.Ctx) error {
 	var (
 		err     error
@@ -180,6 +212,18 @@ func (c *eoTeamController) ApproveTeam(ctx *fiber.Ctx) error {
 	return nil
 }
 
+// RejectTeam godoc
+// @Summary Reject team registration
+// @Description Reject a pending team registration
+// @Tags EO Team
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param eventId path string true "Event ID"
+// @Param registrationId path string true "Registration ID"
+// @Param req body dto.EOTeamRejectReq true "Rejection Reason"
+// @Success 200 {object} map[string]interface{}
+// @Router /api/v1/eo/events/{eventId}/teams/{registrationId}/reject [put]
 func (c *eoTeamController) RejectTeam(ctx *fiber.Ctx) error {
 	var (
 		err     error
@@ -226,6 +270,16 @@ func (c *eoTeamController) RejectTeam(ctx *fiber.Ctx) error {
 	return nil
 }
 
+// KickTeam godoc
+// @Summary Kick team
+// @Description Disqualify or kick an approved team
+// @Tags EO Team
+// @Security BearerAuth
+// @Produce json
+// @Param eventId path string true "Event ID"
+// @Param registrationId path string true "Registration ID"
+// @Success 200 {object} map[string]interface{}
+// @Router /api/v1/eo/events/{eventId}/teams/{registrationId}/kick [put]
 func (c *eoTeamController) KickTeam(ctx *fiber.Ctx) error {
 	var (
 		err     error
