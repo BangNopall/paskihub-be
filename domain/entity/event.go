@@ -40,9 +40,10 @@ type EventLevel struct {
 	Id        uuid.UUID `json:"id" gorm:"type:uuid;primarykey"`
 	EventId   uuid.UUID `json:"event_id" gorm:"type:uuid;index:idx_event_level_id"`
 	Name      string    `json:"name" gorm:"type:varchar(255);"`
-	RegisFee  string    `json:"regis_fee" gorm:"type:varchar(255)"`
-	DpFee     string    `json:"dp_fee" gorm:"type:varchar(255)"`
-	CreatedAt time.Time `json:"created_at" gorm:"autoCreateTime;"`
+	RegisFee         string    `json:"regis_fee" gorm:"type:varchar(255)"`
+	DpFee            string    `json:"dp_fee" gorm:"type:varchar(255)"`
+	IsScorePublished bool      `json:"is_score_published" gorm:"type:bool;default:false"`
+	CreatedAt        time.Time `json:"created_at" gorm:"autoCreateTime;"`
 	UpdatedAt time.Time `json:"updated_at" gorm:"autoUpdateTime;"`
 
 	Event Event `json:"event" gorm:"foreignKey:EventId;references:Id;"`

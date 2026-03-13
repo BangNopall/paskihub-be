@@ -28,6 +28,10 @@ import (
 	walletCtr "github.com/BangNopall/paskihub-be/internal/app/wallet/controller"
 	walletRepo "github.com/BangNopall/paskihub-be/internal/app/wallet/repository"
 	walletSvc "github.com/BangNopall/paskihub-be/internal/app/wallet/service"
+
+	assessmentCtr "github.com/BangNopall/paskihub-be/internal/app/assessment/controller"
+	assessmentRepo "github.com/BangNopall/paskihub-be/internal/app/assessment/repository"
+	assessmentSvc "github.com/BangNopall/paskihub-be/internal/app/assessment/service"
 )
 
 type Server interface {
@@ -94,6 +98,8 @@ func (s *httpServer) MountRoutes(db *gorm.DB) {
 	userRepo := userRepo.NewUserRepository(db)
 	eventRepo := eventRepo.NewEventRepository(db)
 	walletRepo := walletRepo.NewWalletRepository(db)
+	formPenilaianRepo := assessmentRepo.NewFormPenilaianRepository(db)
+	rekapRepo := assessmentRepo.NewRekapRepository(db)
 
 	// middleware
 	middleware := middlewares.NewMiddleware(
@@ -106,11 +112,15 @@ func (s *httpServer) MountRoutes(db *gorm.DB) {
 	userSvc := userSvc.NewUserService(userRepo, uuid, bcrypt, timePkg, gomail, jwt, redis, time.Second*15)
 	eventSvc := eventSvc.NewEventService(eventRepo, walletRepo, uuid, timePkg, time.Second*15)
 	walletSvc := walletSvc.NewWalletService(walletRepo, eventRepo, uuid, time.Second*15)
+	formPenilaianSvc := assessmentSvc.NewFormPenilaianService(formPenilaianRepo, db, s.validator)
+	rekapSvc := assessmentSvc.NewRekapService(rekapRepo)
 
 	// Controller
 	userCtr.InitUserController(userSvc, s.app, middleware, redis)
 	eventCtr.InitEventController(eventSvc, s.app, middleware, redis)
 	walletCtr.InitWalletController(walletSvc, s.app, middleware, redis)
+	assessmentCtr.InitFormPenilaianController(formPenilaianSvc, s.app, middleware)
+	assessmentCtr.InitRekapController(rekapSvc, s.app, middleware)
 
 	// cronjob
 	_, err := s.scheduler.AddFunc("0 0 * * 0", userSvc.DeleteUnverifiedUsers)

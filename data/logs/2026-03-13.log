@@ -1,0 +1,9 @@
+{"level":"info","msg":"Application is running on development mode","time":"2026-03-13T13:20:43+07:00"}
+{"level":"info","msg":"[PGSQL CONN][Migrate] Dropping All Tables","time":"2026-03-13T13:20:43+07:00"}
+{"level":"info","msg":"[PGSQL CONN][Migrate] Auto Migrating Tables","time":"2026-03-13T13:20:43+07:00"}
+{"level":"info","msg":"Application is running on development mode","time":"2026-03-13T13:22:06+07:00"}
+{"level":"info","msg":"[PGSQL CONN][Migrate] Dropping All Tables","time":"2026-03-13T13:22:06+07:00"}
+{"level":"info","msg":"[PGSQL CONN][Migrate] Auto Migrating Tables","time":"2026-03-13T13:22:07+07:00"}
+{"level":"info","msg":"Application is running on development mode","time":"2026-03-13T13:23:20+07:00"}
+{"level":"info","msg":"[PGSQL CONN][Migrate] Dropping All Tables","time":"2026-03-13T13:23:20+07:00"}
+{"level":"info","msg":"[PGSQL CONN][Migrate] Auto Migrating Tables","time":"2026-03-13T13:23:20+07:00"}

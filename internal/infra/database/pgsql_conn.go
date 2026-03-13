@@ -20,11 +20,21 @@ const SEEDERS_PROD_PATH = SEEDERS_FILE_PATH + "prod/"
 func getInterfaces() []interface{} {
 	return []interface{}{
 		&entity.User{},
+		&entity.Institution{},
 		&entity.Event{},
 		&entity.EventLevel{},
+		&entity.Team{},
+		&entity.TeamMember{},
 		&entity.Registration{},
 		&entity.Wallet{},
 		&entity.WalletTransaction{},
+		&entity.TeamViolation{},
+		&entity.ScoreSubCategory{},
+		&entity.ScoreCategory{},
+		&entity.Judge{},
+		&entity.ViolationType{},
+		&entity.GradeRule{},
+		&entity.Score{},
 	}
 }
 
@@ -71,6 +81,8 @@ func Migrate(db *gorm.DB, args []string) {
 	log.Info(nil, "[PGSQL CONN][Migrate] Auto Migrating Tables")
 
 	db.Exec(`
+		CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
 		DO $$ BEGIN
 			CREATE TYPE role AS ENUM (
 				'ADMIN',

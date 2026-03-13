@@ -15,9 +15,9 @@ type Judge struct {
 }
 
 type ScoreCategory struct {
-	ID            uuid.UUID          `gorm:"type:uuid;primaryKey;default:uuid_generate_v4()"`
-	EventID       uuid.UUID          `gorm:"type:uuid;not null"`
-	Name          string             `gorm:"type:varchar(255);not null"`
+	ID            uuid.UUID `gorm:"type:uuid;primaryKey;default:uuid_generate_v4()"`
+	EventID       uuid.UUID `gorm:"type:uuid;not null"`
+	Name          string    `gorm:"type:varchar(255);not null"`
 	UpdatedAt     time.Time
 	CreatedAt     time.Time
 	SubCategories []ScoreSubCategory `gorm:"foreignKey:ScoreCategoriesID;references:ID"`
@@ -59,4 +59,21 @@ type Score struct {
 	Grade         string    `gorm:"type:varchar(50);not null"`
 	UpdatedAt     time.Time
 	CreatedAt     time.Time
+
+	Registration     Registration     `json:"registration" gorm:"foreignKey:RegisID;references:Id;"`
+	Judge            Judge            `json:"judge" gorm:"foreignKey:JudgesID;references:ID;"`
+	ScoreSubCategory ScoreSubCategory `json:"score_sub_category" gorm:"foreignKey:SubCategoryID;references:ID;"`
+}
+
+type TeamViolation struct {
+	ID              uuid.UUID `gorm:"type:uuid;primaryKey;default:uuid_generate_v4()"`
+	RegisID         uuid.UUID `gorm:"type:uuid;not null"`
+	JudgesID        uuid.UUID `gorm:"type:uuid;not null"`
+	ViolationTypeID uuid.UUID `gorm:"type:uuid;not null"`
+	UpdatedAt       time.Time
+	CreatedAt       time.Time
+
+	Registration  Registration  `json:"registration" gorm:"foreignKey:RegisID;references:Id;"`
+	Judge         Judge         `json:"judge" gorm:"foreignKey:JudgesID;references:ID;"`
+	ViolationType ViolationType `json:"violation_type" gorm:"foreignKey:ViolationTypeID;references:ID;"`
 }
