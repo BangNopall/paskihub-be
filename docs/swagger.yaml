@@ -2003,6 +2003,8 @@ paths:
       - Wallets
 schemes:
 - http
+security:
+- ApiKeyAuth: []
 securityDefinitions:
   ApiKeyAuth:
     description: 'API Key for all endpoints. Format: Key {api_key}. Example: Key abc123'

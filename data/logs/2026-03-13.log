@@ -69,3 +69,6 @@
 {"level":"info","msg":"[PGSQL CONN][Migrate] Auto Migrating Tables","time":"2026-03-13T21:07:18+07:00"}
 {"level":"info","msg":"Application is running on development mode","time":"2026-03-13T21:12:10+07:00"}
 {"level":"info","msg":"[PGSQL CONN][Migrate] Auto Migrating Tables","time":"2026-03-13T21:12:10+07:00"}
+{"level":"info","msg":"Application is running on development mode","time":"2026-03-13T21:29:56+07:00"}
+{"level":"info","msg":"[PGSQL CONN][Migrate] Auto Migrating Tables","time":"2026-03-13T21:29:56+07:00"}
+{"error":"gomail: could not send email 1: gomail: invalid address \"noxvalproject\": mail: missing '@' or angle-addr","level":"warning","msg":"[GOMAIL][SendEmail]failed to send email","time":"2026-03-13T21:38:33+07:00"}

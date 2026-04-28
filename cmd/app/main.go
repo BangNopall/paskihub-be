@@ -12,6 +12,7 @@ import (
 // @title						Paskihub API
 // @version					1.0
 // @description				This is Paskihub API Documentation
+// @Security ApiKeyAuth
 // @host						localhost:3010
 // @schemes					http
 // @BasePath 				/
