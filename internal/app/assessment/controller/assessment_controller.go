@@ -70,7 +70,7 @@ func getUserId(ctx *fiber.Ctx) (uuid.UUID, error) {
 // @Summary Create judge
 // @Description Create a judge for an event
 // @Tags Judges
-// @Security BearerAuth
+// @Security ApiKeyAuth && BearerAuth
 // @Accept json
 // @Produce json
 // @Param eventId path string true "Event ID"
@@ -112,7 +112,7 @@ func (c *assessmentController) CreateJudge(ctx *fiber.Ctx) error {
 // @Summary Get judges
 // @Description Get all judges for an event
 // @Tags Judges
-// @Security BearerAuth
+// @Security ApiKeyAuth && BearerAuth
 // @Produce json
 // @Param eventId path string true "Event ID"
 // @Success 200 {object} map[string]interface{}
@@ -142,7 +142,7 @@ func (c *assessmentController) GetJudges(ctx *fiber.Ctx) error {
 // @Summary Update judge
 // @Description Update judge details
 // @Tags Judges
-// @Security BearerAuth
+// @Security ApiKeyAuth && BearerAuth
 // @Accept json
 // @Produce json
 // @Param eventId path string true "Event ID"
@@ -182,7 +182,7 @@ func (c *assessmentController) UpdateJudge(ctx *fiber.Ctx) error {
 // @Summary Delete judge
 // @Description Remove judge from an event
 // @Tags Judges
-// @Security BearerAuth
+// @Security ApiKeyAuth && BearerAuth
 // @Produce json
 // @Param eventId path string true "Event ID"
 // @Param id path string true "Judge ID"
@@ -214,7 +214,7 @@ func (c *assessmentController) DeleteJudge(ctx *fiber.Ctx) error {
 // @Summary Create violation type
 // @Description Create a new violation type
 // @Tags Violation Types
-// @Security BearerAuth
+// @Security ApiKeyAuth && BearerAuth
 // @Accept json
 // @Produce json
 // @Param eventId path string true "Event ID"
@@ -254,7 +254,7 @@ func (c *assessmentController) CreateViolationType(ctx *fiber.Ctx) error {
 // @Summary Get violation types
 // @Description Get all violation types for an event
 // @Tags Violation Types
-// @Security BearerAuth
+// @Security ApiKeyAuth && BearerAuth
 // @Produce json
 // @Param eventId path string true "Event ID"
 // @Success 200 {object} map[string]interface{}
@@ -284,7 +284,7 @@ func (c *assessmentController) GetViolationTypes(ctx *fiber.Ctx) error {
 // @Summary Update violation type
 // @Description Update violation type details
 // @Tags Violation Types
-// @Security BearerAuth
+// @Security ApiKeyAuth && BearerAuth
 // @Accept json
 // @Produce json
 // @Param eventId path string true "Event ID"
@@ -324,7 +324,7 @@ func (c *assessmentController) UpdateViolationType(ctx *fiber.Ctx) error {
 // @Summary Delete violation type
 // @Description Remove violation type from an event
 // @Tags Violation Types
-// @Security BearerAuth
+// @Security ApiKeyAuth && BearerAuth
 // @Produce json
 // @Param eventId path string true "Event ID"
 // @Param id path string true "Violation Type ID"
@@ -356,7 +356,7 @@ func (c *assessmentController) DeleteViolationType(ctx *fiber.Ctx) error {
 // @Summary Create score category
 // @Description Create a new score category
 // @Tags Score Categories
-// @Security BearerAuth
+// @Security ApiKeyAuth && BearerAuth
 // @Accept json
 // @Produce json
 // @Param eventId path string true "Event ID"
@@ -396,7 +396,7 @@ func (c *assessmentController) CreateScoreCategory(ctx *fiber.Ctx) error {
 // @Summary Get score categories
 // @Description Get all score categories for an event
 // @Tags Score Categories
-// @Security BearerAuth
+// @Security ApiKeyAuth && BearerAuth
 // @Produce json
 // @Param eventId path string true "Event ID"
 // @Success 200 {object} map[string]interface{}
@@ -426,7 +426,7 @@ func (c *assessmentController) GetScoreCategories(ctx *fiber.Ctx) error {
 // @Summary Update score category
 // @Description Update score category details
 // @Tags Score Categories
-// @Security BearerAuth
+// @Security ApiKeyAuth && BearerAuth
 // @Accept json
 // @Produce json
 // @Param eventId path string true "Event ID"
@@ -466,7 +466,7 @@ func (c *assessmentController) UpdateScoreCategory(ctx *fiber.Ctx) error {
 // @Summary Delete score category
 // @Description Remove score category from an event
 // @Tags Score Categories
-// @Security BearerAuth
+// @Security ApiKeyAuth && BearerAuth
 // @Produce json
 // @Param eventId path string true "Event ID"
 // @Param id path string true "Score Category ID"
@@ -498,7 +498,7 @@ func (c *assessmentController) DeleteScoreCategory(ctx *fiber.Ctx) error {
 // @Summary Create score sub category
 // @Description Create a new score sub category
 // @Tags Score Sub Categories
-// @Security BearerAuth
+// @Security ApiKeyAuth && BearerAuth
 // @Accept json
 // @Produce json
 // @Param eventId path string true "Event ID"
@@ -538,7 +538,7 @@ func (c *assessmentController) CreateScoreSubCategory(ctx *fiber.Ctx) error {
 // @Summary Update score sub category
 // @Description Update score sub category details
 // @Tags Score Sub Categories
-// @Security BearerAuth
+// @Security ApiKeyAuth && BearerAuth
 // @Accept json
 // @Produce json
 // @Param eventId path string true "Event ID"
@@ -578,7 +578,7 @@ func (c *assessmentController) UpdateScoreSubCategory(ctx *fiber.Ctx) error {
 // @Summary Delete score sub category
 // @Description Remove score sub category from an event
 // @Tags Score Sub Categories
-// @Security BearerAuth
+// @Security ApiKeyAuth && BearerAuth
 // @Produce json
 // @Param eventId path string true "Event ID"
 // @Param id path string true "Score Sub Category ID"
@@ -610,7 +610,7 @@ func (c *assessmentController) DeleteScoreSubCategory(ctx *fiber.Ctx) error {
 // @Summary Setup grade rules
 // @Description Configure grade rule mapping for an event
 // @Tags Assessment
-// @Security BearerAuth
+// @Security ApiKeyAuth && BearerAuth
 // @Accept json
 // @Produce json
 // @Param eventId path string true "Event ID"
@@ -647,7 +647,7 @@ func (c *assessmentController) SetupGradeRules(ctx *fiber.Ctx) error {
 // @Summary Get grade rules
 // @Description Get existing grade rules for an event
 // @Tags Assessment
-// @Security BearerAuth
+// @Security ApiKeyAuth && BearerAuth
 // @Produce json
 // @Param eventId path string true "Event ID"
 // @Success 200 {object} map[string]interface{}
@@ -677,7 +677,7 @@ func (c *assessmentController) GetGradeRules(ctx *fiber.Ctx) error {
 // @Summary Input single score
 // @Description Input an individual score
 // @Tags Assessment
-// @Security BearerAuth
+// @Security ApiKeyAuth && BearerAuth
 // @Accept json
 // @Produce json
 // @Param eventId path string true "Event ID"

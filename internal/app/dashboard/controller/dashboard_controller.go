@@ -29,7 +29,7 @@ func InitDashboardController(
 // @Summary Get organizer dashboard
 // @Description Get dashboard statistics and activities for organizer
 // @Tags Dashboard
-// @Security BearerAuth
+// @Security ApiKeyAuth && BearerAuth
 // @Produce json
 // @Success 200 {object} map[string]interface{}
 // @Router /api/v1/organizer/dashboard [get]
@@ -51,7 +51,7 @@ func (c *dashboardController) GetOrganizerDashboard(ctx *fiber.Ctx) error {
 // @Summary Get participant dashboard
 // @Description Get dashboard statistics and activities for participant
 // @Tags Dashboard
-// @Security BearerAuth
+// @Security ApiKeyAuth && BearerAuth
 // @Produce json
 // @Success 200 {object} map[string]interface{}
 // @Router /api/v1/peserta/dashboard [get]

@@ -18,6 +18,8 @@ type User struct {
 	ExpiredToken        time.Time  `json:"-" gorm:"type:timestamp"`
 	ExpiredTokenForgot  time.Time  `json:"-" gorm:"type:timestamp"`
 
+	ParentId *uuid.UUID `json:"parent_id" gorm:"type:uuid;default:null;"`
+
 	CreatedAt time.Time `json:"created_at" gorm:"autoCreateTime;"`
 	UpdatedAt time.Time `json:"updated_at" gorm:"autoUpdateTime;"`
 

@@ -58,6 +58,10 @@ import (
 	dashboardCtr "github.com/BangNopall/paskihub-be/internal/app/dashboard/controller"
 	dashboardRepo "github.com/BangNopall/paskihub-be/internal/app/dashboard/repository"
 	dashboardSvc "github.com/BangNopall/paskihub-be/internal/app/dashboard/service"
+
+	eoCtr "github.com/BangNopall/paskihub-be/internal/app/eo/controller"
+	eoRepo "github.com/BangNopall/paskihub-be/internal/app/eo/repository"
+	eoSvc "github.com/BangNopall/paskihub-be/internal/app/eo/service"
 )
 
 type Server interface {
@@ -140,6 +144,7 @@ func (s *httpServer) MountRoutes(db *gorm.DB) {
 	pAssessRepoIns := pAssessRepo.NewParticipantAssessmentRepository(db)
 	eoTeamRepoIns := eoTeamRepo.NewEOTeamRepository(db)
 	dashboardRepoIns := dashboardRepo.NewDashboardRepository(db)
+	eoRepoIns := eoRepo.NewEORepository(db)
 
 	// middleware
 	middleware := middlewares.NewMiddleware(
@@ -163,6 +168,7 @@ func (s *httpServer) MountRoutes(db *gorm.DB) {
 	pAssessSvcIns := pAssessSvc.NewParticipantAssessmentService(pAssessRepoIns)
 	eoTeamSvcIns := eoTeamSvc.NewEOTeamService(eoTeamRepoIns)
 	dashboardSvcIns := dashboardSvc.NewDashboardService(dashboardRepoIns)
+	eoSvcIns := eoSvc.NewEOService(eoRepoIns, userRepo, bcrypt, uuid, time.Second*15)
 
 	// Controller
 	userCtr.InitUserController(userSvc, s.app, middleware, redis)
@@ -174,6 +180,9 @@ func (s *httpServer) MountRoutes(db *gorm.DB) {
 	assessmentCtr.InitAssessmentController(assessmentSvcIns, s.app, middleware)
 	eoTeamCtr.InitEOTeamController(eoTeamSvcIns, s.app, middleware)
 	dashboardCtr.InitDashboardController(dashboardSvcIns, s.app, middleware)
+
+	eoControllerIns := eoCtr.NewEOController(eoSvcIns, s.validator)
+	eoControllerIns.Route(s.app, middleware)
 
 	pesertaGrp := s.app.Group("/api/v1/peserta", middleware.Authentication, middleware.RateLimiter(), middleware.AuthPeserta)
 

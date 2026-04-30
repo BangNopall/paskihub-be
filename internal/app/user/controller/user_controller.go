@@ -142,6 +142,7 @@ func (c *userController) GetAdmins(ctx *fiber.Ctx) error {
 // @Param role path string true "User Role"
 // @Param user body dto.UserRegister true "User Data"
 // @Success 200 {object} map[string]interface{}
+// @Security ApiKeyAuth
 // @Router /api/v1/users/register/{role} [post]
 func (c *userController) Register(ctx *fiber.Ctx) error {
 	var (
@@ -192,6 +193,7 @@ func (c *userController) Register(ctx *fiber.Ctx) error {
 // @Produce json
 // @Param user body dto.UserLogin true "Login Credentials"
 // @Success 200 {object} map[string]interface{}
+// @Security ApiKeyAuth
 // @Router /api/v1/users/login [post]
 func (c *userController) Login(ctx *fiber.Ctx) error {
 	var (
@@ -240,6 +242,7 @@ func (c *userController) Login(ctx *fiber.Ctx) error {
 // @Param email path string true "User Email"
 // @Param emailVerPass path string true "Verification Password"
 // @Success 200 {object} map[string]interface{}
+// @Security ApiKeyAuth
 // @Router /api/v1/users/verify-email/{email}/{emailVerPass} [get]
 func (c *userController) VerifyEmail(ctx *fiber.Ctx) error {
 	var (
@@ -284,6 +287,7 @@ func (c *userController) VerifyEmail(ctx *fiber.Ctx) error {
 // @Param token path string true "Reset Token"
 // @Param user body dto.UserResetPassword true "New Password"
 // @Success 200 {object} map[string]interface{}
+// @Security ApiKeyAuth
 // @Router /api/v1/users/reset-password/{token} [put]
 func (c *userController) ResetPassword(ctx *fiber.Ctx) error {
 	var (
@@ -333,6 +337,7 @@ func (c *userController) ResetPassword(ctx *fiber.Ctx) error {
 // @Produce json
 // @Param user body dto.UserForgotPassword true "User Email"
 // @Success 200 {object} map[string]interface{}
+// @Security ApiKeyAuth
 // @Router /api/v1/users/forgot-password [post]
 func (c *userController) ForgotPassword(ctx *fiber.Ctx) error {
 	var (

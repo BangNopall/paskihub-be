@@ -59,7 +59,7 @@ func setCodeFromError(err error) int {
 // @Summary Get list of teams
 // @Description Retrieve a list of team registrations for an event (Event Organizer)
 // @Tags EO Team
-// @Security BearerAuth
+// @Security ApiKeyAuth && BearerAuth
 // @Produce json
 // @Param eventId path string true "Event ID"
 // @Param event_level_id query string false "Event Level ID filter"
@@ -109,7 +109,7 @@ func (c *eoTeamController) GetListTeam(ctx *fiber.Ctx) error {
 // @Summary Get team details
 // @Description Retrieve details of a specific team registration
 // @Tags EO Team
-// @Security BearerAuth
+// @Security ApiKeyAuth && BearerAuth
 // @Produce json
 // @Param eventId path string true "Event ID"
 // @Param registrationId path string true "Registration ID"
@@ -158,7 +158,7 @@ func (c *eoTeamController) GetDetailTeam(ctx *fiber.Ctx) error {
 // @Summary Approve team registration
 // @Description Approve a team's registration
 // @Tags EO Team
-// @Security BearerAuth
+// @Security ApiKeyAuth && BearerAuth
 // @Accept json
 // @Produce json
 // @Param eventId path string true "Event ID"
@@ -216,7 +216,7 @@ func (c *eoTeamController) ApproveTeam(ctx *fiber.Ctx) error {
 // @Summary Reject team registration
 // @Description Reject a pending team registration
 // @Tags EO Team
-// @Security BearerAuth
+// @Security ApiKeyAuth && BearerAuth
 // @Accept json
 // @Produce json
 // @Param eventId path string true "Event ID"
@@ -274,7 +274,7 @@ func (c *eoTeamController) RejectTeam(ctx *fiber.Ctx) error {
 // @Summary Kick team
 // @Description Disqualify or kick an approved team
 // @Tags EO Team
-// @Security BearerAuth
+// @Security ApiKeyAuth && BearerAuth
 // @Produce json
 // @Param eventId path string true "Event ID"
 // @Param registrationId path string true "Registration ID"

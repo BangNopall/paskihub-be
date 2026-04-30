@@ -36,7 +36,7 @@ func (c *ParticipantTeamController) Route(router fiber.Router) {
 // @Summary Update participant team
 // @Description Update team details including logo, recommendation letter, and members
 // @Tags Participant Team
-// @Security BearerAuth
+// @Security ApiKeyAuth && BearerAuth
 // @Accept multipart/form-data
 // @Produce json
 // @Param id path string true "Team ID"
@@ -123,7 +123,7 @@ func (c *ParticipantTeamController) UpdateTeam(ctx *fiber.Ctx) error {
 // @Summary Create a new participant team
 // @Description Upload team details including logo, recommendation letter, and members
 // @Tags Participant Team
-// @Security BearerAuth
+// @Security ApiKeyAuth && BearerAuth
 // @Accept multipart/form-data
 // @Produce json
 // @Param name formData string true "Team Name"
@@ -208,7 +208,7 @@ func (c *ParticipantTeamController) CreateTeam(ctx *fiber.Ctx) error {
 // @Summary Get participant teams
 // @Description Retrieve a list of teams for the current participant
 // @Tags Participant Team
-// @Security BearerAuth
+// @Security ApiKeyAuth && BearerAuth
 // @Produce json
 // @Success 200 {object} map[string]interface{}
 // @Router /api/v1/peserta/teams [get]
@@ -229,7 +229,7 @@ func (c *ParticipantTeamController) GetTeams(ctx *fiber.Ctx) error {
 // @Summary Get team details
 // @Description Retrieve details of a specific team
 // @Tags Participant Team
-// @Security BearerAuth
+// @Security ApiKeyAuth && BearerAuth
 // @Produce json
 // @Param id path string true "Team ID"
 // @Success 200 {object} map[string]interface{}
@@ -252,7 +252,7 @@ func (c *ParticipantTeamController) GetTeamDetail(ctx *fiber.Ctx) error {
 // @Summary Delete participant team
 // @Description Remove a team by its ID
 // @Tags Participant Team
-// @Security BearerAuth
+// @Security ApiKeyAuth && BearerAuth
 // @Produce json
 // @Param id path string true "Team ID"
 // @Success 200 {object} map[string]interface{}

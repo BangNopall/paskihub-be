@@ -31,7 +31,7 @@ func InitFormPenilaianController(
 // @Summary Bulk insert scores
 // @Description Insert multiple scores for a team
 // @Tags Assessment
-// @Security BearerAuth
+// @Security ApiKeyAuth && BearerAuth
 // @Accept json
 // @Produce json
 // @Param req body dto.BulkInsertScoresRequest true "Bulk Scores Request"
@@ -69,7 +69,7 @@ func (c *formPenilaianController) BulkInsertScores(ctx *fiber.Ctx) error {
 // @Summary Bulk insert violations
 // @Description Insert multiple violations for a team
 // @Tags Assessment
-// @Security BearerAuth
+// @Security ApiKeyAuth && BearerAuth
 // @Accept json
 // @Produce json
 // @Param req body dto.BulkInsertViolationsRequest true "Bulk Violations Request"

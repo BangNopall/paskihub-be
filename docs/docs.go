@@ -73,6 +73,7 @@ const docTemplate = `{
             "post": {
                 "security": [
                     {
+                        "ApiKeyAuth": [],
                         "BearerAuth": []
                     }
                 ],
@@ -113,6 +114,7 @@ const docTemplate = `{
             "post": {
                 "security": [
                     {
+                        "ApiKeyAuth": [],
                         "BearerAuth": []
                     }
                 ],
@@ -153,6 +155,7 @@ const docTemplate = `{
             "get": {
                 "security": [
                     {
+                        "ApiKeyAuth": [],
                         "BearerAuth": []
                     }
                 ],
@@ -186,6 +189,7 @@ const docTemplate = `{
             "post": {
                 "security": [
                     {
+                        "ApiKeyAuth": [],
                         "BearerAuth": []
                     }
                 ],
@@ -233,6 +237,7 @@ const docTemplate = `{
             "get": {
                 "security": [
                     {
+                        "ApiKeyAuth": [],
                         "BearerAuth": []
                     }
                 ],
@@ -266,6 +271,7 @@ const docTemplate = `{
             "post": {
                 "security": [
                     {
+                        "ApiKeyAuth": [],
                         "BearerAuth": []
                     }
                 ],
@@ -313,6 +319,7 @@ const docTemplate = `{
             "put": {
                 "security": [
                     {
+                        "ApiKeyAuth": [],
                         "BearerAuth": []
                     }
                 ],
@@ -365,6 +372,7 @@ const docTemplate = `{
             "delete": {
                 "security": [
                     {
+                        "ApiKeyAuth": [],
                         "BearerAuth": []
                     }
                 ],
@@ -407,6 +415,7 @@ const docTemplate = `{
             "get": {
                 "security": [
                     {
+                        "ApiKeyAuth": [],
                         "BearerAuth": []
                     }
                 ],
@@ -440,6 +449,7 @@ const docTemplate = `{
             "post": {
                 "security": [
                     {
+                        "ApiKeyAuth": [],
                         "BearerAuth": []
                     }
                 ],
@@ -487,6 +497,7 @@ const docTemplate = `{
             "put": {
                 "security": [
                     {
+                        "ApiKeyAuth": [],
                         "BearerAuth": []
                     }
                 ],
@@ -539,6 +550,7 @@ const docTemplate = `{
             "delete": {
                 "security": [
                     {
+                        "ApiKeyAuth": [],
                         "BearerAuth": []
                     }
                 ],
@@ -581,6 +593,7 @@ const docTemplate = `{
             "post": {
                 "security": [
                     {
+                        "ApiKeyAuth": [],
                         "BearerAuth": []
                     }
                 ],
@@ -628,6 +641,7 @@ const docTemplate = `{
             "put": {
                 "security": [
                     {
+                        "ApiKeyAuth": [],
                         "BearerAuth": []
                     }
                 ],
@@ -680,6 +694,7 @@ const docTemplate = `{
             "delete": {
                 "security": [
                     {
+                        "ApiKeyAuth": [],
                         "BearerAuth": []
                     }
                 ],
@@ -722,6 +737,7 @@ const docTemplate = `{
             "post": {
                 "security": [
                     {
+                        "ApiKeyAuth": [],
                         "BearerAuth": []
                     }
                 ],
@@ -769,6 +785,7 @@ const docTemplate = `{
             "get": {
                 "security": [
                     {
+                        "ApiKeyAuth": [],
                         "BearerAuth": []
                     }
                 ],
@@ -802,6 +819,7 @@ const docTemplate = `{
             "post": {
                 "security": [
                     {
+                        "ApiKeyAuth": [],
                         "BearerAuth": []
                     }
                 ],
@@ -849,6 +867,7 @@ const docTemplate = `{
             "put": {
                 "security": [
                     {
+                        "ApiKeyAuth": [],
                         "BearerAuth": []
                     }
                 ],
@@ -901,6 +920,7 @@ const docTemplate = `{
             "delete": {
                 "security": [
                     {
+                        "ApiKeyAuth": [],
                         "BearerAuth": []
                     }
                 ],
@@ -943,6 +963,7 @@ const docTemplate = `{
             "get": {
                 "security": [
                     {
+                        "ApiKeyAuth": [],
                         "BearerAuth": []
                     }
                 ],
@@ -984,6 +1005,7 @@ const docTemplate = `{
             "get": {
                 "security": [
                     {
+                        "ApiKeyAuth": [],
                         "BearerAuth": []
                     }
                 ],
@@ -1026,6 +1048,7 @@ const docTemplate = `{
             "put": {
                 "security": [
                     {
+                        "ApiKeyAuth": [],
                         "BearerAuth": []
                     }
                 ],
@@ -1080,6 +1103,7 @@ const docTemplate = `{
             "put": {
                 "security": [
                     {
+                        "ApiKeyAuth": [],
                         "BearerAuth": []
                     }
                 ],
@@ -1122,6 +1146,7 @@ const docTemplate = `{
             "put": {
                 "security": [
                     {
+                        "ApiKeyAuth": [],
                         "BearerAuth": []
                     }
                 ],
@@ -1172,10 +1197,250 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/eo/profile": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": [],
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieve current Event Organizer's profile information",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "EO Profile"
+                ],
+                "summary": "Get EO profile",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.EOProfileRes"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/eo/profile/password": {
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": [],
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Update password for the current Event Organizer account",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "EO Profile"
+                ],
+                "summary": "Update EO password",
+                "parameters": [
+                    {
+                        "description": "Update Password Request",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.EOUpdatePasswordReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/eo/staff": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": [],
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieve a list of staff accounts associated with the current Event Organizer",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "EO Staff"
+                ],
+                "summary": "Get list of staff",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/dto.EOStaffRes"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": [],
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Creates a new staff account under the current Event Organizer",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "EO Staff"
+                ],
+                "summary": "Create a new staff account",
+                "parameters": [
+                    {
+                        "description": "Staff Create Request",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.EOStaffCreateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/eo/staff/{id}": {
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": [],
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Permanently removes a staff account",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "EO Staff"
+                ],
+                "summary": "Delete a staff account",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Staff ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/eo/staff/{id}/password": {
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": [],
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Updates the password for a specific staff account (Reset by EO)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "EO Staff"
+                ],
+                "summary": "Reset staff password",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Staff ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Reset Password Request",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.EOStaffResetPasswordReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/events/admin/show/{id}": {
             "get": {
                 "security": [
                     {
+                        "ApiKeyAuth": [],
                         "BearerAuth": []
                     }
                 ],
@@ -1211,6 +1476,7 @@ const docTemplate = `{
             "post": {
                 "security": [
                     {
+                        "ApiKeyAuth": [],
                         "BearerAuth": []
                     }
                 ],
@@ -1251,6 +1517,7 @@ const docTemplate = `{
             "delete": {
                 "security": [
                     {
+                        "ApiKeyAuth": [],
                         "BearerAuth": []
                     }
                 ],
@@ -1286,6 +1553,7 @@ const docTemplate = `{
             "put": {
                 "security": [
                     {
+                        "ApiKeyAuth": [],
                         "BearerAuth": []
                     }
                 ],
@@ -1333,6 +1601,7 @@ const docTemplate = `{
             "post": {
                 "security": [
                     {
+                        "ApiKeyAuth": [],
                         "BearerAuth": []
                     }
                 ],
@@ -1378,6 +1647,7 @@ const docTemplate = `{
             "post": {
                 "security": [
                     {
+                        "ApiKeyAuth": [],
                         "BearerAuth": []
                     }
                 ],
@@ -1423,6 +1693,7 @@ const docTemplate = `{
             "get": {
                 "security": [
                     {
+                        "ApiKeyAuth": [],
                         "BearerAuth": []
                     }
                 ],
@@ -1458,6 +1729,7 @@ const docTemplate = `{
             "post": {
                 "security": [
                     {
+                        "ApiKeyAuth": [],
                         "BearerAuth": []
                     }
                 ],
@@ -1505,6 +1777,7 @@ const docTemplate = `{
             "put": {
                 "security": [
                     {
+                        "ApiKeyAuth": [],
                         "BearerAuth": []
                     }
                 ],
@@ -1557,6 +1830,7 @@ const docTemplate = `{
             "delete": {
                 "security": [
                     {
+                        "ApiKeyAuth": [],
                         "BearerAuth": []
                     }
                 ],
@@ -1599,6 +1873,7 @@ const docTemplate = `{
             "get": {
                 "security": [
                     {
+                        "ApiKeyAuth": [],
                         "BearerAuth": []
                     }
                 ],
@@ -1625,6 +1900,7 @@ const docTemplate = `{
             "get": {
                 "security": [
                     {
+                        "ApiKeyAuth": [],
                         "BearerAuth": []
                     }
                 ],
@@ -1649,6 +1925,7 @@ const docTemplate = `{
             "post": {
                 "security": [
                     {
+                        "ApiKeyAuth": [],
                         "BearerAuth": []
                     }
                 ],
@@ -1689,6 +1966,7 @@ const docTemplate = `{
             "put": {
                 "security": [
                     {
+                        "ApiKeyAuth": [],
                         "BearerAuth": []
                     }
                 ],
@@ -1734,6 +2012,7 @@ const docTemplate = `{
             "delete": {
                 "security": [
                     {
+                        "ApiKeyAuth": [],
                         "BearerAuth": []
                     }
                 ],
@@ -1769,6 +2048,7 @@ const docTemplate = `{
             "get": {
                 "security": [
                     {
+                        "ApiKeyAuth": [],
                         "BearerAuth": []
                     }
                 ],
@@ -1804,6 +2084,7 @@ const docTemplate = `{
             "get": {
                 "security": [
                     {
+                        "ApiKeyAuth": [],
                         "BearerAuth": []
                     }
                 ],
@@ -1830,6 +2111,7 @@ const docTemplate = `{
             "get": {
                 "security": [
                     {
+                        "ApiKeyAuth": [],
                         "BearerAuth": []
                     }
                 ],
@@ -1856,6 +2138,7 @@ const docTemplate = `{
             "get": {
                 "security": [
                     {
+                        "ApiKeyAuth": [],
                         "BearerAuth": []
                     }
                 ],
@@ -1882,6 +2165,7 @@ const docTemplate = `{
             "post": {
                 "security": [
                     {
+                        "ApiKeyAuth": [],
                         "BearerAuth": []
                     }
                 ],
@@ -1941,6 +2225,7 @@ const docTemplate = `{
             "put": {
                 "security": [
                     {
+                        "ApiKeyAuth": [],
                         "BearerAuth": []
                     }
                 ],
@@ -1986,6 +2271,7 @@ const docTemplate = `{
             "get": {
                 "security": [
                     {
+                        "ApiKeyAuth": [],
                         "BearerAuth": []
                     }
                 ],
@@ -2010,6 +2296,7 @@ const docTemplate = `{
             "put": {
                 "security": [
                     {
+                        "ApiKeyAuth": [],
                         "BearerAuth": []
                     }
                 ],
@@ -2050,6 +2337,7 @@ const docTemplate = `{
             "put": {
                 "security": [
                     {
+                        "ApiKeyAuth": [],
                         "BearerAuth": []
                     }
                 ],
@@ -2090,6 +2378,7 @@ const docTemplate = `{
             "get": {
                 "security": [
                     {
+                        "ApiKeyAuth": [],
                         "BearerAuth": []
                     }
                 ],
@@ -2114,6 +2403,7 @@ const docTemplate = `{
             "post": {
                 "security": [
                     {
+                        "ApiKeyAuth": [],
                         "BearerAuth": []
                     }
                 ],
@@ -2173,6 +2463,7 @@ const docTemplate = `{
             "get": {
                 "security": [
                     {
+                        "ApiKeyAuth": [],
                         "BearerAuth": []
                     }
                 ],
@@ -2206,6 +2497,7 @@ const docTemplate = `{
             "put": {
                 "security": [
                     {
+                        "ApiKeyAuth": [],
                         "BearerAuth": []
                     }
                 ],
@@ -2268,6 +2560,7 @@ const docTemplate = `{
             "delete": {
                 "security": [
                     {
+                        "ApiKeyAuth": [],
                         "BearerAuth": []
                     }
                 ],
@@ -2303,6 +2596,7 @@ const docTemplate = `{
             "get": {
                 "security": [
                     {
+                        "ApiKeyAuth": [],
                         "BearerAuth": []
                     }
                 ],
@@ -2338,6 +2632,7 @@ const docTemplate = `{
             "post": {
                 "security": [
                     {
+                        "ApiKeyAuth": [],
                         "BearerAuth": []
                     }
                 ],
@@ -2385,6 +2680,7 @@ const docTemplate = `{
             "put": {
                 "security": [
                     {
+                        "ApiKeyAuth": [],
                         "BearerAuth": []
                     }
                 ],
@@ -2432,6 +2728,7 @@ const docTemplate = `{
             "get": {
                 "security": [
                     {
+                        "ApiKeyAuth": [],
                         "BearerAuth": []
                     }
                 ],
@@ -2465,6 +2762,11 @@ const docTemplate = `{
         },
         "/api/v1/users/forgot-password": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Request a password reset link to user email",
                 "consumes": [
                     "application/json"
@@ -2500,6 +2802,11 @@ const docTemplate = `{
         },
         "/api/v1/users/login": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Login with email and password",
                 "consumes": [
                     "application/json"
@@ -2562,6 +2869,11 @@ const docTemplate = `{
         },
         "/api/v1/users/register/{role}": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Register a new user with specific role (eo or peserta)",
                 "consumes": [
                     "application/json"
@@ -2604,6 +2916,11 @@ const docTemplate = `{
         },
         "/api/v1/users/reset-password/{token}": {
             "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Reset password using reset token",
                 "consumes": [
                     "application/json"
@@ -2682,6 +2999,11 @@ const docTemplate = `{
         },
         "/api/v1/users/verify-email/{email}/{emailVerPass}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Verify email using token sent to user email",
                 "produces": [
                     "application/json"
@@ -2721,6 +3043,7 @@ const docTemplate = `{
             "put": {
                 "security": [
                     {
+                        "ApiKeyAuth": [],
                         "BearerAuth": []
                     }
                 ],
@@ -2756,6 +3079,7 @@ const docTemplate = `{
             "put": {
                 "security": [
                     {
+                        "ApiKeyAuth": [],
                         "BearerAuth": []
                     }
                 ],
@@ -2791,6 +3115,7 @@ const docTemplate = `{
             "get": {
                 "security": [
                     {
+                        "ApiKeyAuth": [],
                         "BearerAuth": []
                     }
                 ],
@@ -2826,6 +3151,7 @@ const docTemplate = `{
             "get": {
                 "security": [
                     {
+                        "ApiKeyAuth": [],
                         "BearerAuth": []
                     }
                 ],
@@ -2861,6 +3187,7 @@ const docTemplate = `{
             "post": {
                 "security": [
                     {
+                        "ApiKeyAuth": [],
                         "BearerAuth": []
                     }
                 ],
@@ -3030,6 +3357,67 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.EOProfileRes": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.EOStaffCreateReq": {
+            "type": "object",
+            "required": [
+                "confirm_password",
+                "email",
+                "password"
+            ],
+            "properties": {
+                "confirm_password": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string",
+                    "minLength": 8
+                }
+            }
+        },
+        "dto.EOStaffRes": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.EOStaffResetPasswordReq": {
+            "type": "object",
+            "required": [
+                "confirm_password",
+                "password"
+            ],
+            "properties": {
+                "confirm_password": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string",
+                    "minLength": 8
+                }
+            }
+        },
         "dto.EOTeamApproveReq": {
             "type": "object",
             "required": [
@@ -3057,6 +3445,27 @@ const docTemplate = `{
             "properties": {
                 "rejection_reason": {
                     "type": "string"
+                }
+            }
+        },
+        "dto.EOUpdatePasswordReq": {
+            "type": "object",
+            "required": [
+                "confirm_password",
+                "new_password",
+                "old_password"
+            ],
+            "properties": {
+                "confirm_password": {
+                    "type": "string"
+                },
+                "new_password": {
+                    "type": "string",
+                    "minLength": 8
+                },
+                "old_password": {
+                    "type": "string",
+                    "minLength": 8
                 }
             }
         },
@@ -3148,6 +3557,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "description": {
+                    "type": "string"
+                },
+                "id": {
                     "type": "string"
                 },
                 "location": {
@@ -3459,6 +3871,34 @@ const docTemplate = `{
                 "DPPaid",
                 "FullPaid",
                 "Rejected"
+            ]
+        },
+        "response.Response": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {},
+                "message": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/response.Status"
+                }
+            }
+        },
+        "response.Status": {
+            "type": "string",
+            "enum": [
+                "success",
+                "fail",
+                "error"
+            ],
+            "x-enum-varnames": [
+                "Success",
+                "Fail",
+                "Error"
             ]
         }
     },

@@ -27,6 +27,7 @@ type EventParams struct {
 }
 
 type EventUpdate struct {
+	Id             uuid.UUID `json:"id"`
 	UserId         uuid.UUID `json:"user_id"`
 	Name           string    `json:"name"`
 	Description    string    `json:"description"`
@@ -48,6 +49,7 @@ type EventUpdate struct {
 }
 
 type EventResponse struct {
+	Id             uuid.UUID              `json:"id"`
 	Name           string                 `json:"name"`
 	Description    string                 `json:"description"`
 	LogoPath       string                 `json:"logo_path"`

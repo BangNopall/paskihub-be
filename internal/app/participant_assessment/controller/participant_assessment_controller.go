@@ -25,7 +25,7 @@ func (c *ParticipantAssessmentController) Route(router fiber.Router) {
 // @Summary Get assessment recap
 // @Description Get assessment recap details for a participant registration
 // @Tags Participant Assessment
-// @Security BearerAuth
+// @Security ApiKeyAuth && BearerAuth
 // @Produce json
 // @Param regis_id path string true "Registration ID"
 // @Success 200 {object} map[string]interface{}

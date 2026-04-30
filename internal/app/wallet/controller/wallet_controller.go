@@ -45,7 +45,7 @@ func InitWalletController(
 // @Summary Get wallet info
 // @Description Get wallet information for an event
 // @Tags Wallets
-// @Security BearerAuth
+// @Security ApiKeyAuth && BearerAuth
 // @Produce json
 // @Param eventId path string true "Event ID"
 // @Success 200 {object} map[string]interface{}
@@ -80,7 +80,7 @@ func (c *walletController) GetWalletInfo(ctx *fiber.Ctx) error {
 // @Summary Get transaction logs
 // @Description Get all transaction logs for an event wallet
 // @Tags Wallets
-// @Security BearerAuth
+// @Security ApiKeyAuth && BearerAuth
 // @Produce json
 // @Param eventId path string true "Event ID"
 // @Success 200 {object} map[string]interface{}
@@ -115,7 +115,7 @@ func (c *walletController) GetTransactionLogs(ctx *fiber.Ctx) error {
 // @Summary Request wallet top-up
 // @Description Submit a top-up request for an event wallet
 // @Tags Wallets
-// @Security BearerAuth
+// @Security ApiKeyAuth && BearerAuth
 // @Accept multipart/form-data
 // @Produce json
 // @Param eventId path string true "Event ID"
@@ -176,7 +176,7 @@ func (c *walletController) RequestTopUp(ctx *fiber.Ctx) error {
 // @Summary Approve top-up (Admin)
 // @Description Approve a pending top-up transaction
 // @Tags Wallets
-// @Security BearerAuth
+// @Security ApiKeyAuth && BearerAuth
 // @Produce json
 // @Param transactionId path string true "Transaction ID"
 // @Success 200 {object} map[string]interface{}
@@ -211,7 +211,7 @@ func (c *walletController) ApproveTopUp(ctx *fiber.Ctx) error {
 // @Summary Reject top-up (Admin)
 // @Description Reject a pending top-up transaction
 // @Tags Wallets
-// @Security BearerAuth
+// @Security ApiKeyAuth && BearerAuth
 // @Produce json
 // @Param transactionId path string true "Transaction ID"
 // @Success 200 {object} map[string]interface{}

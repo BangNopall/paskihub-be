@@ -33,7 +33,7 @@ func (c *ParticipantEventController) Route(router fiber.Router) {
 // @Summary Get open events
 // @Description Retrieve a list of events open for registration
 // @Tags Participant Event
-// @Security BearerAuth
+// @Security ApiKeyAuth && BearerAuth
 // @Produce json
 // @Success 200 {object} map[string]interface{}
 // @Router /api/v1/peserta/events/open [get]
@@ -52,7 +52,7 @@ func (c *ParticipantEventController) GetOpenEvents(ctx *fiber.Ctx) error {
 // @Summary Register to an event
 // @Description Register participant team to an event level
 // @Tags Participant Event
-// @Security BearerAuth
+// @Security ApiKeyAuth && BearerAuth
 // @Accept multipart/form-data
 // @Produce json
 // @Param event_level_id formData string true "Event Level ID"
@@ -105,7 +105,7 @@ func (c *ParticipantEventController) RegisterEvent(ctx *fiber.Ctx) error {
 // @Summary Pelunasan payment for event
 // @Description Upload full payment proof for an event registration
 // @Tags Participant Event
-// @Security BearerAuth
+// @Security ApiKeyAuth && BearerAuth
 // @Accept multipart/form-data
 // @Produce json
 // @Param id path string true "Registration ID"
@@ -140,7 +140,7 @@ func (c *ParticipantEventController) PelunasanEvent(ctx *fiber.Ctx) error {
 // @Summary Get active events
 // @Description Retrieve a list of active registered events for the participant
 // @Tags Participant Event
-// @Security BearerAuth
+// @Security ApiKeyAuth && BearerAuth
 // @Produce json
 // @Success 200 {object} map[string]interface{}
 // @Router /api/v1/peserta/events/active [get]

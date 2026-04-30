@@ -34,7 +34,7 @@ func InitJuryController(
 // @Summary Get all juries
 // @Description Get all juries for organizer
 // @Tags Juries
-// @Security BearerAuth
+// @Security ApiKeyAuth && BearerAuth
 // @Produce json
 // @Success 200 {object} map[string]interface{}
 // @Router /api/v1/organizer/juries [get]
@@ -52,7 +52,7 @@ func (c *juryController) GetAll(ctx *fiber.Ctx) error {
 // @Summary Create a jury
 // @Description Create a new jury
 // @Tags Juries
-// @Security BearerAuth
+// @Security ApiKeyAuth && BearerAuth
 // @Accept json
 // @Produce json
 // @Param jury body dto.JuryRequest true "Jury Request"
@@ -78,7 +78,7 @@ func (c *juryController) Create(ctx *fiber.Ctx) error {
 // @Summary Update a jury
 // @Description Update an existing jury
 // @Tags Juries
-// @Security BearerAuth
+// @Security ApiKeyAuth && BearerAuth
 // @Accept json
 // @Produce json
 // @Param id path string true "Jury ID"
@@ -106,7 +106,7 @@ func (c *juryController) Update(ctx *fiber.Ctx) error {
 // @Summary Delete a jury
 // @Description Delete a jury by ID
 // @Tags Juries
-// @Security BearerAuth
+// @Security ApiKeyAuth && BearerAuth
 // @Produce json
 // @Param id path string true "Jury ID"
 // @Success 200 {object} map[string]interface{}

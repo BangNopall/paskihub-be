@@ -34,7 +34,7 @@ func InitRekapController(
 // @Summary Get team assessment detail
 // @Description Get specific assessment detail for a team registration
 // @Tags Rekap Assessment
-// @Security BearerAuth
+// @Security ApiKeyAuth && BearerAuth
 // @Produce json
 // @Param regisId path string true "Registration ID"
 // @Success 200 {object} map[string]interface{}
@@ -72,7 +72,7 @@ func (c *rekapController) GetTeamAssessmentDetail(ctx *fiber.Ctx) error {
 // @Summary Get scoreboard
 // @Description Get scoreboard for an event level
 // @Tags Rekap Assessment
-// @Security BearerAuth
+// @Security ApiKeyAuth && BearerAuth
 // @Produce json
 // @Param eventLevelId path string true "Event Level ID"
 // @Success 200 {object} map[string]interface{}
@@ -110,7 +110,7 @@ func (c *rekapController) GetScoreboard(ctx *fiber.Ctx) error {
 // @Summary Get custom leaderboard
 // @Description Generate a custom leaderboard
 // @Tags Rekap Assessment
-// @Security BearerAuth
+// @Security ApiKeyAuth && BearerAuth
 // @Accept json
 // @Produce json
 // @Param eventLevelId path string true "Event Level ID"
@@ -155,7 +155,7 @@ func (c *rekapController) GetLeaderboardCustom(ctx *fiber.Ctx) error {
 // @Summary Publish scoreboard
 // @Description Publish the scoreboard for an event level
 // @Tags Rekap Assessment
-// @Security BearerAuth
+// @Security ApiKeyAuth && BearerAuth
 // @Accept json
 // @Produce json
 // @Param eventLevelId path string true "Event Level ID"

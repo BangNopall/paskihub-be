@@ -76,6 +76,47 @@ definitions:
     required:
     - score_category_ids
     type: object
+  dto.EOProfileRes:
+    properties:
+      email:
+        type: string
+    type: object
+  dto.EOStaffCreateReq:
+    properties:
+      confirm_password:
+        type: string
+      email:
+        type: string
+      password:
+        minLength: 8
+        type: string
+    required:
+    - confirm_password
+    - email
+    - password
+    type: object
+  dto.EOStaffRes:
+    properties:
+      created_at:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      status:
+        type: string
+    type: object
+  dto.EOStaffResetPasswordReq:
+    properties:
+      confirm_password:
+        type: string
+      password:
+        minLength: 8
+        type: string
+    required:
+    - confirm_password
+    - password
+    type: object
   dto.EOTeamApproveReq:
     properties:
       payment_status:
@@ -93,6 +134,21 @@ definitions:
         type: string
     required:
     - rejection_reason
+    type: object
+  dto.EOUpdatePasswordReq:
+    properties:
+      confirm_password:
+        type: string
+      new_password:
+        minLength: 8
+        type: string
+      old_password:
+        minLength: 8
+        type: string
+    required:
+    - confirm_password
+    - new_password
+    - old_password
     type: object
   dto.EventCreate:
     properties:
@@ -152,6 +208,8 @@ definitions:
       compe_date:
         type: string
       description:
+        type: string
+      id:
         type: string
       location:
         type: string
@@ -367,6 +425,26 @@ definitions:
     - DPPaid
     - FullPaid
     - Rejected
+  response.Response:
+    properties:
+      code:
+        type: integer
+      data: {}
+      message:
+        type: string
+      status:
+        $ref: '#/definitions/response.Status'
+    type: object
+  response.Status:
+    enum:
+    - success
+    - fail
+    - error
+    type: string
+    x-enum-varnames:
+    - Success
+    - Fail
+    - Error
 host: localhost:3010
 info:
   contact: {}
@@ -429,7 +507,8 @@ paths:
             additionalProperties: true
             type: object
       security:
-      - BearerAuth: []
+      - ApiKeyAuth: []
+        BearerAuth: []
       summary: Bulk insert scores
       tags:
       - Assessment
@@ -454,7 +533,8 @@ paths:
             additionalProperties: true
             type: object
       security:
-      - BearerAuth: []
+      - ApiKeyAuth: []
+        BearerAuth: []
       summary: Bulk insert violations
       tags:
       - Assessment
@@ -476,7 +556,8 @@ paths:
             additionalProperties: true
             type: object
       security:
-      - BearerAuth: []
+      - ApiKeyAuth: []
+        BearerAuth: []
       summary: Get grade rules
       tags:
       - Assessment
@@ -505,7 +586,8 @@ paths:
             additionalProperties: true
             type: object
       security:
-      - BearerAuth: []
+      - ApiKeyAuth: []
+        BearerAuth: []
       summary: Setup grade rules
       tags:
       - Assessment
@@ -527,7 +609,8 @@ paths:
             additionalProperties: true
             type: object
       security:
-      - BearerAuth: []
+      - ApiKeyAuth: []
+        BearerAuth: []
       summary: Get judges
       tags:
       - Judges
@@ -556,7 +639,8 @@ paths:
             additionalProperties: true
             type: object
       security:
-      - BearerAuth: []
+      - ApiKeyAuth: []
+        BearerAuth: []
       summary: Create judge
       tags:
       - Judges
@@ -583,7 +667,8 @@ paths:
             additionalProperties: true
             type: object
       security:
-      - BearerAuth: []
+      - ApiKeyAuth: []
+        BearerAuth: []
       summary: Delete judge
       tags:
       - Judges
@@ -617,7 +702,8 @@ paths:
             additionalProperties: true
             type: object
       security:
-      - BearerAuth: []
+      - ApiKeyAuth: []
+        BearerAuth: []
       summary: Update judge
       tags:
       - Judges
@@ -639,7 +725,8 @@ paths:
             additionalProperties: true
             type: object
       security:
-      - BearerAuth: []
+      - ApiKeyAuth: []
+        BearerAuth: []
       summary: Get score categories
       tags:
       - Score Categories
@@ -668,7 +755,8 @@ paths:
             additionalProperties: true
             type: object
       security:
-      - BearerAuth: []
+      - ApiKeyAuth: []
+        BearerAuth: []
       summary: Create score category
       tags:
       - Score Categories
@@ -695,7 +783,8 @@ paths:
             additionalProperties: true
             type: object
       security:
-      - BearerAuth: []
+      - ApiKeyAuth: []
+        BearerAuth: []
       summary: Delete score category
       tags:
       - Score Categories
@@ -729,7 +818,8 @@ paths:
             additionalProperties: true
             type: object
       security:
-      - BearerAuth: []
+      - ApiKeyAuth: []
+        BearerAuth: []
       summary: Update score category
       tags:
       - Score Categories
@@ -759,7 +849,8 @@ paths:
             additionalProperties: true
             type: object
       security:
-      - BearerAuth: []
+      - ApiKeyAuth: []
+        BearerAuth: []
       summary: Create score sub category
       tags:
       - Score Sub Categories
@@ -786,7 +877,8 @@ paths:
             additionalProperties: true
             type: object
       security:
-      - BearerAuth: []
+      - ApiKeyAuth: []
+        BearerAuth: []
       summary: Delete score sub category
       tags:
       - Score Sub Categories
@@ -820,7 +912,8 @@ paths:
             additionalProperties: true
             type: object
       security:
-      - BearerAuth: []
+      - ApiKeyAuth: []
+        BearerAuth: []
       summary: Update score sub category
       tags:
       - Score Sub Categories
@@ -850,7 +943,8 @@ paths:
             additionalProperties: true
             type: object
       security:
-      - BearerAuth: []
+      - ApiKeyAuth: []
+        BearerAuth: []
       summary: Input single score
       tags:
       - Assessment
@@ -872,7 +966,8 @@ paths:
             additionalProperties: true
             type: object
       security:
-      - BearerAuth: []
+      - ApiKeyAuth: []
+        BearerAuth: []
       summary: Get violation types
       tags:
       - Violation Types
@@ -901,7 +996,8 @@ paths:
             additionalProperties: true
             type: object
       security:
-      - BearerAuth: []
+      - ApiKeyAuth: []
+        BearerAuth: []
       summary: Create violation type
       tags:
       - Violation Types
@@ -928,7 +1024,8 @@ paths:
             additionalProperties: true
             type: object
       security:
-      - BearerAuth: []
+      - ApiKeyAuth: []
+        BearerAuth: []
       summary: Delete violation type
       tags:
       - Violation Types
@@ -962,7 +1059,8 @@ paths:
             additionalProperties: true
             type: object
       security:
-      - BearerAuth: []
+      - ApiKeyAuth: []
+        BearerAuth: []
       summary: Update violation type
       tags:
       - Violation Types
@@ -988,7 +1086,8 @@ paths:
             additionalProperties: true
             type: object
       security:
-      - BearerAuth: []
+      - ApiKeyAuth: []
+        BearerAuth: []
       summary: Get list of teams
       tags:
       - EO Team
@@ -1015,7 +1114,8 @@ paths:
             additionalProperties: true
             type: object
       security:
-      - BearerAuth: []
+      - ApiKeyAuth: []
+        BearerAuth: []
       summary: Get team details
       tags:
       - EO Team
@@ -1050,7 +1150,8 @@ paths:
             additionalProperties: true
             type: object
       security:
-      - BearerAuth: []
+      - ApiKeyAuth: []
+        BearerAuth: []
       summary: Approve team registration
       tags:
       - EO Team
@@ -1077,7 +1178,8 @@ paths:
             additionalProperties: true
             type: object
       security:
-      - BearerAuth: []
+      - ApiKeyAuth: []
+        BearerAuth: []
       summary: Kick team
       tags:
       - EO Team
@@ -1112,10 +1214,157 @@ paths:
             additionalProperties: true
             type: object
       security:
-      - BearerAuth: []
+      - ApiKeyAuth: []
+        BearerAuth: []
       summary: Reject team registration
       tags:
       - EO Team
+  /api/v1/eo/profile:
+    get:
+      description: Retrieve current Event Organizer's profile information
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.EOProfileRes'
+              type: object
+      security:
+      - ApiKeyAuth: []
+        BearerAuth: []
+      summary: Get EO profile
+      tags:
+      - EO Profile
+  /api/v1/eo/profile/password:
+    put:
+      consumes:
+      - application/json
+      description: Update password for the current Event Organizer account
+      parameters:
+      - description: Update Password Request
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/dto.EOUpdatePasswordReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+        BearerAuth: []
+      summary: Update EO password
+      tags:
+      - EO Profile
+  /api/v1/eo/staff:
+    get:
+      description: Retrieve a list of staff accounts associated with the current Event
+        Organizer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/dto.EOStaffRes'
+                  type: array
+              type: object
+      security:
+      - ApiKeyAuth: []
+        BearerAuth: []
+      summary: Get list of staff
+      tags:
+      - EO Staff
+    post:
+      consumes:
+      - application/json
+      description: Creates a new staff account under the current Event Organizer
+      parameters:
+      - description: Staff Create Request
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/dto.EOStaffCreateReq'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+        BearerAuth: []
+      summary: Create a new staff account
+      tags:
+      - EO Staff
+  /api/v1/eo/staff/{id}:
+    delete:
+      description: Permanently removes a staff account
+      parameters:
+      - description: Staff ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+        BearerAuth: []
+      summary: Delete a staff account
+      tags:
+      - EO Staff
+  /api/v1/eo/staff/{id}/password:
+    put:
+      consumes:
+      - application/json
+      description: Updates the password for a specific staff account (Reset by EO)
+      parameters:
+      - description: Staff ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Reset Password Request
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/dto.EOStaffResetPasswordReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+        BearerAuth: []
+      summary: Reset staff password
+      tags:
+      - EO Staff
   /api/v1/events/{id}/levels:
     post:
       consumes:
@@ -1142,7 +1391,8 @@ paths:
             additionalProperties: true
             type: object
       security:
-      - BearerAuth: []
+      - ApiKeyAuth: []
+        BearerAuth: []
       summary: Create event level
       tags:
       - Events
@@ -1169,7 +1419,8 @@ paths:
             additionalProperties: true
             type: object
       security:
-      - BearerAuth: []
+      - ApiKeyAuth: []
+        BearerAuth: []
       summary: Delete event level
       tags:
       - Events
@@ -1203,7 +1454,8 @@ paths:
             additionalProperties: true
             type: object
       security:
-      - BearerAuth: []
+      - ApiKeyAuth: []
+        BearerAuth: []
       summary: Update event level
       tags:
       - Events
@@ -1225,7 +1477,8 @@ paths:
             additionalProperties: true
             type: object
       security:
-      - BearerAuth: []
+      - ApiKeyAuth: []
+        BearerAuth: []
       summary: Show event data (Admin)
       tags:
       - Events
@@ -1250,7 +1503,8 @@ paths:
             additionalProperties: true
             type: object
       security:
-      - BearerAuth: []
+      - ApiKeyAuth: []
+        BearerAuth: []
       summary: Create a new event
       tags:
       - Events
@@ -1272,7 +1526,8 @@ paths:
             additionalProperties: true
             type: object
       security:
-      - BearerAuth: []
+      - ApiKeyAuth: []
+        BearerAuth: []
       summary: Delete an event
       tags:
       - Events
@@ -1302,7 +1557,8 @@ paths:
             additionalProperties: true
             type: object
       security:
-      - BearerAuth: []
+      - ApiKeyAuth: []
+        BearerAuth: []
       summary: Update an event
       tags:
       - Events
@@ -1331,7 +1587,8 @@ paths:
             additionalProperties: true
             type: object
       security:
-      - BearerAuth: []
+      - ApiKeyAuth: []
+        BearerAuth: []
       summary: Upload event logo
       tags:
       - Events
@@ -1360,7 +1617,8 @@ paths:
             additionalProperties: true
             type: object
       security:
-      - BearerAuth: []
+      - ApiKeyAuth: []
+        BearerAuth: []
       summary: Upload event poster
       tags:
       - Events
@@ -1382,7 +1640,8 @@ paths:
             additionalProperties: true
             type: object
       security:
-      - BearerAuth: []
+      - ApiKeyAuth: []
+        BearerAuth: []
       summary: Show auth user's events
       tags:
       - Events
@@ -1398,7 +1657,8 @@ paths:
             additionalProperties: true
             type: object
       security:
-      - BearerAuth: []
+      - ApiKeyAuth: []
+        BearerAuth: []
       summary: Get organizer dashboard
       tags:
       - Dashboard
@@ -1414,7 +1674,8 @@ paths:
             additionalProperties: true
             type: object
       security:
-      - BearerAuth: []
+      - ApiKeyAuth: []
+        BearerAuth: []
       summary: Get all juries
       tags:
       - Juries
@@ -1438,7 +1699,8 @@ paths:
             additionalProperties: true
             type: object
       security:
-      - BearerAuth: []
+      - ApiKeyAuth: []
+        BearerAuth: []
       summary: Create a jury
       tags:
       - Juries
@@ -1460,7 +1722,8 @@ paths:
             additionalProperties: true
             type: object
       security:
-      - BearerAuth: []
+      - ApiKeyAuth: []
+        BearerAuth: []
       summary: Delete a jury
       tags:
       - Juries
@@ -1489,7 +1752,8 @@ paths:
             additionalProperties: true
             type: object
       security:
-      - BearerAuth: []
+      - ApiKeyAuth: []
+        BearerAuth: []
       summary: Update a jury
       tags:
       - Juries
@@ -1511,7 +1775,8 @@ paths:
             additionalProperties: true
             type: object
       security:
-      - BearerAuth: []
+      - ApiKeyAuth: []
+        BearerAuth: []
       summary: Get assessment recap
       tags:
       - Participant Assessment
@@ -1527,7 +1792,8 @@ paths:
             additionalProperties: true
             type: object
       security:
-      - BearerAuth: []
+      - ApiKeyAuth: []
+        BearerAuth: []
       summary: Get participant dashboard
       tags:
       - Dashboard
@@ -1543,7 +1809,8 @@ paths:
             additionalProperties: true
             type: object
       security:
-      - BearerAuth: []
+      - ApiKeyAuth: []
+        BearerAuth: []
       summary: Get active events
       tags:
       - Participant Event
@@ -1559,7 +1826,8 @@ paths:
             additionalProperties: true
             type: object
       security:
-      - BearerAuth: []
+      - ApiKeyAuth: []
+        BearerAuth: []
       summary: Get open events
       tags:
       - Participant Event
@@ -1598,7 +1866,8 @@ paths:
             additionalProperties: true
             type: object
       security:
-      - BearerAuth: []
+      - ApiKeyAuth: []
+        BearerAuth: []
       summary: Register to an event
       tags:
       - Participant Event
@@ -1627,7 +1896,8 @@ paths:
             additionalProperties: true
             type: object
       security:
-      - BearerAuth: []
+      - ApiKeyAuth: []
+        BearerAuth: []
       summary: Pelunasan payment for event
       tags:
       - Participant Event
@@ -1643,7 +1913,8 @@ paths:
             additionalProperties: true
             type: object
       security:
-      - BearerAuth: []
+      - ApiKeyAuth: []
+        BearerAuth: []
       summary: Get participant profile
       tags:
       - Participant Profile
@@ -1667,7 +1938,8 @@ paths:
             additionalProperties: true
             type: object
       security:
-      - BearerAuth: []
+      - ApiKeyAuth: []
+        BearerAuth: []
       summary: Update participant institution
       tags:
       - Participant Profile
@@ -1692,7 +1964,8 @@ paths:
             additionalProperties: true
             type: object
       security:
-      - BearerAuth: []
+      - ApiKeyAuth: []
+        BearerAuth: []
       summary: Update participant password
       tags:
       - Participant Profile
@@ -1708,7 +1981,8 @@ paths:
             additionalProperties: true
             type: object
       security:
-      - BearerAuth: []
+      - ApiKeyAuth: []
+        BearerAuth: []
       summary: Get participant teams
       tags:
       - Participant Team
@@ -1747,7 +2021,8 @@ paths:
             additionalProperties: true
             type: object
       security:
-      - BearerAuth: []
+      - ApiKeyAuth: []
+        BearerAuth: []
       summary: Create a new participant team
       tags:
       - Participant Team
@@ -1769,7 +2044,8 @@ paths:
             additionalProperties: true
             type: object
       security:
-      - BearerAuth: []
+      - ApiKeyAuth: []
+        BearerAuth: []
       summary: Delete participant team
       tags:
       - Participant Team
@@ -1790,7 +2066,8 @@ paths:
             additionalProperties: true
             type: object
       security:
-      - BearerAuth: []
+      - ApiKeyAuth: []
+        BearerAuth: []
       summary: Get team details
       tags:
       - Participant Team
@@ -1832,7 +2109,8 @@ paths:
             additionalProperties: true
             type: object
       security:
-      - BearerAuth: []
+      - ApiKeyAuth: []
+        BearerAuth: []
       summary: Update participant team
       tags:
       - Participant Team
@@ -1854,7 +2132,8 @@ paths:
             additionalProperties: true
             type: object
       security:
-      - BearerAuth: []
+      - ApiKeyAuth: []
+        BearerAuth: []
       summary: Get team assessment detail
       tags:
       - Rekap Assessment
@@ -1884,7 +2163,8 @@ paths:
             additionalProperties: true
             type: object
       security:
-      - BearerAuth: []
+      - ApiKeyAuth: []
+        BearerAuth: []
       summary: Get custom leaderboard
       tags:
       - Rekap Assessment
@@ -1914,7 +2194,8 @@ paths:
             additionalProperties: true
             type: object
       security:
-      - BearerAuth: []
+      - ApiKeyAuth: []
+        BearerAuth: []
       summary: Publish scoreboard
       tags:
       - Rekap Assessment
@@ -1936,7 +2217,8 @@ paths:
             additionalProperties: true
             type: object
       security:
-      - BearerAuth: []
+      - ApiKeyAuth: []
+        BearerAuth: []
       summary: Get scoreboard
       tags:
       - Rekap Assessment
@@ -1960,6 +2242,8 @@ paths:
           schema:
             additionalProperties: true
             type: object
+      security:
+      - ApiKeyAuth: []
       summary: Forgot user password
       tags:
       - Users
@@ -1983,6 +2267,8 @@ paths:
           schema:
             additionalProperties: true
             type: object
+      security:
+      - ApiKeyAuth: []
       summary: User login
       tags:
       - Users
@@ -2028,6 +2314,8 @@ paths:
           schema:
             additionalProperties: true
             type: object
+      security:
+      - ApiKeyAuth: []
       summary: Register a new user
       tags:
       - Users
@@ -2056,6 +2344,8 @@ paths:
           schema:
             additionalProperties: true
             type: object
+      security:
+      - ApiKeyAuth: []
       summary: Reset user password
       tags:
       - Users
@@ -2104,6 +2394,8 @@ paths:
           schema:
             additionalProperties: true
             type: object
+      security:
+      - ApiKeyAuth: []
       summary: Verify user email
       tags:
       - Users
@@ -2125,7 +2417,8 @@ paths:
             additionalProperties: true
             type: object
       security:
-      - BearerAuth: []
+      - ApiKeyAuth: []
+        BearerAuth: []
       summary: Get wallet info
       tags:
       - Wallets
@@ -2147,7 +2440,8 @@ paths:
             additionalProperties: true
             type: object
       security:
-      - BearerAuth: []
+      - ApiKeyAuth: []
+        BearerAuth: []
       summary: Get transaction logs
       tags:
       - Wallets
@@ -2185,7 +2479,8 @@ paths:
             additionalProperties: true
             type: object
       security:
-      - BearerAuth: []
+      - ApiKeyAuth: []
+        BearerAuth: []
       summary: Request wallet top-up
       tags:
       - Wallets
@@ -2207,7 +2502,8 @@ paths:
             additionalProperties: true
             type: object
       security:
-      - BearerAuth: []
+      - ApiKeyAuth: []
+        BearerAuth: []
       summary: Approve top-up (Admin)
       tags:
       - Wallets
@@ -2229,7 +2525,8 @@ paths:
             additionalProperties: true
             type: object
       security:
-      - BearerAuth: []
+      - ApiKeyAuth: []
+        BearerAuth: []
       summary: Reject top-up (Admin)
       tags:
       - Wallets

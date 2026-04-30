@@ -52,7 +52,7 @@ func InitEventController(
 // @Summary Create a new event
 // @Description Create an event for the organizer
 // @Tags Events
-// @Security BearerAuth
+// @Security ApiKeyAuth && BearerAuth
 // @Accept json
 // @Produce json
 // @Param event body dto.EventCreate true "Event details"
@@ -97,7 +97,7 @@ func (c *eventController) CreateEvent(ctx *fiber.Ctx) error {
 // @Summary Show event data (Admin)
 // @Description Get specific event details by ID
 // @Tags Events
-// @Security BearerAuth
+// @Security ApiKeyAuth && BearerAuth
 // @Produce json
 // @Param id path string true "Event ID"
 // @Success 200 {object} map[string]interface{}
@@ -135,7 +135,7 @@ func (c *eventController) ShowEventData(ctx *fiber.Ctx) error {
 // @Summary Show auth user's events
 // @Description Get all events created by specific user/organizer
 // @Tags Events
-// @Security BearerAuth
+// @Security ApiKeyAuth && BearerAuth 
 // @Produce json
 // @Param userId path string true "User ID"
 // @Success 200 {object} map[string]interface{}
@@ -181,7 +181,7 @@ func (c *eventController) ShowUserEvent(ctx *fiber.Ctx) error {
 // @Summary Upload event logo
 // @Description Upload logo image for an event
 // @Tags Events
-// @Security BearerAuth
+// @Security BearerAuth && ApiKeyAuth
 // @Accept multipart/form-data
 // @Produce json
 // @Param id path string true "Event ID"
@@ -223,7 +223,7 @@ func (c *eventController) UploadLogo(ctx *fiber.Ctx) error {
 // @Summary Upload event poster
 // @Description Upload poster image for an event
 // @Tags Events
-// @Security BearerAuth
+// @Security ApiKeyAuth && BearerAuth
 // @Accept multipart/form-data
 // @Produce json
 // @Param id path string true "Event ID"
@@ -265,7 +265,7 @@ func (c *eventController) UploadPoster(ctx *fiber.Ctx) error {
 // @Summary Update an event
 // @Description Update event details
 // @Tags Events
-// @Security BearerAuth
+// @Security ApiKeyAuth && BearerAuth
 // @Accept json
 // @Produce json
 // @Param id path string true "Event ID"
@@ -354,7 +354,7 @@ func (c *eventController) UpdateEvent(ctx *fiber.Ctx) error {
 // @Summary Delete an event
 // @Description Remove an event by ID
 // @Tags Events
-// @Security BearerAuth
+// @Security ApiKeyAuth && BearerAuth
 // @Produce json
 // @Param id path string true "Event ID"
 // @Success 200 {object} map[string]interface{}
@@ -389,7 +389,7 @@ func (c *eventController) DeleteEvent(ctx *fiber.Ctx) error {
 // @Summary Create event level
 // @Description Create a new level category under an event
 // @Tags Events
-// @Security BearerAuth
+// @Security ApiKeyAuth && BearerAuth
 // @Accept json
 // @Produce json
 // @Param id path string true "Event ID"
@@ -431,7 +431,7 @@ func (c *eventController) CreateEventLevel(ctx *fiber.Ctx) error {
 // @Summary Update event level
 // @Description Update a level's detail under an event
 // @Tags Events
-// @Security BearerAuth
+// @Security ApiKeyAuth && BearerAuth
 // @Accept json
 // @Produce json
 // @Param id path string true "Event ID"
@@ -489,7 +489,7 @@ func (c *eventController) UpdateEventLevel(ctx *fiber.Ctx) error {
 // @Summary Delete event level
 // @Description Remove a level from an event
 // @Tags Events
-// @Security BearerAuth
+// @Security ApiKeyAuth && BearerAuth
 // @Produce json
 // @Param id path string true "Event ID"
 // @Param levelId path string true "Level ID"

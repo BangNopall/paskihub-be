@@ -32,7 +32,7 @@ func (c *ParticipantProfileController) Route(router fiber.Router) {
 // @Summary Get participant profile
 // @Description Retrieve current participant's profile
 // @Tags Participant Profile
-// @Security BearerAuth
+// @Security ApiKeyAuth && BearerAuth
 // @Produce json
 // @Success 200 {object} map[string]interface{}
 // @Router /api/v1/peserta/profile [get]
@@ -53,7 +53,7 @@ func (c *ParticipantProfileController) GetProfile(ctx *fiber.Ctx) error {
 // @Summary Update participant institution
 // @Description Update the institution of the current participant
 // @Tags Participant Profile
-// @Security BearerAuth
+// @Security ApiKeyAuth && BearerAuth
 // @Accept json
 // @Produce json
 // @Param req body dto.UpdateInstitutionRequest true "Institution Details"
@@ -87,7 +87,7 @@ func (c *ParticipantProfileController) UpdateInstitution(ctx *fiber.Ctx) error {
 // @Summary Update participant password
 // @Description Update the password for the current participant
 // @Tags Participant Profile
-// @Security BearerAuth
+// @Security ApiKeyAuth && BearerAuth
 // @Accept json
 // @Produce json
 // @Param req body dto.UpdatePasswordRequest true "Password Details"
