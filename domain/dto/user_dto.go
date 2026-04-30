@@ -36,6 +36,9 @@ type UserResetPassword struct {
 }
 
 type UserLoginResponse struct {
+	Id    string `json:"id"`
+	Email string `json:"email"`
+	Role  string `json:"role"`
 	Token string `json:"token"`
 }
 

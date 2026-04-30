@@ -210,7 +210,12 @@ func (s *userService) Login(ctx context.Context, user dto.UserLogin) (dto.UserLo
 		return dto.UserLoginResponse{}, err
 	}
 
-	return dto.UserLoginResponse{Token: token}, nil
+	return dto.UserLoginResponse{
+		Token: token,
+		Id:    registeredUser.Id.String(),
+		Email: registeredUser.Email,
+		Role:  string(registeredUser.Role),
+	}, nil
 }
 
 func (s *userService) DeleteUnverifiedUsers() {
