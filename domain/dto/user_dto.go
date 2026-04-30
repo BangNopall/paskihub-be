@@ -29,10 +29,8 @@ type UserForgotPassword struct {
 }
 
 type UserResetPassword struct {
-	Token           string `json:"token"`
 	Password        string `json:"password" binding:"required,min=6,max=20"`
 	ConfirmPassword string `json:"confirm_password" binding:"required,min=6,max=20"`
-	NewPassword     string `json:"newPassword"` // For frontend compatibility
 }
 
 type UserLoginResponse struct {

@@ -314,15 +314,6 @@ func (c *userController) ResetPassword(ctx *fiber.Ctx) error {
 		return nil
 	}
 
-	if token == "" {
-		token = user.Token
-	}
-
-	if user.Password == "" && user.NewPassword != "" {
-		user.Password = user.NewPassword
-		user.ConfirmPassword = user.NewPassword
-	}
-
 	err = c.userSvc.ResetPassword(ctx.Context(), user, token)
 	code = domain.GetCode(err)
 

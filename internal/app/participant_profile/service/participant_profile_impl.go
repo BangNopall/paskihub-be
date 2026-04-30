@@ -75,6 +75,7 @@ func (s *participantProfileService) UpdateInstitution(ctx context.Context, userI
 	}
 
 	newInstitution := &entity.Institution{
+		Id:              uuid.New(),
 		UserId:          parsedUUID,
 		Name:            req.Name,
 		Address:         req.Address,

@@ -69,6 +69,7 @@ func (s *eventService) CreateEvent(ctx context.Context, UserId uuid.UUID, event 
 		Name:       event.Name,
 		OpenDate:   openDate,
 		CloseDate:  closeDate,
+		Organizer:  event.Organizer,
 		Location:   event.Location,
 		NamePj:     event.NamaPj,
 		NoWaPj:     event.NoWaPj,

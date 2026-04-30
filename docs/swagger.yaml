@@ -347,14 +347,9 @@ definitions:
         maxLength: 20
         minLength: 6
         type: string
-      newPassword:
-        description: For frontend compatibility
-        type: string
       password:
         maxLength: 20
         minLength: 6
-        type: string
-      token:
         type: string
     required:
     - confirm_password

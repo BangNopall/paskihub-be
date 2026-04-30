@@ -3439,17 +3439,10 @@ const docTemplate = `{
                     "maxLength": 20,
                     "minLength": 6
                 },
-                "newPassword": {
-                    "description": "For frontend compatibility",
-                    "type": "string"
-                },
                 "password": {
                     "type": "string",
                     "maxLength": 20,
                     "minLength": 6
-                },
-                "token": {
-                    "type": "string"
                 }
             }
         },
