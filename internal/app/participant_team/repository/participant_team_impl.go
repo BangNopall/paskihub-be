@@ -53,6 +53,29 @@ func (r *participantTeamRepository) GetTeamByID(ctx context.Context, teamID uuid
 	return &team, nil
 }
 
+func (r *participantTeamRepository) UpdateTeamWithMembers(ctx context.Context, team *entity.Team, members []entity.TeamMember) error {
+	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		if err := tx.Save(team).Error; err != nil {
+			return err
+		}
+
+		if err := tx.Where("team_id = ?", team.Id).Delete(&entity.TeamMember{}).Error; err != nil {
+			return err
+		}
+
+		for i := range members {
+			members[i].TeamId = team.Id
+		}
+
+		if len(members) > 0 {
+			if err := tx.Create(&members).Error; err != nil {
+				return err
+			}
+		}
+		return nil
+	})
+}
+
 func (r *participantTeamRepository) DeleteTeam(ctx context.Context, teamID uuid.UUID) error {
 	return r.db.WithContext(ctx).Delete(&entity.Team{}, "id = ?", teamID).Error
 }

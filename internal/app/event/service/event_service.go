@@ -212,7 +212,7 @@ func (s *eventService) UploadPoster(ctx context.Context, Id string, UserId strin
 	return s.eventRepo.UpdateEvent(ctx, &update, eventId)
 }
 
-func (s *eventService) UpdateEvent(ctx context.Context, Id string, UserId string, event *dto.EventUpdate) error {
+func (s *eventService) UpdateEvent(ctx context.Context, Id string, UserId string, event *dto.EventUpdate, logo *multipart.FileHeader, poster *multipart.FileHeader) error {
 	ctx, cancel := context.WithTimeout(ctx, s.timeout)
 	defer cancel()
 
@@ -233,6 +233,24 @@ func (s *eventService) UpdateEvent(ctx context.Context, Id string, UserId string
 
 	if existingEvent.UserId != uId {
 		return domain.ErrForbiddenUpdate
+	}
+
+	if logo != nil {
+		filename := fmt.Sprintf("%s-%s-%s", Id, "logo", logo.Filename)
+		path := filepath.Join("public", "uploads", "events", filename)
+		if err := s.saveFile(logo, path); err != nil {
+			return domain.ErrInternalServer
+		}
+		event.LogoPath = path
+	}
+
+	if poster != nil {
+		filename := fmt.Sprintf("%s-%s-%s", Id, "poster", poster.Filename)
+		path := filepath.Join("public", "uploads", "events", filename)
+		if err := s.saveFile(poster, path); err != nil {
+			return domain.ErrInternalServer
+		}
+		event.PosterPath = path
 	}
 
 	return s.eventRepo.UpdateEvent(ctx, event, eventId)

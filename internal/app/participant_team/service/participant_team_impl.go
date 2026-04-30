@@ -115,8 +115,68 @@ func (s *participantTeamService) CreateTeam(ctx context.Context, userID string, 
 }
 
 func (s *participantTeamService) UpdateTeam(ctx context.Context, userID string, teamID string, req dto.CreateTeamRequest) error {
-	// Optional feature to implement for PUT /teams/:id
-	return errors.New("not implemented yet")
+	parsedUserID, err := uuid.Parse(userID)
+	if err != nil {
+		return errors.New("invalid user id")
+	}
+
+	parsedTeamID, err := uuid.Parse(teamID)
+	if err != nil {
+		return errors.New("invalid team id")
+	}
+
+	institution, err := s.profileRepo.GetInstitutionByUserID(ctx, parsedUserID)
+	if err != nil {
+		return errors.New("institution not found")
+	}
+
+	existingTeam, err := s.repo.GetTeamByID(ctx, parsedTeamID)
+	if err != nil {
+		return errors.New("team not found")
+	}
+
+	if existingTeam.InstiId != institution.Id {
+		return errors.New("unauthorized to update this team")
+	}
+
+	if req.LogoTeam != nil {
+		logoPath, err := saveFile(req.LogoTeam, "public/uploads/teams/logos")
+		if err == nil {
+			existingTeam.LogoPath = logoPath
+		}
+	}
+
+	if req.SuratRekomendasi != nil {
+		recLetterPath, err := saveFile(req.SuratRekomendasi, "public/uploads/teams/rekomendasi")
+		if err == nil {
+			existingTeam.RecLetterPath = recLetterPath
+		}
+	}
+
+	existingTeam.Name = req.Name
+	existingTeam.Pelatih = req.PelatihName
+
+	var members []entity.TeamMember
+	for _, m := range req.Members {
+		idCardPath, err := saveFile(m.IdCard, "public/uploads/teams/id_cards")
+		if err != nil {
+			return err
+		}
+		photoPath, err := saveFile(m.Photo, "public/uploads/teams/photos")
+		if err != nil {
+			return err
+		}
+
+		members = append(members, entity.TeamMember{
+			Id:         uuid.New(),
+			FullName:   m.FullName,
+			Role:       enums.TeamType(m.Role),
+			IdCardPath: idCardPath,
+			PhotoPath:  photoPath,
+		})
+	}
+
+	return s.repo.UpdateTeamWithMembers(ctx, existingTeam, members)
 }
 
 func (s *participantTeamService) GetTeams(ctx context.Context, userID string) ([]dto.ParticipantTeamResponse, error) {

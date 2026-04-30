@@ -50,6 +50,14 @@ import (
 	pAssessCtr "github.com/BangNopall/paskihub-be/internal/app/participant_assessment/controller"
 	pAssessRepo "github.com/BangNopall/paskihub-be/internal/app/participant_assessment/repository"
 	pAssessSvc "github.com/BangNopall/paskihub-be/internal/app/participant_assessment/service"
+
+	eoTeamCtr "github.com/BangNopall/paskihub-be/internal/app/eo_team/controller"
+	eoTeamRepo "github.com/BangNopall/paskihub-be/internal/app/eo_team/repository"
+	eoTeamSvc "github.com/BangNopall/paskihub-be/internal/app/eo_team/service"
+
+	dashboardCtr "github.com/BangNopall/paskihub-be/internal/app/dashboard/controller"
+	dashboardRepo "github.com/BangNopall/paskihub-be/internal/app/dashboard/repository"
+	dashboardSvc "github.com/BangNopall/paskihub-be/internal/app/dashboard/service"
 )
 
 type Server interface {
@@ -122,11 +130,16 @@ func (s *httpServer) MountRoutes(db *gorm.DB) {
 	walletRepo := walletRepo.NewWalletRepository(db)
 	formPenilaianRepo := assessmentRepo.NewFormPenilaianRepository(db)
 	rekapRepo := assessmentRepo.NewRekapRepository(db)
+	juryRepo := assessmentRepo.NewJuryRepository(db)
+
+	assessmentRepoIns := assessmentRepo.NewAssessmentRepository(db)
 
 	pProfileRepoIns := pProfileRepo.NewParticipantProfileRepository(db)
 	pTeamRepoIns := pTeamRepo.NewParticipantTeamRepository(db)
 	pEventRepoIns := pEventRepo.NewParticipantEventRepository(db)
 	pAssessRepoIns := pAssessRepo.NewParticipantAssessmentRepository(db)
+	eoTeamRepoIns := eoTeamRepo.NewEOTeamRepository(db)
+	dashboardRepoIns := dashboardRepo.NewDashboardRepository(db)
 
 	// middleware
 	middleware := middlewares.NewMiddleware(
@@ -141,11 +154,15 @@ func (s *httpServer) MountRoutes(db *gorm.DB) {
 	walletSvc := walletSvc.NewWalletService(walletRepo, eventRepo, uuid, time.Second*15)
 	formPenilaianSvc := assessmentSvc.NewFormPenilaianService(formPenilaianRepo, db, s.validator)
 	rekapSvc := assessmentSvc.NewRekapService(rekapRepo)
+	jurySvc := assessmentSvc.NewJuryService(juryRepo)
+	assessmentSvcIns := assessmentSvc.NewAssessmentService(assessmentRepoIns)
 
 	pProfileSvcIns := pProfileSvc.NewParticipantProfileService(pProfileRepoIns)
 	pTeamSvcIns := pTeamSvc.NewParticipantTeamService(pTeamRepoIns, pProfileRepoIns)
 	pEventSvcIns := pEventSvc.NewParticipantEventService(pEventRepoIns)
 	pAssessSvcIns := pAssessSvc.NewParticipantAssessmentService(pAssessRepoIns)
+	eoTeamSvcIns := eoTeamSvc.NewEOTeamService(eoTeamRepoIns)
+	dashboardSvcIns := dashboardSvc.NewDashboardService(dashboardRepoIns)
 
 	// Controller
 	userCtr.InitUserController(userSvc, s.app, middleware, redis)
@@ -153,6 +170,10 @@ func (s *httpServer) MountRoutes(db *gorm.DB) {
 	walletCtr.InitWalletController(walletSvc, s.app, middleware, redis)
 	assessmentCtr.InitFormPenilaianController(formPenilaianSvc, s.app, middleware)
 	assessmentCtr.InitRekapController(rekapSvc, s.app, middleware)
+	assessmentCtr.InitJuryController(jurySvc, s.app, middleware)
+	assessmentCtr.InitAssessmentController(assessmentSvcIns, s.app, middleware)
+	eoTeamCtr.InitEOTeamController(eoTeamSvcIns, s.app, middleware)
+	dashboardCtr.InitDashboardController(dashboardSvcIns, s.app, middleware)
 
 	pesertaGrp := s.app.Group("/api/v1/peserta", middleware.Authentication, middleware.RateLimiter(), middleware.AuthPeserta)
 

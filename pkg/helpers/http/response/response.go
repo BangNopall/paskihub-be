@@ -23,11 +23,14 @@ type Response struct {
 	Data    interface{} `json:"data,omitempty"`
 }
 
+type ErrorDetail struct {
+	Code    string      `json:"code"`
+	Message string      `json:"message"`
+	Details interface{} `json:"details,omitempty"`
+}
+
 type ErrorResponse struct {
-	Code    int    `json:"code"`
-	Status  Status `json:"status"`
-	Message string `json:"message"`
-	Error   string `json:"error,omitempty"`
+	Error ErrorDetail `json:"error"`
 }
 
 func SendResp(ctx *fiber.Ctx, code int, status Status, message string, data interface{}) {
@@ -53,10 +56,11 @@ func SendErrResp(
 	}
 
 	ctx.Status(code).JSON(ErrorResponse{
-		Code:    code,
-		Status:  status,
-		Message: message,
-		Error:   errMsg,
+		Error: ErrorDetail{
+			Code:    string(status),
+			Message: message,
+			Details: errMsg,
+		},
 	})
 }
 

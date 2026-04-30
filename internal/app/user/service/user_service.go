@@ -2,15 +2,8 @@ package service
 
 import (
 	"context"
-	"strconv"
-
-	// "hash"
-	// "mime/multipart"
-	// "strconv"
 	"time"
-
-	// "github.com/gofiber/fiber/v2"
-	// "github.com/google/uuid"
+	"strconv"
 
 	"github.com/BangNopall/paskihub-be/domain"
 	"github.com/BangNopall/paskihub-be/domain/constants"
@@ -20,16 +13,12 @@ import (
 	"github.com/BangNopall/paskihub-be/domain/enums"
 	"github.com/BangNopall/paskihub-be/internal/infra/env"
 
-	// "github.com/BangNopall/paskihub-be/internal/infra/env"
-	// "github.com/BangNopall/paskihub-be/pkg/aws"
 	"github.com/BangNopall/paskihub-be/pkg/bcrypt"
 	"github.com/BangNopall/paskihub-be/pkg/gomail"
 	"github.com/BangNopall/paskihub-be/pkg/helpers"
 	"github.com/BangNopall/paskihub-be/pkg/log"
 
-	// html_content "github.com/BangNopall/paskihub-be/pkg/html"
 	"github.com/BangNopall/paskihub-be/pkg/jwt"
-	// "github.com/BangNopall/paskihub-be/pkg/log"
 
 	html_content "github.com/BangNopall/paskihub-be/pkg/html"
 	"github.com/BangNopall/paskihub-be/pkg/redis"
@@ -404,4 +393,16 @@ func (s *userService) Logout(ctx context.Context, jwtToken string) error {
 	}
 
 	return nil
+}
+
+func (s *userService) FetchAllUsers(ctx context.Context, role *string) ([]dto.UserResponse, error) {
+	users, err := s.userRepo.FetchAllUsers(ctx, role)
+	if err != nil {
+		return nil, err
+	}
+	var res []dto.UserResponse
+	for _, u := range users {
+		res = append(res, *dto.UserEntityToResponse(&u))
+	}
+	return res, nil
 }

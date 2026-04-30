@@ -208,6 +208,13 @@ definitions:
     - score_value
     - sub_category_id
     type: object
+  dto.JuryRequest:
+    properties:
+      name:
+        type: string
+    required:
+    - name
+    type: object
   dto.PublishScoreboardRequest:
     properties:
       is_score_published:
@@ -338,9 +345,14 @@ definitions:
         maxLength: 20
         minLength: 6
         type: string
+      newPassword:
+        description: For frontend compatibility
+        type: string
       password:
         maxLength: 20
         minLength: 6
+        type: string
+      token:
         type: string
     required:
     - confirm_password
@@ -365,6 +377,38 @@ info:
   title: Paskihub API
   version: "1.0"
 paths:
+  /api/v1/admin/admins:
+    get:
+      description: Retrieve a list of all admins (Admin only)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get all admins
+      tags:
+      - Admin
+  /api/v1/admin/users:
+    get:
+      description: Retrieve a list of all users (Admin only)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get all users
+      tags:
+      - Admin
   /api/v1/assessment/scores/bulk:
     post:
       consumes:
@@ -1343,6 +1387,113 @@ paths:
       summary: Show auth user's events
       tags:
       - Events
+  /api/v1/organizer/dashboard:
+    get:
+      description: Get dashboard statistics and activities for organizer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get organizer dashboard
+      tags:
+      - Dashboard
+  /api/v1/organizer/juries:
+    get:
+      description: Get all juries for organizer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get all juries
+      tags:
+      - Juries
+    post:
+      consumes:
+      - application/json
+      description: Create a new jury
+      parameters:
+      - description: Jury Request
+        in: body
+        name: jury
+        required: true
+        schema:
+          $ref: '#/definitions/dto.JuryRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create a jury
+      tags:
+      - Juries
+  /api/v1/organizer/juries/{id}:
+    delete:
+      description: Delete a jury by ID
+      parameters:
+      - description: Jury ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Delete a jury
+      tags:
+      - Juries
+    put:
+      consumes:
+      - application/json
+      description: Update an existing jury
+      parameters:
+      - description: Jury ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Jury Request
+        in: body
+        name: jury
+        required: true
+        schema:
+          $ref: '#/definitions/dto.JuryRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update a jury
+      tags:
+      - Juries
   /api/v1/peserta/assessment/recap/{regis_id}:
     get:
       description: Get assessment recap details for a participant registration
@@ -1365,6 +1516,22 @@ paths:
       summary: Get assessment recap
       tags:
       - Participant Assessment
+  /api/v1/peserta/dashboard:
+    get:
+      description: Get dashboard statistics and activities for participant
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get participant dashboard
+      tags:
+      - Dashboard
   /api/v1/peserta/events/active:
     get:
       description: Retrieve a list of active registered events for the participant
@@ -1626,6 +1793,48 @@ paths:
       security:
       - BearerAuth: []
       summary: Get team details
+      tags:
+      - Participant Team
+    put:
+      consumes:
+      - multipart/form-data
+      description: Update team details including logo, recommendation letter, and
+        members
+      parameters:
+      - description: Team ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Team Name
+        in: formData
+        name: name
+        required: true
+        type: string
+      - description: Coach Name
+        in: formData
+        name: pelatih_name
+        required: true
+        type: string
+      - description: Team Logo
+        in: formData
+        name: logo_team
+        type: file
+      - description: Recommendation Letter
+        in: formData
+        name: surat_rekomendasi
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update participant team
       tags:
       - Participant Team
   /api/v1/rekap/detail/{regisId}:

@@ -7,6 +7,7 @@ import (
 	"github.com/BangNopall/paskihub-be/domain"
 	"github.com/BangNopall/paskihub-be/domain/contracts"
 	"github.com/BangNopall/paskihub-be/domain/dto"
+	"github.com/BangNopall/paskihub-be/domain/enums"
 	"github.com/BangNopall/paskihub-be/internal/middlewares"
 	"github.com/BangNopall/paskihub-be/pkg/helpers/http/response"
 	"github.com/BangNopall/paskihub-be/pkg/redis"
@@ -36,6 +37,49 @@ func InitUserController(
 	userRouter.Get("/verify-email/:email/:emailVerPass", middleware.RateLimiter(), userController.VerifyEmail)
 	userRouter.Put("/reset-password/:token", middleware.RateLimiter(), userController.ResetPassword)
 	userRouter.Post("/forgot-password", middleware.RateLimiter(), userController.ForgotPassword)
+
+	// Admin Routes
+	adminRouter := router.Group("/api/v1/admin")
+	adminRouter.Use(middleware.Authentication, middleware.AuthAdmin)
+	adminRouter.Get("/users", userController.GetUsers)
+	adminRouter.Get("/admins", userController.GetAdmins)
+}
+
+// GetUsers godoc
+// @Summary Get all users
+// @Description Retrieve a list of all users (Admin only)
+// @Tags Admin
+// @Security BearerAuth
+// @Produce json
+// @Success 200 {object} map[string]interface{}
+// @Router /api/v1/admin/users [get]
+func (c *userController) GetUsers(ctx *fiber.Ctx) error {
+	res, err := c.userSvc.FetchAllUsers(ctx.Context(), nil)
+	if err != nil {
+		response.Send(ctx, http.StatusInternalServerError, "failed to fetch users", nil, err)
+		return nil
+	}
+	response.Send(ctx, http.StatusOK, "success to fetch users", res, nil)
+	return nil
+}
+
+// GetAdmins godoc
+// @Summary Get all admins
+// @Description Retrieve a list of all admins (Admin only)
+// @Tags Admin
+// @Security BearerAuth
+// @Produce json
+// @Success 200 {object} map[string]interface{}
+// @Router /api/v1/admin/admins [get]
+func (c *userController) GetAdmins(ctx *fiber.Ctx) error {
+	role := string(enums.Admin)
+	res, err := c.userSvc.FetchAllUsers(ctx.Context(), &role)
+	if err != nil {
+		response.Send(ctx, http.StatusInternalServerError, "failed to fetch admins", nil, err)
+		return nil
+	}
+	response.Send(ctx, http.StatusOK, "success to fetch admins", res, nil)
+	return nil
 }
 
 // Register godoc
@@ -217,6 +261,15 @@ func (c *userController) ResetPassword(ctx *fiber.Ctx) error {
 
 	if err != nil {
 		return nil
+	}
+
+	if token == "" {
+		token = user.Token
+	}
+
+	if user.Password == "" && user.NewPassword != "" {
+		user.Password = user.NewPassword
+		user.ConfirmPassword = user.NewPassword
 	}
 
 	err = c.userSvc.ResetPassword(ctx.Context(), user, token)

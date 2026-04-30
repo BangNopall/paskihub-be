@@ -12,6 +12,7 @@ type ParticipantTeamRepository interface {
 	CreateTeamWithMembers(ctx context.Context, team *entity.Team, members []entity.TeamMember) error
 	GetTeamsByInstitutionID(ctx context.Context, instiID uuid.UUID) ([]entity.Team, error)
 	GetTeamByID(ctx context.Context, teamID uuid.UUID) (*entity.Team, error)
+	UpdateTeamWithMembers(ctx context.Context, team *entity.Team, members []entity.TeamMember) error
 	DeleteTeam(ctx context.Context, teamID uuid.UUID) error
 }
 

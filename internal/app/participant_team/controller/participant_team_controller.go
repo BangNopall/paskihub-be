@@ -26,9 +26,97 @@ func (c *ParticipantTeamController) Route(router fiber.Router) {
 	teamGroup := router.Group("/teams")
 
 	teamGroup.Post("", c.CreateTeam)
+	teamGroup.Put("/:id", c.UpdateTeam)
 	teamGroup.Get("", c.GetTeams)
 	teamGroup.Get("/:id", c.GetTeamDetail)
 	teamGroup.Delete("/:id", c.DeleteTeam)
+}
+
+// UpdateTeam godoc
+// @Summary Update participant team
+// @Description Update team details including logo, recommendation letter, and members
+// @Tags Participant Team
+// @Security BearerAuth
+// @Accept multipart/form-data
+// @Produce json
+// @Param id path string true "Team ID"
+// @Param name formData string true "Team Name"
+// @Param pelatih_name formData string true "Coach Name"
+// @Param logo_team formData file false "Team Logo"
+// @Param surat_rekomendasi formData file false "Recommendation Letter"
+// @Success 200 {object} map[string]interface{}
+// @Router /api/v1/peserta/teams/{id} [put]
+func (c *ParticipantTeamController) UpdateTeam(ctx *fiber.Ctx) error {
+	userID := ctx.Locals("id").(string)
+	teamID := ctx.Params("id")
+
+	form, err := ctx.MultipartForm()
+	if err != nil {
+		response.Send(ctx, fiber.StatusBadRequest, "Failed to parse multipart form", nil, err)
+		return nil
+	}
+
+	var req dto.CreateTeamRequest
+
+	if nameVals, ok := form.Value["name"]; ok && len(nameVals) > 0 {
+		req.Name = nameVals[0]
+	}
+	if pelatihVals, ok := form.Value["coach_name"]; ok && len(pelatihVals) > 0 {
+		req.PelatihName = pelatihVals[0]
+	}
+
+	if logoFiles, ok := form.File["logo"]; ok && len(logoFiles) > 0 {
+		req.LogoTeam = logoFiles[0]
+	}
+	if recFiles, ok := form.File["recommendation_letter"]; ok && len(recFiles) > 0 {
+		req.SuratRekomendasi = recFiles[0]
+	}
+
+	for i := 0; i < 50; i++ {
+		fullNameKey := fmt.Sprintf("members[%d][full_name]", i)
+		roleKey := fmt.Sprintf("members[%d][role]", i)
+		idCardKey := fmt.Sprintf("members[%d][id_card]", i)
+		photoKey := fmt.Sprintf("members[%d][photo]", i)
+
+		var member dto.TeamMemberRequest
+		hasData := false
+
+		if fnVals, ok := form.Value[fullNameKey]; ok && len(fnVals) > 0 {
+			member.FullName = fnVals[0]
+			hasData = true
+		}
+		if rlVals, ok := form.Value[roleKey]; ok && len(rlVals) > 0 {
+			member.Role = rlVals[0]
+			hasData = true
+		}
+		if icFiles, ok := form.File[idCardKey]; ok && len(icFiles) > 0 {
+			member.IdCard = icFiles[0]
+			hasData = true
+		}
+		if phFiles, ok := form.File[photoKey]; ok && len(phFiles) > 0 {
+			member.Photo = phFiles[0]
+			hasData = true
+		}
+
+		if !hasData {
+			break
+		}
+		req.Members = append(req.Members, member)
+	}
+
+	if err := c.validate.Struct(req); err != nil {
+		response.Send(ctx, fiber.StatusBadRequest, "Validation error", nil, err)
+		return nil
+	}
+
+	err = c.service.UpdateTeam(ctx.Context(), userID, teamID, req)
+	if err != nil {
+		response.Send(ctx, fiber.StatusInternalServerError, "Failed to update team", nil, err)
+		return nil
+	}
+
+	response.Send(ctx, fiber.StatusOK, "Successfully updated team", nil, nil)
+	return nil
 }
 
 // CreateTeam godoc
@@ -58,14 +146,14 @@ func (c *ParticipantTeamController) CreateTeam(ctx *fiber.Ctx) error {
 	if nameVals, ok := form.Value["name"]; ok && len(nameVals) > 0 {
 		req.Name = nameVals[0]
 	}
-	if pelatihVals, ok := form.Value["pelatih_name"]; ok && len(pelatihVals) > 0 {
+	if pelatihVals, ok := form.Value["coach_name"]; ok && len(pelatihVals) > 0 {
 		req.PelatihName = pelatihVals[0]
 	}
 
-	if logoFiles, ok := form.File["logo_team"]; ok && len(logoFiles) > 0 {
+	if logoFiles, ok := form.File["logo"]; ok && len(logoFiles) > 0 {
 		req.LogoTeam = logoFiles[0]
 	}
-	if recFiles, ok := form.File["surat_rekomendasi"]; ok && len(recFiles) > 0 {
+	if recFiles, ok := form.File["recommendation_letter"]; ok && len(recFiles) > 0 {
 		req.SuratRekomendasi = recFiles[0]
 	}
 

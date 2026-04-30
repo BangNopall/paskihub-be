@@ -34,7 +34,7 @@ type EventService interface {
 	ShowUserEvent(ctx context.Context, userId uuid.UUID) ([]dto.EventResponse, error)
 	UploadLogo(ctx context.Context, Id string, UserId string, logoFile *multipart.FileHeader) error
 	UploadPoster(ctx context.Context, Id string, UserId string, posterFile *multipart.FileHeader) error
-	UpdateEvent(ctx context.Context, Id string, UserId string, event *dto.EventUpdate) error
+	UpdateEvent(ctx context.Context, id string, userId string, event *dto.EventUpdate, logo *multipart.FileHeader, poster *multipart.FileHeader) error
 	RemoveUserEvent(ctx context.Context, User *entity.User) error
 	AddUserEvent(ctx context.Context, User *entity.User) error
 	CreateEventLevel(ctx context.Context, EventId string, UserId string, EventLevel *dto.EventLevelCreate) error

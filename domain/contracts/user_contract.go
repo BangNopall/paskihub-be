@@ -22,6 +22,7 @@ type UserRepository interface {
 	FindUser(user *entity.User, userParam *dto.UserParam, relations ...string) error
 	UpdateUser(updateUser *dto.UserUpdate, userId uuid.UUID) error
 	DeleteUnverifiedUser() error
+	FetchAllUsers(ctx context.Context, role *string) ([]entity.User, error)
 }
 
 type UserService interface {
@@ -34,4 +35,5 @@ type UserService interface {
 	// FetchAll(ctx context.Context, userParam *dto.UserParam, pageParam *dto.PaginationRequest) ([]dto.UserResponse, dto.PaginationResponse, error)
 	Logout(ctx context.Context, jwtToken string) error
 	DeleteUnverifiedUsers()
+	FetchAllUsers(ctx context.Context, role *string) ([]dto.UserResponse, error)
 }

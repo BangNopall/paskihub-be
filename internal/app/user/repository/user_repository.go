@@ -2,7 +2,7 @@ package repository
 
 import (
 	// "math"
-
+	"context"
 	"gorm.io/gorm"
 
 	"github.com/google/uuid"
@@ -92,4 +92,14 @@ func (r *userRepository) UpdateUser(updateUser *dto.UserUpdate, userId uuid.UUID
 	}
 
 	return nil
+}
+
+func (r *userRepository) FetchAllUsers(ctx context.Context, role *string) ([]entity.User, error) {
+	var users []entity.User
+	query := r.conn.Model(&entity.User{})
+	if role != nil {
+		query = query.Where("role = ?", *role)
+	}
+	err := query.Find(&users).Error
+	return users, err
 }
