@@ -12,6 +12,7 @@ type EventCreate struct {
 	Name       string    `json:"name"`
 	OpenDate   string    `json:"open_date"`
 	CloseDate  string    `json:"close_date"`
+	Organizer  string    `json:"organizer"`
 	Location   string    `json:"location"`
 	NamaPj     string    `json:"nama_pj"`
 	NoWaPj     string    `json:"no_wa_pj"`

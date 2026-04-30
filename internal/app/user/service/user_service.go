@@ -17,6 +17,7 @@ import (
 	"github.com/BangNopall/paskihub-be/pkg/gomail"
 	"github.com/BangNopall/paskihub-be/pkg/helpers"
 	"github.com/BangNopall/paskihub-be/pkg/log"
+	"github.com/google/uuid"
 
 	"github.com/BangNopall/paskihub-be/pkg/jwt"
 
@@ -405,4 +406,13 @@ func (s *userService) FetchAllUsers(ctx context.Context, role *string) ([]dto.Us
 		res = append(res, *dto.UserEntityToResponse(&u))
 	}
 	return res, nil
+}
+
+func (s *userService) FetchUserById(ctx context.Context, userId uuid.UUID) (dto.UserResponse, error) {
+	var user entity.User
+	err := s.userRepo.FindUser(&user, &dto.UserParam{ID: userId})
+	if err != nil {
+		return dto.UserResponse{}, err
+	}
+	return *dto.UserEntityToResponse(&user), nil
 }

@@ -12,6 +12,7 @@ import (
 	"github.com/BangNopall/paskihub-be/pkg/helpers/http/response"
 	"github.com/BangNopall/paskihub-be/pkg/redis"
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 )
 
 type userController struct {
@@ -43,13 +44,63 @@ func InitUserController(
 	adminRouter.Use(middleware.Authentication, middleware.AuthAdmin)
 	adminRouter.Get("/users", userController.GetUsers)
 	adminRouter.Get("/admins", userController.GetAdmins)
+
+	userRouter.Get("/show/:userId", middleware.Authentication, middleware.RateLimiter(), userController.GetUserById)
+}
+
+// GetUserById godoc
+// @Summary Get user by ID
+// @Description Get user details by ID (Self access only)
+// @Tags Users
+// @Security ApiKeyAuth && BearerAuth
+// @Produce json
+// @Param userId path string true "User ID"
+// @Success 200 {object} map[string]interface{}
+// @Router /api/v1/users/show/{userId} [get]
+func (c *userController) GetUserById(ctx *fiber.Ctx) error {
+	var (
+		err     error
+		code    int = http.StatusBadRequest
+		res     interface{}
+		message string = "failed to fetch user"
+	)
+
+	sendResp := func() {
+		response.Send(ctx, code, message, res, err)
+	}
+	defer sendResp()
+
+	userIdStr := ctx.Params("userId")
+	authUserIdStr := ctx.Locals("id").(string)
+
+	if authUserIdStr != userIdStr {
+		code = http.StatusForbidden
+		message = "forbidden access"
+		err = domain.ErrForbidden
+		return nil
+	}
+
+	userId, err := uuid.Parse(userIdStr)
+	if err != nil {
+		return nil
+	}
+
+	res, err = c.userSvc.FetchUserById(ctx.Context(), userId)
+	code = domain.GetCode(err)
+
+	if err != nil {
+		return nil
+	}
+
+	message = "success to fetch user"
+	return nil
 }
 
 // GetUsers godoc
 // @Summary Get all users
 // @Description Retrieve a list of all users (Admin only)
 // @Tags Admin
-// @Security BearerAuth
+// @Security ApiKeyAuth && BearerAuth
 // @Produce json
 // @Success 200 {object} map[string]interface{}
 // @Router /api/v1/admin/users [get]
@@ -67,7 +118,7 @@ func (c *userController) GetUsers(ctx *fiber.Ctx) error {
 // @Summary Get all admins
 // @Description Retrieve a list of all admins (Admin only)
 // @Tags Admin
-// @Security BearerAuth
+// @Security ApiKeyAuth && BearerAuth
 // @Produce json
 // @Success 200 {object} map[string]interface{}
 // @Router /api/v1/admin/admins [get]
@@ -335,7 +386,7 @@ func (c *userController) ForgotPassword(ctx *fiber.Ctx) error {
 // @Summary User logout
 // @Description Logout user and invalidate token
 // @Tags Users
-// @Security BearerAuth
+// @Security ApiKeyAuth && BearerAuth
 // @Produce json
 // @Success 200 {object} map[string]interface{}
 // @Router /api/v1/users/logout [post]

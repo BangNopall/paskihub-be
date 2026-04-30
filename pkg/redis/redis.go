@@ -27,6 +27,14 @@ func NewRedisClient() RedisInterface {
 		DB:       0,
 	})
 
+	if err := rdb.Ping(context.Background()).Err(); err != nil {
+		log.Error(log.LogInfo{
+			"error": err.Error(),
+		}, "[REDIS][NewRedisClient] faield to ping redis")
+		return nil
+	}
+
+	log.Info(nil, "redis connected")
 	return &redisClient{rdb}
 }
 

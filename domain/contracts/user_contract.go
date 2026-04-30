@@ -36,4 +36,5 @@ type UserService interface {
 	Logout(ctx context.Context, jwtToken string) error
 	DeleteUnverifiedUsers()
 	FetchAllUsers(ctx context.Context, role *string) ([]dto.UserResponse, error)
+	FetchUserById(ctx context.Context, userId uuid.UUID) (dto.UserResponse, error)
 }

@@ -19,6 +19,7 @@ const docTemplate = `{
             "get": {
                 "security": [
                     {
+                        "ApiKeyAuth": [],
                         "BearerAuth": []
                     }
                 ],
@@ -45,6 +46,7 @@ const docTemplate = `{
             "get": {
                 "security": [
                     {
+                        "ApiKeyAuth": [],
                         "BearerAuth": []
                     }
                 ],
@@ -2535,6 +2537,7 @@ const docTemplate = `{
             "post": {
                 "security": [
                     {
+                        "ApiKeyAuth": [],
                         "BearerAuth": []
                     }
                 ],
@@ -2628,6 +2631,42 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/dto.UserResetPassword"
                         }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/users/show/{userId}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": [],
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get user details by ID (Self access only)",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Get user by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "userId",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -3046,6 +3085,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "open_date": {
+                    "type": "string"
+                },
+                "organizer": {
                     "type": "string"
                 },
                 "user_id": {
