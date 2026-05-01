@@ -62,6 +62,10 @@ import (
 	eoCtr "github.com/BangNopall/paskihub-be/internal/app/eo/controller"
 	eoRepo "github.com/BangNopall/paskihub-be/internal/app/eo/repository"
 	eoSvc "github.com/BangNopall/paskihub-be/internal/app/eo/service"
+
+	systemSettingCtr "github.com/BangNopall/paskihub-be/internal/app/system_setting/controller"
+	systemSettingRepo "github.com/BangNopall/paskihub-be/internal/app/system_setting/repository"
+	systemSettingSvc "github.com/BangNopall/paskihub-be/internal/app/system_setting/service"
 )
 
 type Server interface {
@@ -78,7 +82,9 @@ type httpServer struct {
 }
 
 func NewHttpServer() Server {
-	app := fiber.New()
+	app := fiber.New(fiber.Config{
+		BodyLimit: 10 * 1024 * 1024, // 10MB limit for file uploads
+	})
 	scheduler := cron.New()
 	validator := validator.New()
 
@@ -94,7 +100,6 @@ func (s *httpServer) Start(port string) {
 		port = ":" + port
 	}
 
-	s.app.Static("/public", "./public")
 	err := s.app.Listen(port)
 
 	if err != nil {
@@ -110,6 +115,7 @@ func (s *httpServer) MountMiddlewares() {
 	}
 
 	s.app.Use(middlewares.CORS())
+	s.app.Static("/public", "./public")
 	s.app.Use(middlewares.ApiKey())
 }
 
@@ -145,6 +151,7 @@ func (s *httpServer) MountRoutes(db *gorm.DB) {
 	eoTeamRepoIns := eoTeamRepo.NewEOTeamRepository(db)
 	dashboardRepoIns := dashboardRepo.NewDashboardRepository(db)
 	eoRepoIns := eoRepo.NewEORepository(db)
+	settingRepoIns := systemSettingRepo.NewSystemSettingRepository(db)
 
 	// middleware
 	middleware := middlewares.NewMiddleware(
@@ -156,7 +163,7 @@ func (s *httpServer) MountRoutes(db *gorm.DB) {
 	// Service
 	userSvc := userSvc.NewUserService(userRepo, uuid, bcrypt, timePkg, gomail, jwt, redis, time.Second*15)
 	eventSvc := eventSvc.NewEventService(eventRepo, walletRepo, uuid, timePkg, time.Second*15)
-	walletSvc := walletSvc.NewWalletService(walletRepo, eventRepo, uuid, time.Second*15)
+	walletSvc := walletSvc.NewWalletService(walletRepo, eventRepo, settingRepoIns, uuid, time.Second*15)
 	formPenilaianSvc := assessmentSvc.NewFormPenilaianService(formPenilaianRepo, db, s.validator)
 	rekapSvc := assessmentSvc.NewRekapService(rekapRepo)
 	jurySvc := assessmentSvc.NewJuryService(juryRepo)
@@ -169,6 +176,7 @@ func (s *httpServer) MountRoutes(db *gorm.DB) {
 	eoTeamSvcIns := eoTeamSvc.NewEOTeamService(eoTeamRepoIns)
 	dashboardSvcIns := dashboardSvc.NewDashboardService(dashboardRepoIns)
 	eoSvcIns := eoSvc.NewEOService(eoRepoIns, userRepo, bcrypt, uuid, time.Second*15)
+	settingSvcIns := systemSettingSvc.NewSystemSettingService(settingRepoIns, time.Second*15)
 
 	// Controller
 	userCtr.InitUserController(userSvc, s.app, middleware, redis)
@@ -180,6 +188,7 @@ func (s *httpServer) MountRoutes(db *gorm.DB) {
 	assessmentCtr.InitAssessmentController(assessmentSvcIns, s.app, middleware)
 	eoTeamCtr.InitEOTeamController(eoTeamSvcIns, s.app, middleware)
 	dashboardCtr.InitDashboardController(dashboardSvcIns, s.app, middleware)
+	systemSettingCtr.InitSystemSettingController(settingSvcIns, s.app, middleware)
 
 	eoControllerIns := eoCtr.NewEOController(eoSvcIns, s.validator)
 	eoControllerIns.Route(s.app, middleware)

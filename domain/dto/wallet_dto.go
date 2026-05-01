@@ -14,10 +14,12 @@ type TopUpRequest struct {
 }
 
 type WalletResponse struct {
-	Id        uuid.UUID `json:"id"`
-	EventId   uuid.UUID `json:"event_id"`
-	Saldo     float64   `json:"saldo"`
-	SaldoKoin float64   `json:"saldo_koin"` // Saldo / 1000
+	Id                   uuid.UUID `json:"id"`
+	EventId              uuid.UUID `json:"event_id"`
+	Saldo                float64   `json:"saldo"`
+	SaldoKoin            float64   `json:"saldo_koin"` // Saldo / CoinRate
+	SuccessfulTopupCount int64     `json:"successful_topup_count"`
+	PendingTopupCount    int64     `json:"pending_topup_count"`
 }
 
 type WalletTransactionResponse struct {

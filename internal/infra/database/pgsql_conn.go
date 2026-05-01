@@ -11,6 +11,7 @@ import (
 	"github.com/BangNopall/paskihub-be/internal/infra/env"
 	"github.com/BangNopall/paskihub-be/pkg/helpers/flag"
 	"github.com/BangNopall/paskihub-be/pkg/log"
+	"github.com/google/uuid"
 )
 
 const SEEDERS_FILE_PATH = "data/seeders/"
@@ -35,6 +36,7 @@ func getInterfaces() []interface{} {
 		&entity.ViolationType{},
 		&entity.GradeRule{},
 		&entity.Score{},
+		&entity.SystemSetting{},
 	}
 }
 
@@ -159,4 +161,23 @@ func Migrate(db *gorm.DB, args []string) {
 	`)
 
 	db.AutoMigrate(getInterfaces()...)
+
+	EnsureDefaultSettings(db)
+}
+
+func EnsureDefaultSettings(db *gorm.DB) {
+	var count int64
+	db.Model(&entity.SystemSetting{}).Count(&count)
+
+	if count == 0 {
+		log.Info(nil, "[PGSQL CONN][EnsureDefaultSettings] Seeding default system settings")
+		defaultSettings := entity.SystemSetting{
+			Id:            uuid.New(),
+			CoinRate:      1000,
+			BankName:      "BCA",
+			AccountNumber: "1234567890",
+			AccountName:   "PaskiHub Indonesia",
+		}
+		db.Create(&defaultSettings)
+	}
 }

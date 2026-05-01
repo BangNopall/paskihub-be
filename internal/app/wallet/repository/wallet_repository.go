@@ -127,3 +127,11 @@ func (r *walletRepository) GetTransactionById(ctx context.Context, transactionId
 	}
 	return &transaction, nil
 }
+
+func (r *walletRepository) CountTransactionsByStatus(ctx context.Context, walletId uuid.UUID, status string) (int64, error) {
+	var count int64
+	err := r.db.WithContext(ctx).Model(&entity.WalletTransaction{}).
+		Where("wallet_id = ? AND status = ?", walletId, status).
+		Count(&count).Error
+	return count, err
+}

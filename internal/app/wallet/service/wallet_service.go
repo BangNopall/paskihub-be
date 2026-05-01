@@ -19,23 +19,26 @@ import (
 )
 
 type walletService struct {
-	walletRepo contracts.WalletRepository
-	eventRepo  contracts.EventRepository
-	uuid       uuidPkg.UUIDInterface
-	timeout    time.Duration
+	walletRepo  contracts.WalletRepository
+	eventRepo   contracts.EventRepository
+	settingRepo contracts.SystemSettingRepository
+	uuid        uuidPkg.UUIDInterface
+	timeout     time.Duration
 }
 
 func NewWalletService(
 	walletRepo contracts.WalletRepository,
 	eventRepo contracts.EventRepository,
+	settingRepo contracts.SystemSettingRepository,
 	uuid uuidPkg.UUIDInterface,
 	timeout time.Duration,
 ) contracts.WalletService {
 	return &walletService{
-		walletRepo: walletRepo,
-		eventRepo:  eventRepo,
-		uuid:       uuid,
-		timeout:    timeout,
+		walletRepo:  walletRepo,
+		eventRepo:   eventRepo,
+		settingRepo: settingRepo,
+		uuid:        uuid,
+		timeout:     timeout,
 	}
 }
 
@@ -73,7 +76,24 @@ func (s *walletService) GetWalletInfo(ctx context.Context, eventId string, userI
 		return nil, err
 	}
 
-	return dto.WalletEntityToResponse(wallet), nil
+	setting, err := s.settingRepo.Get(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	successCount, _ := s.walletRepo.CountTransactionsByStatus(ctx, wallet.Id, string(enums.Approve))
+	pendingCount, _ := s.walletRepo.CountTransactionsByStatus(ctx, wallet.Id, string(enums.Pending))
+
+	res := &dto.WalletResponse{
+		Id:                   wallet.Id,
+		EventId:              wallet.EventId,
+		Saldo:                wallet.Saldo,
+		SaldoKoin:            wallet.Saldo / setting.CoinRate,
+		SuccessfulTopupCount: successCount,
+		PendingTopupCount:    pendingCount,
+	}
+
+	return res, nil
 }
 
 func (s *walletService) GetTransactionLogs(ctx context.Context, eventId string, userId string) ([]dto.WalletTransactionResponse, error) {
@@ -99,6 +119,11 @@ func (s *walletService) GetTransactionLogs(ctx context.Context, eventId string, 
 		return nil, err
 	}
 
+	setting, err := s.settingRepo.Get(ctx)
+	if err != nil {
+		return nil, err
+	}
+
 	transactions, err := s.walletRepo.GetTransactionLogs(ctx, wallet.Id)
 	if err != nil {
 		return nil, err
@@ -106,7 +131,9 @@ func (s *walletService) GetTransactionLogs(ctx context.Context, eventId string, 
 
 	var responses []dto.WalletTransactionResponse
 	for _, tx := range transactions {
-		responses = append(responses, *dto.WalletTransactionEntityToResponse(&tx))
+		resp := dto.WalletTransactionEntityToResponse(&tx)
+		resp.AmountKoin = tx.Amount / setting.CoinRate
+		responses = append(responses, *resp)
 	}
 
 	return responses, nil

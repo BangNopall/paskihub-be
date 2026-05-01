@@ -17,6 +17,7 @@ type WalletRepository interface {
 	RejectTransaction(ctx context.Context, transactionId uuid.UUID) error
 	GetTransactionLogs(ctx context.Context, walletId uuid.UUID) ([]entity.WalletTransaction, error)
 	GetTransactionById(ctx context.Context, transactionId uuid.UUID) (*entity.WalletTransaction, error)
+	CountTransactionsByStatus(ctx context.Context, walletId uuid.UUID, status string) (int64, error)
 }
 
 type WalletService interface {
