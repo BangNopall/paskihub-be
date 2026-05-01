@@ -111,6 +111,10 @@ func (s *eventService) ShowEventData(ctx context.Context, eventId uuid.UUID) (dt
 		return dto.EventResponse{}, err
 	}
 
+	for _, level := range event.EventLevels {
+		event.Registrations = append(event.Registrations, level.Registrations...)
+	}
+
 	return *dto.EventEntityToResponse(&event), nil
 }
 
@@ -131,6 +135,9 @@ func (s *eventService) ShowUserEvent(ctx context.Context, userId uuid.UUID) ([]d
 
 	var responses []dto.EventResponse
 	for _, evt := range user.Events {
+		for _, level := range evt.EventLevels {
+			evt.Registrations = append(evt.Registrations, level.Registrations...)
+		}
 
 		evt.User = user
 		responses = append(responses, *dto.EventEntityToResponse(&evt))
@@ -169,7 +176,7 @@ func (s *eventService) UploadLogo(ctx context.Context, Id string, UserId string,
 		return domain.ErrInternalServer
 	}
 
-	update := dto.EventUpdate{
+	update := entity.Event{
 		LogoPath: path,
 	}
 
@@ -206,18 +213,18 @@ func (s *eventService) UploadPoster(ctx context.Context, Id string, UserId strin
 		return domain.ErrInternalServer
 	}
 
-	update := dto.EventUpdate{
+	update := entity.Event{
 		PosterPath: path,
 	}
 
 	return s.eventRepo.UpdateEvent(ctx, &update, eventId)
 }
 
-func (s *eventService) UpdateEvent(ctx context.Context, Id string, UserId string, event *dto.EventUpdate, logo *multipart.FileHeader, poster *multipart.FileHeader) error {
+func (s *eventService) UpdateEvent(ctx context.Context, EventId string, UserId string, event *dto.EventUpdate) error {
 	ctx, cancel := context.WithTimeout(ctx, s.timeout)
 	defer cancel()
 
-	eventId, err := uuid.Parse(Id)
+	eventId, err := uuid.Parse(EventId)
 	if err != nil {
 		return domain.ErrInternalServer
 	}
@@ -236,25 +243,33 @@ func (s *eventService) UpdateEvent(ctx context.Context, Id string, UserId string
 		return domain.ErrForbiddenUpdate
 	}
 
-	if logo != nil {
-		filename := fmt.Sprintf("%s-%s-%s", Id, "logo", logo.Filename)
-		path := filepath.Join("public", "uploads", "events", filename)
-		if err := s.saveFile(logo, path); err != nil {
-			return domain.ErrInternalServer
-		}
-		event.LogoPath = path
+	id := event.Id
+
+	layout := "2006-01-02 15:04:05"
+	openDate, _ := time.Parse(layout, event.OpenDate)
+	closeDate, _ := time.Parse(layout, event.CloseDate)
+	compeDate, _ := time.Parse(layout, event.CompeDate)
+
+	updateEvent := entity.Event{
+		Id:             id,
+		Name:           event.Name,
+		Description:    event.Description,
+		OpenDate:       openDate,
+		CloseDate:      closeDate,
+		CompeDate:      compeDate,
+		Organizer:      event.Organizer,
+		Location:       event.Location,
+		MinTeamMembers: event.MinTeamMembers,
+		MaxTeamMembers: event.MaxTeamMembers,
+		Status:         event.Status,
+		NamePj:         event.NamePj,
+		NoWaPj:         event.NoWaPj,
+		BankName:       event.BankName,
+		BankNumber:     event.BankNumber,
+		WaGroup:        event.WaGroup,
 	}
 
-	if poster != nil {
-		filename := fmt.Sprintf("%s-%s-%s", Id, "poster", poster.Filename)
-		path := filepath.Join("public", "uploads", "events", filename)
-		if err := s.saveFile(poster, path); err != nil {
-			return domain.ErrInternalServer
-		}
-		event.PosterPath = path
-	}
-
-	return s.eventRepo.UpdateEvent(ctx, event, eventId)
+	return s.eventRepo.UpdateEvent(ctx, &updateEvent, eventId)
 }
 
 func (s *eventService) RemoveUserEvent(ctx context.Context, User *entity.User) error {
