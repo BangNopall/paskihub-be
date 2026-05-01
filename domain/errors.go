@@ -27,7 +27,7 @@ var (
 	ErrUserNotFound            = errors.New("user not found")
 	ErrUniversityNotFound      = errors.New("university not found")
 	ErrAlreadyAttend           = errors.New("user already attended")
-	ErrForbiddenUpdate         = errors.New("forbidden to update status or phase in this service")
+	ErrForbiddenUpdate         = errors.New("forbidden to update")
 	ErrInvalidEnumInput        = errors.New("invalid enum input")
 	ErrMissingAttribute        = errors.New("missing required attribute")
 	ErrConfirmPasswordNotMatch = errors.New("password and confirm password doesn't match")

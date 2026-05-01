@@ -2,7 +2,6 @@ package controller
 
 import (
 	"net/http"
-	"mime/multipart"
 
 	"github.com/BangNopall/paskihub-be/domain"
 	"github.com/BangNopall/paskihub-be/domain/contracts"
@@ -286,61 +285,27 @@ func (c *eventController) UpdateEvent(ctx *fiber.Ctx) error {
 	defer sendResp()
 
 	id := ctx.Params("id")
-	userId := ctx.Locals("id").(string)
+	userIdStr := ctx.Locals("id").(string)
 
-	form, err := ctx.MultipartForm()
+	eventId, err := uuid.Parse(id)
 	if err != nil {
 		return nil
 	}
 
 	var event dto.EventUpdate
-	// Manual mapping from form values
-	if names := form.Value["name"]; len(names) > 0 {
-		event.Name = names[0]
-	}
-	if descs := form.Value["description"]; len(descs) > 0 {
-		event.Description = descs[0]
-	}
-	if openDates := form.Value["open_date"]; len(openDates) > 0 {
-		event.OpenDate = openDates[0]
-	}
-	if closeDates := form.Value["close_date"]; len(closeDates) > 0 {
-		event.CloseDate = closeDates[0]
-	}
-	if compeDates := form.Value["compe_date"]; len(compeDates) > 0 {
-		event.CompeDate = compeDates[0]
-	}
-	if organizers := form.Value["organizer"]; len(organizers) > 0 {
-		event.Organizer = organizers[0]
-	}
-	if locations := form.Value["location"]; len(locations) > 0 {
-		event.Location = locations[0]
-	}
-	if namePjs := form.Value["name_pj"]; len(namePjs) > 0 {
-		event.NamePj = namePjs[0]
-	}
-	if noWaPjs := form.Value["no_wa_pj"]; len(noWaPjs) > 0 {
-		event.NoWaPj = noWaPjs[0]
-	}
-	if bankNames := form.Value["bank_name"]; len(bankNames) > 0 {
-		event.BankName = bankNames[0]
-	}
-	if bankNumbers := form.Value["bank_number"]; len(bankNumbers) > 0 {
-		event.BankNumber = bankNumbers[0]
-	}
-	if waGroups := form.Value["wa_group"]; len(waGroups) > 0 {
-		event.WaGroup = waGroups[0]
+	if err = ctx.BodyParser(&event); err != nil {
+		return nil
 	}
 
-	var logo, poster *multipart.FileHeader
-	if logos := form.File["logo"]; len(logos) > 0 {
-		logo = logos[0]
+	// ensure IDs match params
+	if eventId != event.Id {
+		code = http.StatusBadRequest
+		message = "event ID mismatch"
+		err = domain.ErrBadRequest
+		return nil
 	}
-	if posters := form.File["poster"]; len(posters) > 0 {
-		poster = posters[0]
-	}
-
-	err = c.eventSvc.UpdateEvent(ctx.Context(), id, userId, &event, logo, poster)
+ 
+	err = c.eventSvc.UpdateEvent(ctx.Context(), id, userIdStr, &event)
 	code = domain.GetCode(err)
 	if err != nil {
 		return nil

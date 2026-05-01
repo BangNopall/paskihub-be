@@ -110,6 +110,7 @@ func EventLevelEntityToResponse(eventLevel *entity.EventLevel) *EventLevelRespon
 
 func EventEntityToResponse(event *entity.Event) *EventResponse {
 	return &EventResponse{
+		Id:             event.Id,
 		Name:           event.Name,
 		Description:    event.Description,
 		LogoPath:       event.LogoPath,
