@@ -36,7 +36,7 @@ func (r *eventRepository) CreateEvent(ctx context.Context, event *entity.Event) 
 	return nil
 }
 
-func (r *eventRepository) UpdateEvent(ctx context.Context, updateEvent *dto.EventUpdate, eventId uuid.UUID) error {
+func (r *eventRepository) UpdateEvent(ctx context.Context, updateEvent *entity.Event, eventId uuid.UUID) error {
 	err := r.conn.Model(&entity.Event{}).Where("id = ?", eventId).Updates(updateEvent).Error
 	if err != nil {
 		if err == gorm.ErrDuplicatedKey {
@@ -109,7 +109,7 @@ func (r *eventRepository) DeleteEvent(ctx context.Context, eventId uuid.UUID) er
 
 func (r *eventRepository) FetchUserEvent(ctx context.Context, userId uuid.UUID) ([]entity.User, error) {
 	var users []entity.User
-	err := r.conn.Preload("Events").Where("id = ?", userId).Find(&users).Error
+	err := r.conn.Preload("Events.EventLevels.Registrations").Where("id = ?", userId).Find(&users).Error
 	if err != nil {
 		log.Warn(log.LogInfo{
 			"error": err.Error(),
@@ -121,7 +121,7 @@ func (r *eventRepository) FetchUserEvent(ctx context.Context, userId uuid.UUID) 
 
 func (r *eventRepository) FetchOneById(ctx context.Context, eventId uuid.UUID) (entity.Event, error) {
 	var event entity.Event
-	err := r.conn.Preload("User").Preload("EventLevels").Where("id = ?", eventId).First(&event).Error
+	err := r.conn.Preload("User").Preload("EventLevels.Registrations").Where("id = ?", eventId).First(&event).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return entity.Event{}, domain.ErrNotFound
