@@ -162,7 +162,7 @@ func (s *walletService) RequestTopUp(ctx context.Context, eventId string, userId
 		return err
 	}
 
-	if req.Amount < 50000 {
+	if req.Amount <= 0 {
 		return domain.ErrBadRequest
 	}
 

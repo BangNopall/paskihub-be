@@ -1,0 +1,3 @@
+{"level":"info","msg":"Application is running on development mode","time":"2026-05-03T21:42:07+07:00"}
+{"level":"info","msg":"[PGSQL CONN][Migrate] Auto Migrating Tables","time":"2026-05-03T21:42:07+07:00"}
+{"level":"info","msg":"redis connected","time":"2026-05-03T21:42:08+07:00"}

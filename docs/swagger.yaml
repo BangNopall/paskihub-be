@@ -354,6 +354,23 @@ definitions:
     required:
     - name
     type: object
+  dto.UpdateSystemSettingRequest:
+    properties:
+      account_name:
+        type: string
+      account_number:
+        type: string
+      bank_name:
+        type: string
+      coin_rate:
+        minimum: 1
+        type: number
+    required:
+    - account_name
+    - account_number
+    - bank_name
+    - coin_rate
+    type: object
   dto.UpdateViolationTypeReq:
     properties:
       name:
@@ -2222,6 +2239,62 @@ paths:
       summary: Get scoreboard
       tags:
       - Rekap Assessment
+  /api/v1/settings:
+    get:
+      description: Get all system configurations
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+        BearerAuth: []
+      summary: Get all system settings (Admin)
+      tags:
+      - System Settings
+    patch:
+      consumes:
+      - application/json
+      description: Update system configurations like coin rate and bank info
+      parameters:
+      - description: Update Settings Request
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateSystemSettingRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+        BearerAuth: []
+      summary: Update system settings (Admin)
+      tags:
+      - System Settings
+  /api/v1/settings/public:
+    get:
+      description: Get public system configurations like coin rate and bank info
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get public system settings
+      tags:
+      - System Settings
   /api/v1/users/forgot-password:
     post:
       consumes:

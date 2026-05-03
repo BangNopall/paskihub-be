@@ -2760,6 +2760,93 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/settings": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": [],
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get all system configurations",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "System Settings"
+                ],
+                "summary": "Get all system settings (Admin)",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": [],
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Update system configurations like coin rate and bank info",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "System Settings"
+                ],
+                "summary": "Update system settings (Admin)",
+                "parameters": [
+                    {
+                        "description": "Update Settings Request",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.UpdateSystemSettingRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/settings/public": {
+            "get": {
+                "description": "Get public system configurations like coin rate and bank info",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "System Settings"
+                ],
+                "summary": "Get public system settings",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/users/forgot-password": {
             "post": {
                 "security": [
@@ -3771,6 +3858,30 @@ const docTemplate = `{
             "properties": {
                 "name": {
                     "type": "string"
+                }
+            }
+        },
+        "dto.UpdateSystemSettingRequest": {
+            "type": "object",
+            "required": [
+                "account_name",
+                "account_number",
+                "bank_name",
+                "coin_rate"
+            ],
+            "properties": {
+                "account_name": {
+                    "type": "string"
+                },
+                "account_number": {
+                    "type": "string"
+                },
+                "bank_name": {
+                    "type": "string"
+                },
+                "coin_rate": {
+                    "type": "number",
+                    "minimum": 1
                 }
             }
         },

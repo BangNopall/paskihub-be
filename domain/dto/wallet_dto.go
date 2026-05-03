@@ -9,7 +9,7 @@ import (
 )
 
 type TopUpRequest struct {
-	Amount     float64 `json:"amount" form:"amount" validate:"required,min=50000"`
+	Amount     float64 `json:"amount" form:"amount" validate:"required,min=1"`
 	CouponCode string  `json:"coupon_code,omitempty" form:"coupon_code"`
 }
 

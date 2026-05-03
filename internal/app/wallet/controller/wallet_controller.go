@@ -143,17 +143,23 @@ func (c *walletController) RequestTopUp(ctx *fiber.Ctx) error {
 	amountStr := ctx.FormValue("amount")
 	couponCode := ctx.FormValue("coupon_code")
 
+	if amountStr == "" {
+		code = http.StatusBadRequest
+		message = "amount is required"
+		return nil
+	}
+
 	amount, err := strconv.ParseFloat(amountStr, 64)
 	if err != nil {
 		code = http.StatusBadRequest
-		err = domain.ErrBadRequest
+		message = "invalid amount format"
 		return nil
 	}
 
 	file, err := ctx.FormFile("proof")
 	if err != nil {
 		code = http.StatusBadRequest
-		err = domain.ErrBadRequest
+		message = "transfer proof is required"
 		return nil
 	}
 
