@@ -19,8 +19,9 @@ type JudgeRes struct {
 
 // ViolationType
 type CreateViolationTypeReq struct {
-	Name  string  `json:"name" validate:"required"`
-	Point float64 `json:"point" validate:"required,min=0"`
+	Name         string    `json:"name" validate:"required"`
+	Point        float64   `json:"point" validate:"required,min=0"`
+	EventLevelID uuid.UUID `json:"event_level_id" validate:"required"`
 }
 
 type UpdateViolationTypeReq struct {
@@ -29,15 +30,17 @@ type UpdateViolationTypeReq struct {
 }
 
 type ViolationTypeRes struct {
-	ID      uuid.UUID `json:"id"`
-	EventID uuid.UUID `json:"event_id"`
-	Name    string    `json:"name"`
-	Point   float64   `json:"point"`
+	ID           uuid.UUID `json:"id"`
+	EventID      uuid.UUID `json:"event_id"`
+	EventLevelID uuid.UUID `json:"event_level_id"`
+	Name         string    `json:"name"`
+	Point        float64   `json:"point"`
 }
 
 // ScoreCategory
 type CreateScoreCategoryReq struct {
-	Name string `json:"name" validate:"required"`
+	Name         string    `json:"name" validate:"required"`
+	EventLevelID uuid.UUID `json:"event_level_id" validate:"required"`
 }
 
 type UpdateScoreCategoryReq struct {
@@ -47,24 +50,37 @@ type UpdateScoreCategoryReq struct {
 type ScoreCategoryRes struct {
 	ID            uuid.UUID             `json:"id"`
 	EventID       uuid.UUID             `json:"event_id"`
+	EventLevelID  uuid.UUID             `json:"event_level_id"`
 	Name          string                `json:"name"`
 	SubCategories []ScoreSubCategoryRes `json:"sub_categories,omitempty"`
 }
 
 // ScoreSubCategory
 type CreateScoreSubCategoryReq struct {
-	ScoreCategoriesID uuid.UUID `json:"score_categories_id" validate:"required"`
-	Name              string    `json:"name" validate:"required"`
+	ScoreCategoriesID uuid.UUID           `json:"score_categories_id" validate:"required"`
+	Name              string              `json:"name" validate:"required"`
+	MaxScore          float64             `json:"max_score" validate:"min=0"`
+	Grades            map[string][]string `json:"grades"`
 }
 
 type UpdateScoreSubCategoryReq struct {
-	Name string `json:"name" validate:"required"`
+	Name     string              `json:"name" validate:"required"`
+	MaxScore float64             `json:"max_score" validate:"min=0"`
+	Grades   map[string][]string `json:"grades"`
 }
 
 type ScoreSubCategoryRes struct {
-	ID                uuid.UUID `json:"id"`
-	ScoreCategoriesID uuid.UUID `json:"score_categories_id"`
-	Name              string    `json:"name"`
+	ID                uuid.UUID           `json:"id"`
+	ScoreCategoriesID uuid.UUID           `json:"score_categories_id"`
+	Name              string              `json:"name"`
+	MaxScore          float64             `json:"max_score"`
+	Grades            map[string][]string `json:"grades,omitempty"`
+}
+
+// Unified Res
+type UnifiedAssessmentRes struct {
+	Violations []ViolationTypeRes `json:"violations"`
+	Categories []ScoreCategoryRes `json:"categories"`
 }
 
 // GradeRule
@@ -101,4 +117,27 @@ type ScoreRes struct {
 	SubCategoryID uuid.UUID `json:"sub_category_id"`
 	ScoreValue    float64   `json:"score_value"`
 	Grade         string    `json:"grade"`
+}
+
+// EventAward
+type CreateAwardReq struct {
+	EventLevelID     uuid.UUID   `json:"event_level_id" validate:"required"`
+	Name             string      `json:"name" validate:"required"`
+	LimitRank        int         `json:"limit_rank" validate:"required,min=1"`
+	ScoreCategoryIDs []uuid.UUID `json:"score_category_ids" validate:"required,min=1"`
+}
+
+type UpdateAwardReq struct {
+	Name             string      `json:"name" validate:"required"`
+	LimitRank        int         `json:"limit_rank" validate:"required,min=1"`
+	ScoreCategoryIDs []uuid.UUID `json:"score_category_ids" validate:"required,min=1"`
+}
+
+type AwardRes struct {
+	ID              uuid.UUID          `json:"id"`
+	EventID         uuid.UUID          `json:"event_id"`
+	EventLevelID    uuid.UUID          `json:"event_level_id"`
+	Name            string             `json:"name"`
+	LimitRank       int                `json:"limit_rank"`
+	ScoreCategories []ScoreCategoryRes `json:"score_categories,omitempty"`
 }

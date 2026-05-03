@@ -17,6 +17,7 @@ type Judge struct {
 type ScoreCategory struct {
 	ID            uuid.UUID `gorm:"type:uuid;primaryKey;default:uuid_generate_v4()"`
 	EventID       uuid.UUID `gorm:"type:uuid;not null"`
+	EventLevelID  uuid.UUID `gorm:"type:uuid;not null"`
 	Name          string    `gorm:"type:varchar(255);not null"`
 	UpdatedAt     time.Time
 	CreatedAt     time.Time
@@ -27,27 +28,32 @@ type ScoreSubCategory struct {
 	ID                uuid.UUID `gorm:"type:uuid;primaryKey;default:uuid_generate_v4()"`
 	ScoreCategoriesID uuid.UUID `gorm:"type:uuid;not null"`
 	Name              string    `gorm:"type:varchar(255);not null"`
+	MaxScore          float64   `gorm:"not null;default:0"`
 	UpdatedAt         time.Time
 	CreatedAt         time.Time
+	GradeRules        []GradeRule `gorm:"foreignKey:ScoreSubCategoryID;references:ID"`
 }
 
 type ViolationType struct {
-	ID        uuid.UUID `gorm:"type:uuid;primaryKey;default:uuid_generate_v4()"`
-	EventID   uuid.UUID `gorm:"type:uuid;not null"`
-	Name      string    `gorm:"type:varchar(255);not null"`
-	Point     float64   `gorm:"not null"`
-	UpdatedAt time.Time
-	CreatedAt time.Time
+	ID           uuid.UUID `gorm:"type:uuid;primaryKey;default:uuid_generate_v4()"`
+	EventID      uuid.UUID `gorm:"type:uuid;not null"`
+	EventLevelID uuid.UUID `gorm:"type:uuid;not null"`
+	Name         string    `gorm:"type:varchar(255);not null"`
+	Point        float64   `gorm:"not null"`
+	UpdatedAt    time.Time
+	CreatedAt    time.Time
 }
 
 type GradeRule struct {
-	ID        uuid.UUID `gorm:"type:uuid;primaryKey;default:uuid_generate_v4()"`
-	EventID   uuid.UUID `gorm:"type:uuid;not null"`
-	GradeName string    `gorm:"type:varchar(50);not null"` // Hardcoded "Kurang", "Cukup", "Baik", "Sangat Baik"
-	MinScore  float64   `gorm:"not null"`
-	MaxScore  float64   `gorm:"not null"`
-	UpdatedAt time.Time
-	CreatedAt time.Time
+	ID                uuid.UUID `gorm:"type:uuid;primaryKey;default:uuid_generate_v4()"`
+	EventID           uuid.UUID `gorm:"type:uuid;not null"`
+	EventLevelID      uuid.UUID `gorm:"type:uuid;not null"`
+	ScoreSubCategoryID uuid.UUID `gorm:"type:uuid;default:null"`
+	GradeName         string    `gorm:"type:varchar(50);not null"` // Hardcoded "Kurang", "Cukup", "Baik", "Sangat Baik"
+	MinScore          float64   `gorm:"not null"`
+	MaxScore          float64   `gorm:"not null"`
+	UpdatedAt         time.Time
+	CreatedAt         time.Time
 }
 
 type Score struct {
@@ -76,4 +82,19 @@ type TeamViolation struct {
 	Registration  Registration  `json:"registration" gorm:"foreignKey:RegisID;references:Id;"`
 	Judge         Judge         `json:"judge" gorm:"foreignKey:JudgesID;references:ID;"`
 	ViolationType ViolationType `json:"violation_type" gorm:"foreignKey:ViolationTypeID;references:ID;"`
+}
+
+type EventAward struct {
+	ID              uuid.UUID       `gorm:"type:uuid;primaryKey;default:uuid_generate_v4()"`
+	EventID         uuid.UUID       `gorm:"type:uuid;not null"`
+	EventLevelID    uuid.UUID       `gorm:"type:uuid;not null"`
+	Name            string          `gorm:"type:varchar(255);not null"`
+	LimitRank       int             `gorm:"not null;default:1"`
+	CreatedAt       time.Time
+	UpdatedAt       time.Time
+
+	// Relation
+	Event           Event           `gorm:"foreignKey:EventID;references:Id"`
+	EventLevel      EventLevel      `gorm:"foreignKey:EventLevelID;references:Id"`
+	ScoreCategories []ScoreCategory `gorm:"many2many:event_award_score_categories;"`
 }
