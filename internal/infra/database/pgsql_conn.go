@@ -37,6 +37,7 @@ func getInterfaces() []interface{} {
 		&entity.GradeRule{},
 		&entity.Score{},
 		&entity.SystemSetting{},
+		&entity.EventAward{},
 	}
 }
 
