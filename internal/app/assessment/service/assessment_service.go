@@ -2,6 +2,9 @@ package service
 
 import (
 	"context"
+	"fmt"
+	"strconv"
+	"strings"
 
 	"github.com/BangNopall/paskihub-be/domain"
 	"github.com/BangNopall/paskihub-be/domain/contracts"
@@ -112,36 +115,39 @@ func (s *assessmentService) CreateViolationType(ctx context.Context, eventId, us
 		return nil, err
 	}
 	vt := &entity.ViolationType{
-		EventID: eventId,
-		Name:    req.Name,
-		Point:   req.Point,
+		EventID:      eventId,
+		EventLevelID: req.EventLevelID,
+		Name:         req.Name,
+		Point:        req.Point,
 	}
 	if err := s.repo.CreateViolationType(ctx, vt); err != nil {
 		return nil, domain.ErrInternalServer
 	}
 	return &dto.ViolationTypeRes{
-		ID:      vt.ID,
-		EventID: vt.EventID,
-		Name:    vt.Name,
-		Point:   vt.Point,
+		ID:           vt.ID,
+		EventID:      vt.EventID,
+		EventLevelID: vt.EventLevelID,
+		Name:         vt.Name,
+		Point:        vt.Point,
 	}, nil
 }
 
-func (s *assessmentService) GetViolationTypes(ctx context.Context, eventId, userId uuid.UUID) ([]dto.ViolationTypeRes, error) {
+func (s *assessmentService) GetViolationTypes(ctx context.Context, eventId, levelId, userId uuid.UUID) ([]dto.ViolationTypeRes, error) {
 	if err := s.ensureOwnership(ctx, eventId, userId); err != nil {
 		return nil, err
 	}
-	vts, err := s.repo.GetViolationTypesByEvent(ctx, eventId)
+	vts, err := s.repo.GetViolationTypesByLevel(ctx, eventId, levelId)
 	if err != nil {
 		return nil, domain.ErrInternalServer
 	}
 	var res []dto.ViolationTypeRes
 	for _, vt := range vts {
 		res = append(res, dto.ViolationTypeRes{
-			ID:      vt.ID,
-			EventID: vt.EventID,
-			Name:    vt.Name,
-			Point:   vt.Point,
+			ID:           vt.ID,
+			EventID:      vt.EventID,
+			EventLevelID: vt.EventLevelID,
+			Name:         vt.Name,
+			Point:        vt.Point,
 		})
 	}
 	return res, nil
@@ -194,24 +200,26 @@ func (s *assessmentService) CreateScoreCategory(ctx context.Context, eventId, us
 		return nil, err
 	}
 	sc := &entity.ScoreCategory{
-		EventID: eventId,
-		Name:    req.Name,
+		EventID:      eventId,
+		EventLevelID: req.EventLevelID,
+		Name:         req.Name,
 	}
 	if err := s.repo.CreateScoreCategory(ctx, sc); err != nil {
 		return nil, domain.ErrInternalServer
 	}
 	return &dto.ScoreCategoryRes{
-		ID:      sc.ID,
-		EventID: sc.EventID,
-		Name:    sc.Name,
+		ID:           sc.ID,
+		EventID:      sc.EventID,
+		EventLevelID: sc.EventLevelID,
+		Name:         sc.Name,
 	}, nil
 }
 
-func (s *assessmentService) GetScoreCategories(ctx context.Context, eventId, userId uuid.UUID) ([]dto.ScoreCategoryRes, error) {
+func (s *assessmentService) GetScoreCategories(ctx context.Context, eventId, levelId, userId uuid.UUID) ([]dto.ScoreCategoryRes, error) {
 	if err := s.ensureOwnership(ctx, eventId, userId); err != nil {
 		return nil, err
 	}
-	scs, err := s.repo.GetScoreCategoriesByEvent(ctx, eventId)
+	scs, err := s.repo.GetScoreCategoriesByLevel(ctx, eventId, levelId)
 	if err != nil {
 		return nil, domain.ErrInternalServer
 	}
@@ -219,15 +227,26 @@ func (s *assessmentService) GetScoreCategories(ctx context.Context, eventId, use
 	for _, sc := range scs {
 		var subcats []dto.ScoreSubCategoryRes
 		for _, sub := range sc.SubCategories {
+			grades := make(map[string][]string)
+			for _, gr := range sub.GradeRules {
+				rangeStr := fmt.Sprintf("%v-%v", gr.MinScore, gr.MaxScore)
+				if gr.MinScore == gr.MaxScore {
+					rangeStr = fmt.Sprintf("%v", gr.MinScore)
+				}
+				grades[gr.GradeName] = append(grades[gr.GradeName], rangeStr)
+			}
 			subcats = append(subcats, dto.ScoreSubCategoryRes{
 				ID:                sub.ID,
 				ScoreCategoriesID: sub.ScoreCategoriesID,
 				Name:              sub.Name,
+				MaxScore:          sub.MaxScore,
+				Grades:            grades,
 			})
 		}
 		res = append(res, dto.ScoreCategoryRes{
 			ID:            sc.ID,
 			EventID:       sc.EventID,
+			EventLevelID:  sc.EventLevelID,
 			Name:          sc.Name,
 			SubCategories: subcats,
 		})
@@ -287,14 +306,25 @@ func (s *assessmentService) CreateScoreSubCategory(ctx context.Context, eventId,
 	ssc := &entity.ScoreSubCategory{
 		ScoreCategoriesID: req.ScoreCategoriesID,
 		Name:              req.Name,
+		MaxScore:          req.MaxScore,
 	}
 	if err := s.repo.CreateScoreSubCategory(ctx, ssc); err != nil {
 		return nil, domain.ErrInternalServer
 	}
+
+	if len(req.Grades) > 0 {
+		rules := s.parseGrades(eventId, sc.EventLevelID, ssc.ID, req.Grades)
+		if err := s.repo.ReplaceSubCategoryGradeRules(ctx, ssc.ID, rules); err != nil {
+			return nil, domain.ErrInternalServer
+		}
+	}
+
 	return &dto.ScoreSubCategoryRes{
 		ID:                ssc.ID,
 		ScoreCategoriesID: ssc.ScoreCategoriesID,
 		Name:              ssc.Name,
+		MaxScore:          ssc.MaxScore,
+		Grades:            req.Grades,
 	}, nil
 }
 
@@ -312,14 +342,51 @@ func (s *assessmentService) UpdateScoreSubCategory(ctx context.Context, eventId,
 	}
 
 	ssc.Name = req.Name
+	ssc.MaxScore = req.MaxScore
 	if err := s.repo.UpdateScoreSubCategory(ctx, ssc); err != nil {
 		return nil, domain.ErrInternalServer
 	}
+
+	if len(req.Grades) > 0 {
+		rules := s.parseGrades(eventId, sc.EventLevelID, ssc.ID, req.Grades)
+		if err := s.repo.ReplaceSubCategoryGradeRules(ctx, ssc.ID, rules); err != nil {
+			return nil, domain.ErrInternalServer
+		}
+	}
+
 	return &dto.ScoreSubCategoryRes{
 		ID:                ssc.ID,
 		ScoreCategoriesID: ssc.ScoreCategoriesID,
 		Name:              ssc.Name,
+		MaxScore:          ssc.MaxScore,
+		Grades:            req.Grades,
 	}, nil
+}
+
+func (s *assessmentService) parseGrades(eventId, levelId, subCategoryId uuid.UUID, grades map[string][]string) []entity.GradeRule {
+	var rules []entity.GradeRule
+	for gradeName, ranges := range grades {
+		for _, r := range ranges {
+			parts := strings.Split(r, "-")
+			var min, max float64
+			if len(parts) == 2 {
+				min, _ = strconv.ParseFloat(strings.TrimSpace(parts[0]), 64)
+				max, _ = strconv.ParseFloat(strings.TrimSpace(parts[1]), 64)
+			} else {
+				min, _ = strconv.ParseFloat(strings.TrimSpace(r), 64)
+				max = min
+			}
+			rules = append(rules, entity.GradeRule{
+				EventID:            eventId,
+				EventLevelID:       levelId,
+				ScoreSubCategoryID: subCategoryId,
+				GradeName:          gradeName,
+				MinScore:           min,
+				MaxScore:           max,
+			})
+		}
+	}
+	return rules
 }
 
 func (s *assessmentService) DeleteScoreSubCategory(ctx context.Context, eventId, userId, id uuid.UUID) error {
@@ -341,64 +408,26 @@ func (s *assessmentService) DeleteScoreSubCategory(ctx context.Context, eventId,
 	return nil
 }
 
-// GradeRules
-func (s *assessmentService) SetupGradeRules(ctx context.Context, eventId, userId uuid.UUID, req dto.SetupGradeRulesReq) ([]dto.GradeRuleRes, error) {
+// Unified Endpoint
+func (s *assessmentService) GetUnifiedAssessment(ctx context.Context, eventId, levelId, userId uuid.UUID) (*dto.UnifiedAssessmentRes, error) {
 	if err := s.ensureOwnership(ctx, eventId, userId); err != nil {
 		return nil, err
 	}
 
-	var entities []entity.GradeRule
-	for _, rule := range req.Rules {
-		entities = append(entities, entity.GradeRule{
-			EventID:   eventId,
-			GradeName: rule.GradeName,
-			MinScore:  rule.MinScore,
-			MaxScore:  rule.MaxScore,
-		})
-	}
-
-	if err := s.repo.ReplaceGradeRules(ctx, eventId, entities); err != nil {
-		return nil, domain.ErrInternalServer
-	}
-
-	savedRules, err := s.repo.GetGradeRulesByEvent(ctx, eventId)
+	violations, err := s.GetViolationTypes(ctx, eventId, levelId, userId)
 	if err != nil {
-		return nil, domain.ErrInternalServer
-	}
-
-	var results []dto.GradeRuleRes
-	for _, r := range savedRules {
-		results = append(results, dto.GradeRuleRes{
-			ID:        r.ID,
-			EventID:   r.EventID,
-			GradeName: r.GradeName,
-			MinScore:  r.MinScore,
-			MaxScore:  r.MaxScore,
-		})
-	}
-	return results, nil
-}
-
-func (s *assessmentService) GetGradeRules(ctx context.Context, eventId, userId uuid.UUID) ([]dto.GradeRuleRes, error) {
-	if err := s.ensureOwnership(ctx, eventId, userId); err != nil {
 		return nil, err
 	}
-	savedRules, err := s.repo.GetGradeRulesByEvent(ctx, eventId)
+
+	categories, err := s.GetScoreCategories(ctx, eventId, levelId, userId)
 	if err != nil {
-		return nil, domain.ErrInternalServer
+		return nil, err
 	}
 
-	var results []dto.GradeRuleRes
-	for _, r := range savedRules {
-		results = append(results, dto.GradeRuleRes{
-			ID:        r.ID,
-			EventID:   r.EventID,
-			GradeName: r.GradeName,
-			MinScore:  r.MinScore,
-			MaxScore:  r.MaxScore,
-		})
-	}
-	return results, nil
+	return &dto.UnifiedAssessmentRes{
+		Violations: violations,
+		Categories: categories,
+	}, nil
 }
 
 // Score
@@ -407,13 +436,13 @@ func (s *assessmentService) InputScore(ctx context.Context, eventId, userId uuid
 		return nil, err
 	}
 
-	rules, err := s.repo.GetGradeRulesByEvent(ctx, eventId)
+	rules, err := s.repo.GetGradeRulesBySubCategory(ctx, req.SubCategoryID)
 	if err != nil {
 		return nil, domain.ErrInternalServer
 	}
 
 	if len(rules) == 0 {
-		return nil, domain.ErrBadRequest // Or appropriate error to force setting grade rules
+		return nil, domain.ErrBadRequest // Sub-category must have grade rules
 	}
 
 	var evaluatedGrade string
@@ -448,4 +477,104 @@ func (s *assessmentService) InputScore(ctx context.Context, eventId, userId uuid
 		ScoreValue:    score.ScoreValue,
 		Grade:         score.Grade,
 	}, nil
+}
+
+// Award
+func (s *assessmentService) CreateAward(ctx context.Context, eventId, userId uuid.UUID, req dto.CreateAwardReq) (*dto.AwardRes, error) {
+	if err := s.ensureOwnership(ctx, eventId, userId); err != nil {
+		return nil, err
+	}
+
+	var categories []entity.ScoreCategory
+	for _, catId := range req.ScoreCategoryIDs {
+		categories = append(categories, entity.ScoreCategory{ID: catId})
+	}
+
+	award := &entity.EventAward{
+		EventID:         eventId,
+		EventLevelID:    req.EventLevelID,
+		Name:            req.Name,
+		LimitRank:       req.LimitRank,
+		ScoreCategories: categories,
+	}
+
+	if err := s.repo.CreateAward(ctx, award); err != nil {
+		return nil, domain.ErrInternalServer
+	}
+
+	return s.mapToAwardRes(award), nil
+}
+
+func (s *assessmentService) GetAwards(ctx context.Context, eventId, userId uuid.UUID, levelId *uuid.UUID) ([]dto.AwardRes, error) {
+	if err := s.ensureOwnership(ctx, eventId, userId); err != nil {
+		return nil, err
+	}
+	awards, err := s.repo.GetAwardsByEvent(ctx, eventId, levelId)
+	if err != nil {
+		return nil, domain.ErrInternalServer
+	}
+	var res []dto.AwardRes
+	for _, a := range awards {
+		res = append(res, *s.mapToAwardRes(&a))
+	}
+	return res, nil
+}
+
+func (s *assessmentService) UpdateAward(ctx context.Context, eventId, userId, id uuid.UUID, req dto.UpdateAwardReq) (*dto.AwardRes, error) {
+	if err := s.ensureOwnership(ctx, eventId, userId); err != nil {
+		return nil, err
+	}
+	award, err := s.repo.FindAwardById(ctx, id)
+	if err != nil {
+		return nil, domain.ErrInternalServer
+	}
+	if award == nil || award.EventID != eventId {
+		return nil, domain.ErrNotFound
+	}
+
+	award.Name = req.Name
+	award.LimitRank = req.LimitRank
+
+	if err := s.repo.UpdateAward(ctx, award, req.ScoreCategoryIDs); err != nil {
+		return nil, domain.ErrInternalServer
+	}
+
+	// Re-fetch to get updated relations
+	updatedAward, err := s.repo.FindAwardById(ctx, id)
+	if err != nil {
+		return nil, domain.ErrInternalServer
+	}
+	return s.mapToAwardRes(updatedAward), nil
+}
+
+func (s *assessmentService) DeleteAward(ctx context.Context, eventId, userId, id uuid.UUID) error {
+	if err := s.ensureOwnership(ctx, eventId, userId); err != nil {
+		return err
+	}
+	award, err := s.repo.FindAwardById(ctx, id)
+	if err != nil {
+		return domain.ErrInternalServer
+	}
+	if award == nil || award.EventID != eventId {
+		return domain.ErrNotFound
+	}
+	return s.repo.DeleteAward(ctx, id)
+}
+
+func (s *assessmentService) mapToAwardRes(a *entity.EventAward) *dto.AwardRes {
+	var cats []dto.ScoreCategoryRes
+	for _, c := range a.ScoreCategories {
+		cats = append(cats, dto.ScoreCategoryRes{
+			ID:   c.ID,
+			Name: c.Name,
+		})
+	}
+	return &dto.AwardRes{
+		ID:              a.ID,
+		EventID:         a.EventID,
+		EventLevelID:    a.EventLevelID,
+		Name:            a.Name,
+		LimitRank:       a.LimitRank,
+		ScoreCategories: cats,
+	}
 }

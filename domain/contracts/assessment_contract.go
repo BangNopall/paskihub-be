@@ -69,4 +69,9 @@ type IAssessmentService interface {
 	GetUnifiedAssessment(ctx context.Context, eventId, levelId, userId uuid.UUID) (*dto.UnifiedAssessmentRes, error)
 
 	InputScore(ctx context.Context, eventId, userId uuid.UUID, req dto.InputScoreReq) (*dto.ScoreRes, error)
+
+	CreateAward(ctx context.Context, eventId, userId uuid.UUID, req dto.CreateAwardReq) (*dto.AwardRes, error)
+	GetAwards(ctx context.Context, eventId, userId uuid.UUID, levelId *uuid.UUID) ([]dto.AwardRes, error)
+	UpdateAward(ctx context.Context, eventId, userId, id uuid.UUID, req dto.UpdateAwardReq) (*dto.AwardRes, error)
+	DeleteAward(ctx context.Context, eventId, userId, id uuid.UUID) error
 }
