@@ -64,9 +64,9 @@ func (r *assessmentRepository) CreateViolationType(ctx context.Context, vt *enti
 	return r.db.WithContext(ctx).Create(vt).Error
 }
 
-func (r *assessmentRepository) GetViolationTypesByEvent(ctx context.Context, eventId uuid.UUID) ([]entity.ViolationType, error) {
+func (r *assessmentRepository) GetViolationTypesByLevel(ctx context.Context, eventId, levelId uuid.UUID) ([]entity.ViolationType, error) {
 	var vts []entity.ViolationType
-	err := r.db.WithContext(ctx).Where("event_id = ?", eventId).Find(&vts).Error
+	err := r.db.WithContext(ctx).Where("event_id = ? AND event_level_id = ?", eventId, levelId).Find(&vts).Error
 	return vts, err
 }
 
@@ -94,9 +94,9 @@ func (r *assessmentRepository) CreateScoreCategory(ctx context.Context, sc *enti
 	return r.db.WithContext(ctx).Create(sc).Error
 }
 
-func (r *assessmentRepository) GetScoreCategoriesByEvent(ctx context.Context, eventId uuid.UUID) ([]entity.ScoreCategory, error) {
+func (r *assessmentRepository) GetScoreCategoriesByLevel(ctx context.Context, eventId, levelId uuid.UUID) ([]entity.ScoreCategory, error) {
 	var scs []entity.ScoreCategory
-	err := r.db.WithContext(ctx).Preload("SubCategories").Where("event_id = ?", eventId).Find(&scs).Error
+	err := r.db.WithContext(ctx).Preload("SubCategories.GradeRules").Where("event_id = ? AND event_level_id = ?", eventId, levelId).Find(&scs).Error
 	return scs, err
 }
 
@@ -126,7 +126,7 @@ func (r *assessmentRepository) CreateScoreSubCategory(ctx context.Context, ssc *
 
 func (r *assessmentRepository) FindScoreSubCategoryById(ctx context.Context, id uuid.UUID) (*entity.ScoreSubCategory, error) {
 	var ssc entity.ScoreSubCategory
-	err := r.db.WithContext(ctx).Where("id = ?", id).First(&ssc).Error
+	err := r.db.WithContext(ctx).Preload("GradeRules").Where("id = ?", id).First(&ssc).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, nil
@@ -144,15 +144,15 @@ func (r *assessmentRepository) DeleteScoreSubCategory(ctx context.Context, id uu
 	return r.db.WithContext(ctx).Where("id = ?", id).Delete(&entity.ScoreSubCategory{}).Error
 }
 
-func (r *assessmentRepository) GetGradeRulesByEvent(ctx context.Context, eventId uuid.UUID) ([]entity.GradeRule, error) {
+func (r *assessmentRepository) GetGradeRulesBySubCategory(ctx context.Context, subCategoryId uuid.UUID) ([]entity.GradeRule, error) {
 	var rules []entity.GradeRule
-	err := r.db.WithContext(ctx).Where("event_id = ?", eventId).Order("min_score asc").Find(&rules).Error
+	err := r.db.WithContext(ctx).Where("score_sub_category_id = ?", subCategoryId).Order("min_score asc").Find(&rules).Error
 	return rules, err
 }
 
-func (r *assessmentRepository) ReplaceGradeRules(ctx context.Context, eventId uuid.UUID, rules []entity.GradeRule) error {
+func (r *assessmentRepository) ReplaceSubCategoryGradeRules(ctx context.Context, subCategoryId uuid.UUID, rules []entity.GradeRule) error {
 	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-		if err := tx.Where("event_id = ?", eventId).Delete(&entity.GradeRule{}).Error; err != nil {
+		if err := tx.Where("score_sub_category_id = ?", subCategoryId).Delete(&entity.GradeRule{}).Error; err != nil {
 			return err
 		}
 		if len(rules) > 0 {
@@ -166,4 +166,47 @@ func (r *assessmentRepository) ReplaceGradeRules(ctx context.Context, eventId uu
 
 func (r *assessmentRepository) CreateScore(ctx context.Context, score *entity.Score) error {
 	return r.db.WithContext(ctx).Create(score).Error
+}
+
+func (r *assessmentRepository) CreateAward(ctx context.Context, award *entity.EventAward) error {
+	return r.db.WithContext(ctx).Create(award).Error
+}
+
+func (r *assessmentRepository) GetAwardsByEvent(ctx context.Context, eventId uuid.UUID, levelId *uuid.UUID) ([]entity.EventAward, error) {
+	var awards []entity.EventAward
+	query := r.db.WithContext(ctx).Preload("ScoreCategories").Where("event_id = ?", eventId)
+	if levelId != nil {
+		query = query.Where("event_level_id = ?", *levelId)
+	}
+	err := query.Find(&awards).Error
+	return awards, err
+}
+
+func (r *assessmentRepository) FindAwardById(ctx context.Context, id uuid.UUID) (*entity.EventAward, error) {
+	var award entity.EventAward
+	err := r.db.WithContext(ctx).Preload("ScoreCategories").First(&award, "id = ?", id).Error
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return &award, nil
+}
+
+func (r *assessmentRepository) UpdateAward(ctx context.Context, award *entity.EventAward, categoryIds []uuid.UUID) error {
+	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		if err := tx.Save(award).Error; err != nil {
+			return err
+		}
+		var categories []entity.ScoreCategory
+		if err := tx.Where("id IN ?", categoryIds).Find(&categories).Error; err != nil {
+			return err
+		}
+		return tx.Model(award).Association("ScoreCategories").Replace(categories)
+	})
+}
+
+func (r *assessmentRepository) DeleteAward(ctx context.Context, id uuid.UUID) error {
+	return r.db.WithContext(ctx).Delete(&entity.EventAward{}, "id = ?", id).Error
 }

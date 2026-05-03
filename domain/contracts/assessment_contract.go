@@ -18,13 +18,13 @@ type IAssessmentRepository interface {
 	DeleteJudge(ctx context.Context, id uuid.UUID) error
 
 	CreateViolationType(ctx context.Context, vt *entity.ViolationType) error
-	GetViolationTypesByEvent(ctx context.Context, eventId uuid.UUID) ([]entity.ViolationType, error)
+	GetViolationTypesByLevel(ctx context.Context, eventId, levelId uuid.UUID) ([]entity.ViolationType, error)
 	FindViolationTypeById(ctx context.Context, id uuid.UUID) (*entity.ViolationType, error)
 	UpdateViolationType(ctx context.Context, vt *entity.ViolationType) error
 	DeleteViolationType(ctx context.Context, id uuid.UUID) error
 
 	CreateScoreCategory(ctx context.Context, sc *entity.ScoreCategory) error
-	GetScoreCategoriesByEvent(ctx context.Context, eventId uuid.UUID) ([]entity.ScoreCategory, error)
+	GetScoreCategoriesByLevel(ctx context.Context, eventId, levelId uuid.UUID) ([]entity.ScoreCategory, error)
 	FindScoreCategoryById(ctx context.Context, id uuid.UUID) (*entity.ScoreCategory, error)
 	UpdateScoreCategory(ctx context.Context, sc *entity.ScoreCategory) error
 	DeleteScoreCategory(ctx context.Context, id uuid.UUID) error
@@ -34,10 +34,16 @@ type IAssessmentRepository interface {
 	UpdateScoreSubCategory(ctx context.Context, ssc *entity.ScoreSubCategory) error
 	DeleteScoreSubCategory(ctx context.Context, id uuid.UUID) error
 
-	GetGradeRulesByEvent(ctx context.Context, eventId uuid.UUID) ([]entity.GradeRule, error)
-	ReplaceGradeRules(ctx context.Context, eventId uuid.UUID, rules []entity.GradeRule) error
+	GetGradeRulesBySubCategory(ctx context.Context, subCategoryId uuid.UUID) ([]entity.GradeRule, error)
+	ReplaceSubCategoryGradeRules(ctx context.Context, subCategoryId uuid.UUID, rules []entity.GradeRule) error
 
 	CreateScore(ctx context.Context, score *entity.Score) error
+
+	CreateAward(ctx context.Context, award *entity.EventAward) error
+	GetAwardsByEvent(ctx context.Context, eventId uuid.UUID, levelId *uuid.UUID) ([]entity.EventAward, error)
+	FindAwardById(ctx context.Context, id uuid.UUID) (*entity.EventAward, error)
+	UpdateAward(ctx context.Context, award *entity.EventAward, categoryIds []uuid.UUID) error
+	DeleteAward(ctx context.Context, id uuid.UUID) error
 }
 
 type IAssessmentService interface {
@@ -47,12 +53,12 @@ type IAssessmentService interface {
 	DeleteJudge(ctx context.Context, eventId, userId, id uuid.UUID) error
 
 	CreateViolationType(ctx context.Context, eventId, userId uuid.UUID, req dto.CreateViolationTypeReq) (*dto.ViolationTypeRes, error)
-	GetViolationTypes(ctx context.Context, eventId, userId uuid.UUID) ([]dto.ViolationTypeRes, error)
+	GetViolationTypes(ctx context.Context, eventId, levelId, userId uuid.UUID) ([]dto.ViolationTypeRes, error)
 	UpdateViolationType(ctx context.Context, eventId, userId, id uuid.UUID, req dto.UpdateViolationTypeReq) (*dto.ViolationTypeRes, error)
 	DeleteViolationType(ctx context.Context, eventId, userId, id uuid.UUID) error
 
 	CreateScoreCategory(ctx context.Context, eventId, userId uuid.UUID, req dto.CreateScoreCategoryReq) (*dto.ScoreCategoryRes, error)
-	GetScoreCategories(ctx context.Context, eventId, userId uuid.UUID) ([]dto.ScoreCategoryRes, error)
+	GetScoreCategories(ctx context.Context, eventId, levelId, userId uuid.UUID) ([]dto.ScoreCategoryRes, error)
 	UpdateScoreCategory(ctx context.Context, eventId, userId, id uuid.UUID, req dto.UpdateScoreCategoryReq) (*dto.ScoreCategoryRes, error)
 	DeleteScoreCategory(ctx context.Context, eventId, userId, id uuid.UUID) error
 
@@ -60,8 +66,7 @@ type IAssessmentService interface {
 	UpdateScoreSubCategory(ctx context.Context, eventId, userId, id uuid.UUID, req dto.UpdateScoreSubCategoryReq) (*dto.ScoreSubCategoryRes, error)
 	DeleteScoreSubCategory(ctx context.Context, eventId, userId, id uuid.UUID) error
 
-	SetupGradeRules(ctx context.Context, eventId, userId uuid.UUID, req dto.SetupGradeRulesReq) ([]dto.GradeRuleRes, error)
-	GetGradeRules(ctx context.Context, eventId, userId uuid.UUID) ([]dto.GradeRuleRes, error)
+	GetUnifiedAssessment(ctx context.Context, eventId, levelId, userId uuid.UUID) (*dto.UnifiedAssessmentRes, error)
 
 	InputScore(ctx context.Context, eventId, userId uuid.UUID, req dto.InputScoreReq) (*dto.ScoreRes, error)
 }
