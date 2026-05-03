@@ -35,7 +35,7 @@ func (r *eoTeamRepository) CheckEventOwnership(ctx context.Context, eventId, use
 	return count > 0, nil
 }
 
-func (r *eoTeamRepository) FindAllRegistrationsByEvent(ctx context.Context, eventId uuid.UUID, eventLevelId *uuid.UUID) ([]entity.Registration, error) {
+func (r *eoTeamRepository) FindAllRegistrationsByEvent(ctx context.Context, eventId uuid.UUID, eventLevelId *uuid.UUID, institutionType *string) ([]entity.Registration, error) {
 	var registrations []entity.Registration
 
 	query := r.db.WithContext(ctx).
@@ -43,11 +43,17 @@ func (r *eoTeamRepository) FindAllRegistrationsByEvent(ctx context.Context, even
 		Preload("Team.Institution").
 		Preload("EventLevel").
 		Joins("JOIN event_levels ON event_levels.id = registrations.event_level_id").
+		Joins("JOIN teams ON teams.id = registrations.team_id").
+		Joins("JOIN institutions ON institutions.id = teams.insti_id").
 		Where("event_levels.event_id = ?", eventId).
 		Where("registrations.is_kick = ?", false)
 
 	if eventLevelId != nil {
 		query = query.Where("registrations.event_level_id = ?", *eventLevelId)
+	}
+
+	if institutionType != nil && *institutionType != "" {
+		query = query.Where("institutions.institution_type = ?", *institutionType)
 	}
 
 	err := query.Find(&registrations).Error

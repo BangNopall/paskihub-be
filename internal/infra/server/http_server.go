@@ -140,7 +140,6 @@ func (s *httpServer) MountRoutes(db *gorm.DB) {
 	walletRepo := walletRepo.NewWalletRepository(db)
 	formPenilaianRepo := assessmentRepo.NewFormPenilaianRepository(db)
 	rekapRepo := assessmentRepo.NewRekapRepository(db)
-	juryRepo := assessmentRepo.NewJuryRepository(db)
 
 	assessmentRepoIns := assessmentRepo.NewAssessmentRepository(db)
 
@@ -166,7 +165,6 @@ func (s *httpServer) MountRoutes(db *gorm.DB) {
 	walletSvc := walletSvc.NewWalletService(walletRepo, eventRepo, settingRepoIns, uuid, time.Second*15)
 	formPenilaianSvc := assessmentSvc.NewFormPenilaianService(formPenilaianRepo, db, s.validator)
 	rekapSvc := assessmentSvc.NewRekapService(rekapRepo)
-	jurySvc := assessmentSvc.NewJuryService(juryRepo)
 	assessmentSvcIns := assessmentSvc.NewAssessmentService(assessmentRepoIns)
 
 	pProfileSvcIns := pProfileSvc.NewParticipantProfileService(pProfileRepoIns)
@@ -184,7 +182,6 @@ func (s *httpServer) MountRoutes(db *gorm.DB) {
 	walletCtr.InitWalletController(walletSvc, s.app, middleware, redis)
 	assessmentCtr.InitFormPenilaianController(formPenilaianSvc, s.app, middleware)
 	assessmentCtr.InitRekapController(rekapSvc, s.app, middleware)
-	assessmentCtr.InitJuryController(jurySvc, s.app, middleware)
 	assessmentCtr.InitAssessmentController(assessmentSvcIns, s.app, middleware)
 	eoTeamCtr.InitEOTeamController(eoTeamSvcIns, s.app, middleware)
 	dashboardCtr.InitDashboardController(dashboardSvcIns, s.app, middleware)

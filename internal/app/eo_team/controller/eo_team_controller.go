@@ -109,6 +109,7 @@ func (c *eoTeamController) GetStats(ctx *fiber.Ctx) error {
 // @Produce json
 // @Param eventId path string true "Event ID"
 // @Param event_level_id query string false "Event Level ID filter"
+// @Param institution_type query string false "Institution Type filter (SD, SMP, SMA, UMUM, PURNA)"
 // @Success 200 {object} map[string]interface{}
 // @Router /api/v1/eo/events/{eventId}/teams [get]
 func (c *eoTeamController) GetListTeam(ctx *fiber.Ctx) error {
@@ -143,7 +144,12 @@ func (c *eoTeamController) GetListTeam(ctx *fiber.Ctx) error {
 		}
 	}
 
-	res, err = c.svc.GetListTeam(ctx.Context(), eventId, userId, eventLevelId)
+	var institutionType *string
+	if instType := ctx.Query("institution_type"); instType != "" {
+		institutionType = &instType
+	}
+
+	res, err = c.svc.GetListTeam(ctx.Context(), eventId, userId, eventLevelId, institutionType)
 	code = setCodeFromError(err)
 	if err == nil {
 		message = "success to get list team"

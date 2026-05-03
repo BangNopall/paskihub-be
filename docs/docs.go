@@ -988,6 +988,12 @@ const docTemplate = `{
                         "description": "Event Level ID filter",
                         "name": "event_level_id",
                         "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Institution Type filter (SD, SMP, SMA, UMUM, PURNA)",
+                        "name": "institution_type",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -1921,154 +1927,6 @@ const docTemplate = `{
                     "Dashboard"
                 ],
                 "summary": "Get organizer dashboard",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/organizer/juries": {
-            "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": [],
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Get all juries for organizer",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Juries"
-                ],
-                "summary": "Get all juries",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    }
-                }
-            },
-            "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": [],
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Create a new jury",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Juries"
-                ],
-                "summary": "Create a jury",
-                "parameters": [
-                    {
-                        "description": "Jury Request",
-                        "name": "jury",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.JuryRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/organizer/juries/{id}": {
-            "put": {
-                "security": [
-                    {
-                        "ApiKeyAuth": [],
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Update an existing jury",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Juries"
-                ],
-                "summary": "Update a jury",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Jury ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Jury Request",
-                        "name": "jury",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.JuryRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "security": [
-                    {
-                        "ApiKeyAuth": [],
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Delete a jury by ID",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Juries"
-                ],
-                "summary": "Delete a jury",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Jury ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -3764,17 +3622,6 @@ const docTemplate = `{
                     "minimum": 0
                 },
                 "sub_category_id": {
-                    "type": "string"
-                }
-            }
-        },
-        "dto.JuryRequest": {
-            "type": "object",
-            "required": [
-                "name"
-            ],
-            "properties": {
-                "name": {
                     "type": "string"
                 }
             }

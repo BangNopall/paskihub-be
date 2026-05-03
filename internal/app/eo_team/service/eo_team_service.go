@@ -50,12 +50,12 @@ func (s *eoTeamService) checkOwnership(ctx context.Context, eventId, userId uuid
 	return nil
 }
 
-func (s *eoTeamService) GetListTeam(ctx context.Context, eventId, userId uuid.UUID, eventLevelId *uuid.UUID) ([]dto.EOTeamListRes, error) {
+func (s *eoTeamService) GetListTeam(ctx context.Context, eventId, userId uuid.UUID, eventLevelId *uuid.UUID, institutionType *string) ([]dto.EOTeamListRes, error) {
 	if err := s.checkOwnership(ctx, eventId, userId); err != nil {
 		return nil, err
 	}
 
-	regs, err := s.repo.FindAllRegistrationsByEvent(ctx, eventId, eventLevelId)
+	regs, err := s.repo.FindAllRegistrationsByEvent(ctx, eventId, eventLevelId, institutionType)
 	if err != nil {
 		return nil, err
 	}
