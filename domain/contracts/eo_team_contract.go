@@ -13,6 +13,8 @@ type IEOTeamRepository interface {
 	FindAllRegistrationsByEvent(ctx context.Context, eventId uuid.UUID, eventLevelId *uuid.UUID) ([]entity.Registration, error)
 	FindRegistrationByIdAndEvent(ctx context.Context, registrationId, eventId uuid.UUID) (*entity.Registration, error)
 	UpdateRegistration(ctx context.Context, registration *entity.Registration) error
+	GetStats(ctx context.Context, eventId uuid.UUID) (*dto.EOTeamStatsRes, error)
+	GetAssessmentStatus(ctx context.Context, registrationId uuid.UUID) (string, error)
 }
 
 type IEOTeamService interface {
@@ -21,4 +23,5 @@ type IEOTeamService interface {
 	ApproveTeam(ctx context.Context, eventId, userId, registrationId uuid.UUID, req dto.EOTeamApproveReq) error
 	RejectTeam(ctx context.Context, eventId, userId, registrationId uuid.UUID, req dto.EOTeamRejectReq) error
 	KickTeam(ctx context.Context, eventId, userId, registrationId uuid.UUID) error
+	GetStats(ctx context.Context, eventId, userId uuid.UUID) (*dto.EOTeamStatsRes, error)
 }

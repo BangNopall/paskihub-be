@@ -1001,6 +1001,42 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/eo/events/{eventId}/teams/stats": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": [],
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieve aggregated statistics for team registrations in an event",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "EO Team"
+                ],
+                "summary": "Get team statistics",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Event ID",
+                        "name": "eventId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/eo/events/{eventId}/teams/{registrationId}": {
             "get": {
                 "security": [
@@ -3866,6 +3902,7 @@ const docTemplate = `{
             "required": [
                 "account_name",
                 "account_number",
+                "approval_fee",
                 "bank_name",
                 "coin_rate"
             ],
@@ -3875,6 +3912,10 @@ const docTemplate = `{
                 },
                 "account_number": {
                     "type": "string"
+                },
+                "approval_fee": {
+                    "type": "number",
+                    "minimum": 0
                 },
                 "bank_name": {
                     "type": "string"

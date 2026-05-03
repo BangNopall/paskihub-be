@@ -57,6 +57,7 @@ func (s *systemSettingService) UpdateSettings(ctx context.Context, req *dto.Upda
 	}
 
 	setting.CoinRate = req.CoinRate
+	setting.ApprovalFee = req.ApprovalFee
 	setting.BankName = req.BankName
 	setting.AccountNumber = req.AccountNumber
 	setting.AccountName = req.AccountName

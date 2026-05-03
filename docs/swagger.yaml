@@ -360,6 +360,9 @@ definitions:
         type: string
       account_number:
         type: string
+      approval_fee:
+        minimum: 0
+        type: number
       bank_name:
         type: string
       coin_rate:
@@ -368,6 +371,7 @@ definitions:
     required:
     - account_name
     - account_number
+    - approval_fee
     - bank_name
     - coin_rate
     type: object
@@ -1234,6 +1238,29 @@ paths:
       - ApiKeyAuth: []
         BearerAuth: []
       summary: Reject team registration
+      tags:
+      - EO Team
+  /api/v1/eo/events/{eventId}/teams/stats:
+    get:
+      description: Retrieve aggregated statistics for team registrations in an event
+      parameters:
+      - description: Event ID
+        in: path
+        name: eventId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+        BearerAuth: []
+      summary: Get team statistics
       tags:
       - EO Team
   /api/v1/eo/profile:

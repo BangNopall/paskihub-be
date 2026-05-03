@@ -4,7 +4,9 @@ import (
 	"context"
 
 	"github.com/BangNopall/paskihub-be/domain/contracts"
+	"github.com/BangNopall/paskihub-be/domain/dto"
 	"github.com/BangNopall/paskihub-be/domain/entity"
+	"github.com/BangNopall/paskihub-be/domain/enums"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
@@ -59,6 +61,7 @@ func (r *eoTeamRepository) FindRegistrationByIdAndEvent(ctx context.Context, reg
 		Preload("Team").
 		Preload("Team.TeamMembers").
 		Preload("Team.Institution").
+		Preload("Team.Institution.User").
 		Preload("EventLevel").
 		Joins("JOIN event_levels ON event_levels.id = registrations.event_level_id").
 		Where("registrations.id = ?", registrationId).
@@ -67,7 +70,7 @@ func (r *eoTeamRepository) FindRegistrationByIdAndEvent(ctx context.Context, reg
 
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return nil, nil // Or return a specific custom error if desired, but returning nil is okay if the service handles it
+			return nil, nil
 		}
 		return nil, err
 	}
@@ -77,4 +80,61 @@ func (r *eoTeamRepository) FindRegistrationByIdAndEvent(ctx context.Context, reg
 
 func (r *eoTeamRepository) UpdateRegistration(ctx context.Context, registration *entity.Registration) error {
 	return r.db.WithContext(ctx).Save(registration).Error
+}
+
+func (r *eoTeamRepository) GetStats(ctx context.Context, eventId uuid.UUID) (*dto.EOTeamStatsRes, error) {
+	var stats dto.EOTeamStatsRes
+
+	type result struct {
+		PaymentStatus string
+		Count         int64
+	}
+	var results []result
+
+	err := r.db.WithContext(ctx).
+		Model(&entity.Registration{}).
+		Joins("JOIN event_levels ON event_levels.id = registrations.event_level_id").
+		Where("event_levels.event_id = ?", eventId).
+		Select("payment_status, count(*) as count").
+		Group("payment_status").
+		Scan(&results).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	for _, res := range results {
+		stats.TotalTeams += res.Count
+		switch res.PaymentStatus {
+		case string(enums.Waiting):
+			stats.PendingApproval = res.Count
+		case string(enums.DPPaid):
+			stats.PaidDP = res.Count
+			stats.Approved += res.Count
+		case string(enums.FullPaid):
+			stats.PaidFull = res.Count
+			stats.Approved += res.Count
+		case string(enums.Rejected):
+			stats.Rejected = res.Count
+		}
+	}
+
+	return &stats, nil
+}
+
+func (r *eoTeamRepository) GetAssessmentStatus(ctx context.Context, registrationId uuid.UUID) (string, error) {
+	var count int64
+	err := r.db.WithContext(ctx).
+		Model(&entity.Score{}).
+		Where("regis_id = ?", registrationId).
+		Count(&count).Error
+
+	if err != nil {
+		return "PENDING", err
+	}
+
+	if count > 0 {
+		return "COMPLETED", nil
+	}
+	return "PENDING", nil
 }

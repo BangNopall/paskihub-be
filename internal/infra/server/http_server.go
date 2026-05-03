@@ -173,7 +173,7 @@ func (s *httpServer) MountRoutes(db *gorm.DB) {
 	pTeamSvcIns := pTeamSvc.NewParticipantTeamService(pTeamRepoIns, pProfileRepoIns)
 	pEventSvcIns := pEventSvc.NewParticipantEventService(pEventRepoIns)
 	pAssessSvcIns := pAssessSvc.NewParticipantAssessmentService(pAssessRepoIns)
-	eoTeamSvcIns := eoTeamSvc.NewEOTeamService(eoTeamRepoIns)
+	eoTeamSvcIns := eoTeamSvc.NewEOTeamService(eoTeamRepoIns, walletRepo, settingRepoIns, db)
 	dashboardSvcIns := dashboardSvc.NewDashboardService(dashboardRepoIns)
 	eoSvcIns := eoSvc.NewEOService(eoRepoIns, userRepo, bcrypt, uuid, time.Second*15)
 	settingSvcIns := systemSettingSvc.NewSystemSettingService(settingRepoIns, time.Second*15)

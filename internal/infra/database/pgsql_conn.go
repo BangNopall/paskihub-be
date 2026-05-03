@@ -174,6 +174,7 @@ func EnsureDefaultSettings(db *gorm.DB) {
 		defaultSettings := entity.SystemSetting{
 			Id:            uuid.New(),
 			CoinRate:      1000,
+			ApprovalFee:   1,
 			BankName:      "BCA",
 			AccountNumber: "1234567890",
 			AccountName:   "PaskiHub Indonesia",

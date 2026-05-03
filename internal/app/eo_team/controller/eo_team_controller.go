@@ -25,6 +25,7 @@ func InitEOTeamController(
 	group := router.Group("/api/v1/eo/events/:eventId/teams")
 
 	group.Get("/", middleware.Authentication, middleware.RateLimiter(), middleware.AuthOrganizer, c.GetListTeam)
+	group.Get("/stats", middleware.Authentication, middleware.RateLimiter(), middleware.AuthOrganizer, c.GetStats)
 	group.Get("/:registrationId", middleware.Authentication, middleware.RateLimiter(), middleware.AuthOrganizer, c.GetDetailTeam)
 	group.Put("/:registrationId/approve", middleware.Authentication, middleware.RateLimiter(), middleware.AuthOrganizer, c.ApproveTeam)
 	group.Put("/:registrationId/reject", middleware.Authentication, middleware.RateLimiter(), middleware.AuthOrganizer, c.RejectTeam)
@@ -52,7 +53,52 @@ func setCodeFromError(err error) int {
 	if err.Error() == "registration not found for this event" {
 		return http.StatusNotFound
 	}
+	if err.Error() == "insufficient wallet balance for approval fee" {
+		return http.StatusPaymentRequired
+	}
 	return http.StatusBadRequest
+}
+
+// GetStats godoc
+// @Summary Get team statistics
+// @Description Retrieve aggregated statistics for team registrations in an event
+// @Tags EO Team
+// @Security ApiKeyAuth && BearerAuth
+// @Produce json
+// @Param eventId path string true "Event ID"
+// @Success 200 {object} map[string]interface{}
+// @Router /api/v1/eo/events/{eventId}/teams/stats [get]
+func (c *eoTeamController) GetStats(ctx *fiber.Ctx) error {
+	var (
+		err     error
+		code    int = http.StatusOK
+		res     interface{}
+		message string = "failed to get stats team"
+	)
+
+	sendResp := func() {
+		response.Send(ctx, code, message, res, err)
+	}
+	defer sendResp()
+
+	userId, err := getUserId(ctx)
+	if err != nil {
+		code = http.StatusUnauthorized
+		return nil
+	}
+
+	eventId, err := getUUIDParam(ctx, "eventId")
+	if err != nil {
+		code = http.StatusBadRequest
+		return nil
+	}
+
+	res, err = c.svc.GetStats(ctx.Context(), eventId, userId)
+	code = setCodeFromError(err)
+	if err == nil {
+		message = "success to get stats team"
+	}
+	return nil
 }
 
 // GetListTeam godoc

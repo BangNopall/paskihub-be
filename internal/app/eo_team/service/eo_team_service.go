@@ -6,22 +6,36 @@ import (
 
 	"github.com/BangNopall/paskihub-be/domain/contracts"
 	"github.com/BangNopall/paskihub-be/domain/dto"
+	"github.com/BangNopall/paskihub-be/domain/entity"
 	"github.com/BangNopall/paskihub-be/domain/enums"
 	"github.com/google/uuid"
+	"gorm.io/gorm"
 )
 
 var (
-	ErrUnauthorized = errors.New("unauthorized: you do not own this event")
-	ErrNotFound     = errors.New("registration not found for this event")
+	ErrUnauthorized    = errors.New("unauthorized: you do not own this event")
+	ErrNotFound        = errors.New("registration not found for this event")
+	ErrInsufficientBalance = errors.New("insufficient wallet balance for approval fee")
 )
 
 type eoTeamService struct {
-	repo contracts.IEOTeamRepository
+	repo        contracts.IEOTeamRepository
+	walletRepo  contracts.WalletRepository
+	settingRepo contracts.SystemSettingRepository
+	db          *gorm.DB
 }
 
-func NewEOTeamService(repo contracts.IEOTeamRepository) contracts.IEOTeamService {
+func NewEOTeamService(
+	repo contracts.IEOTeamRepository,
+	walletRepo contracts.WalletRepository,
+	settingRepo contracts.SystemSettingRepository,
+	db *gorm.DB,
+) contracts.IEOTeamService {
 	return &eoTeamService{
-		repo: repo,
+		repo:        repo,
+		walletRepo:  walletRepo,
+		settingRepo: settingRepo,
+		db:          db,
 	}
 }
 
@@ -48,14 +62,17 @@ func (s *eoTeamService) GetListTeam(ctx context.Context, eventId, userId uuid.UU
 
 	var res []dto.EOTeamListRes
 	for _, r := range regs {
+		assessStatus, _ := s.repo.GetAssessmentStatus(ctx, r.Id)
 		res = append(res, dto.EOTeamListRes{
-			RegistrationId: r.Id,
-			TeamId:         r.TeamId,
-			LogoPath:       r.Team.LogoPath,
-			TeamName:       r.Team.Name,
-			Institution:    r.Team.Institution.Name,
-			EventLevel:     r.EventLevel.Name,
-			PaymentStatus:  r.PaymentStatus,
+			RegistrationId:   r.Id,
+			TeamId:           r.TeamId,
+			LogoPath:         r.Team.LogoPath,
+			TeamName:         r.Team.Name,
+			Institution:      r.Team.Institution.Name,
+			InstitutionType:  string(r.Team.Institution.InstitutionType),
+			EventLevel:       r.EventLevel.Name,
+			PaymentStatus:    r.PaymentStatus,
+			AssessmentStatus: assessStatus,
 		})
 	}
 	if res == nil {
@@ -84,6 +101,7 @@ func (s *eoTeamService) GetDetailTeam(ctx context.Context, eventId, userId, regi
 			FullName:   m.FullName,
 			Role:       m.Role,
 			IdCardPath: m.IdCardPath,
+			PhotoPath:  m.PhotoPath,
 		})
 	}
 	if members == nil {
@@ -91,19 +109,21 @@ func (s *eoTeamService) GetDetailTeam(ctx context.Context, eventId, userId, regi
 	}
 
 	return &dto.EOTeamDetailRes{
-		RegistrationId:   reg.Id,
-		TeamId:           reg.TeamId,
-		TeamName:         reg.Team.Name,
-		LogoPath:         reg.Team.LogoPath,
-		Pelatih:          reg.Team.Pelatih,
-		RecLetterPath:    reg.Team.RecLetterPath,
-		Institution:      reg.Team.Institution.Name,
-		EventLevel:       reg.EventLevel.Name,
-		PaymentStatus:    reg.PaymentStatus,
-		PaymentProofPath: reg.PaymentProofPath,
-		RejectionReason:  reg.RejectionReason,
-		IsKick:           reg.IsKick,
-		Members:          members,
+		RegistrationId:     reg.Id,
+		TeamId:             reg.TeamId,
+		TeamName:           reg.Team.Name,
+		LogoPath:           reg.Team.LogoPath,
+		Pelatih:            reg.Team.Pelatih,
+		RecLetterPath:      reg.Team.RecLetterPath,
+		Institution:        reg.Team.Institution.Name,
+		InstitutionAddress: reg.Team.Institution.Address,
+		ContactEmail:       reg.Team.Institution.User.Email,
+		EventLevel:         reg.EventLevel.Name,
+		PaymentStatus:      reg.PaymentStatus,
+		PaymentProofPath:   reg.PaymentProofPath,
+		RejectionReason:    reg.RejectionReason,
+		IsKick:             reg.IsKick,
+		Members:            members,
 	}, nil
 }
 
@@ -120,8 +140,46 @@ func (s *eoTeamService) ApproveTeam(ctx context.Context, eventId, userId, regist
 		return ErrNotFound
 	}
 
-	reg.PaymentStatus = req.PaymentStatus // e.g., FULL_PAID or DP_PAID
-	return s.repo.UpdateRegistration(ctx, reg)
+	setting, err := s.settingRepo.Get(ctx)
+	if err != nil {
+		return err
+	}
+
+	totalFeeIDR := setting.ApprovalFee * setting.CoinRate
+
+	return s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		wallet, err := s.walletRepo.GetWalletByEventId(ctx, eventId)
+		if err != nil {
+			return err
+		}
+
+		if wallet.Saldo < totalFeeIDR {
+			return ErrInsufficientBalance
+		}
+
+		wallet.Saldo -= totalFeeIDR
+		if err := tx.Save(wallet).Error; err != nil {
+			return err
+		}
+
+		transaction := &entity.WalletTransaction{
+			Id:       uuid.New(),
+			WalletId: wallet.Id,
+			Type:     enums.Withdraw,
+			Amount:   totalFeeIDR,
+			Status:   enums.Approve,
+		}
+		if err := tx.Create(transaction).Error; err != nil {
+			return err
+		}
+
+		reg.PaymentStatus = req.PaymentStatus
+		if err := tx.Save(reg).Error; err != nil {
+			return err
+		}
+
+		return nil
+	})
 }
 
 func (s *eoTeamService) RejectTeam(ctx context.Context, eventId, userId, registrationId uuid.UUID, req dto.EOTeamRejectReq) error {
@@ -157,4 +215,12 @@ func (s *eoTeamService) KickTeam(ctx context.Context, eventId, userId, registrat
 
 	reg.IsKick = true
 	return s.repo.UpdateRegistration(ctx, reg)
+}
+
+func (s *eoTeamService) GetStats(ctx context.Context, eventId, userId uuid.UUID) (*dto.EOTeamStatsRes, error) {
+	if err := s.checkOwnership(ctx, eventId, userId); err != nil {
+		return nil, err
+	}
+
+	return s.repo.GetStats(ctx, eventId)
 }
