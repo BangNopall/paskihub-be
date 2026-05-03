@@ -48,12 +48,17 @@ func InitAssessmentController(
 	group.Put("/score-sub-categories/:id", middleware.Authentication, middleware.RateLimiter(), middleware.AuthOrganizer, c.UpdateScoreSubCategory)
 	group.Delete("/score-sub-categories/:id", middleware.Authentication, middleware.RateLimiter(), middleware.AuthOrganizer, c.DeleteScoreSubCategory)
 
-	// Grade Rules
-	group.Post("/grade-rules", middleware.Authentication, middleware.RateLimiter(), middleware.AuthOrganizer, c.SetupGradeRules)
-	group.Get("/grade-rules", middleware.Authentication, middleware.RateLimiter(), middleware.AuthOrganizer, c.GetGradeRules)
+	// Unified Assessment System
+	group.Get("/unified", middleware.Authentication, middleware.RateLimiter(), middleware.AuthOrganizer, c.GetUnifiedAssessment)
 
 	// Score Input
 	group.Post("/scores", middleware.Authentication, middleware.RateLimiter(), middleware.AuthOrganizer, c.InputScore)
+
+	// Event Awards
+	group.Post("/awards", middleware.Authentication, middleware.RateLimiter(), middleware.AuthOrganizer, c.CreateAward)
+	group.Get("/awards", middleware.Authentication, middleware.RateLimiter(), middleware.AuthOrganizer, c.GetAwards)
+	group.Put("/awards/:id", middleware.Authentication, middleware.RateLimiter(), middleware.AuthOrganizer, c.UpdateAward)
+	group.Delete("/awards/:id", middleware.Authentication, middleware.RateLimiter(), middleware.AuthOrganizer, c.DeleteAward)
 }
 
 func getUUIDParam(ctx *fiber.Ctx, key string) (uuid.UUID, error) {
@@ -252,11 +257,12 @@ func (c *assessmentController) CreateViolationType(ctx *fiber.Ctx) error {
 
 // GetViolationTypes godoc
 // @Summary Get violation types
-// @Description Get all violation types for an event
+// @Description Get all violation types for an event by level
 // @Tags Violation Types
 // @Security ApiKeyAuth && BearerAuth
 // @Produce json
 // @Param eventId path string true "Event ID"
+// @Param level_id query string true "Level ID"
 // @Success 200 {object} map[string]interface{}
 // @Router /api/v1/eo/events/{eventId}/assessment/violation-types [get]
 func (c *assessmentController) GetViolationTypes(ctx *fiber.Ctx) error {
@@ -274,7 +280,11 @@ func (c *assessmentController) GetViolationTypes(ctx *fiber.Ctx) error {
 	eventId, err := getUUIDParam(ctx, "eventId")
 	if err != nil { code = http.StatusBadRequest; return nil }
 
-	res, err = c.svc.GetViolationTypes(ctx.Context(), eventId, userId)
+	levelIdStr := ctx.Query("level_id")
+	levelId, err := uuid.Parse(levelIdStr)
+	if err != nil { code = http.StatusBadRequest; return nil }
+
+	res, err = c.svc.GetViolationTypes(ctx.Context(), eventId, levelId, userId)
 	code = domain.GetCode(err)
 	if err == nil { message = "success to get violation types" }
 	return nil
@@ -394,11 +404,12 @@ func (c *assessmentController) CreateScoreCategory(ctx *fiber.Ctx) error {
 
 // GetScoreCategories godoc
 // @Summary Get score categories
-// @Description Get all score categories for an event
+// @Description Get all score categories for an event by level
 // @Tags Score Categories
 // @Security ApiKeyAuth && BearerAuth
 // @Produce json
 // @Param eventId path string true "Event ID"
+// @Param level_id query string true "Level ID"
 // @Success 200 {object} map[string]interface{}
 // @Router /api/v1/eo/events/{eventId}/assessment/score-categories [get]
 func (c *assessmentController) GetScoreCategories(ctx *fiber.Ctx) error {
@@ -416,7 +427,11 @@ func (c *assessmentController) GetScoreCategories(ctx *fiber.Ctx) error {
 	eventId, err := getUUIDParam(ctx, "eventId")
 	if err != nil { code = http.StatusBadRequest; return nil }
 
-	res, err = c.svc.GetScoreCategories(ctx.Context(), eventId, userId)
+	levelIdStr := ctx.Query("level_id")
+	levelId, err := uuid.Parse(levelIdStr)
+	if err != nil { code = http.StatusBadRequest; return nil }
+
+	res, err = c.svc.GetScoreCategories(ctx.Context(), eventId, levelId, userId)
 	code = domain.GetCode(err)
 	if err == nil { message = "success to get score categories" }
 	return nil
@@ -606,23 +621,22 @@ func (c *assessmentController) DeleteScoreSubCategory(ctx *fiber.Ctx) error {
 	return nil
 }
 
-// SetupGradeRules godoc
-// @Summary Setup grade rules
-// @Description Configure grade rule mapping for an event
+// GetUnifiedAssessment godoc
+// @Summary Get unified assessment system
+// @Description Get violations and categories for a specific level in one call
 // @Tags Assessment
 // @Security ApiKeyAuth && BearerAuth
-// @Accept json
 // @Produce json
 // @Param eventId path string true "Event ID"
-// @Param req body dto.SetupGradeRulesReq true "Grade Rules Details"
+// @Param level_id query string true "Level ID"
 // @Success 200 {object} map[string]interface{}
-// @Router /api/v1/eo/events/{eventId}/assessment/grade-rules [post]
-func (c *assessmentController) SetupGradeRules(ctx *fiber.Ctx) error {
+// @Router /api/v1/eo/events/{eventId}/assessment/unified [get]
+func (c *assessmentController) GetUnifiedAssessment(ctx *fiber.Ctx) error {
 	var (
 		err     error
 		code    int = http.StatusOK
 		res     interface{}
-		message string = "failed to setup grade rules"
+		message string = "failed to get unified assessment"
 	)
 	sendResp := func() { response.Send(ctx, code, message, res, err) }
 	defer sendResp()
@@ -632,44 +646,13 @@ func (c *assessmentController) SetupGradeRules(ctx *fiber.Ctx) error {
 	eventId, err := getUUIDParam(ctx, "eventId")
 	if err != nil { code = http.StatusBadRequest; return nil }
 
-	var req dto.SetupGradeRulesReq
-	if errParse := ctx.BodyParser(&req); errParse != nil {
-		err = errParse; code = http.StatusBadRequest; return nil
-	}
-
-	res, err = c.svc.SetupGradeRules(ctx.Context(), eventId, userId, req)
-	code = domain.GetCode(err)
-	if err == nil { message = "success to setup grade rules" }
-	return nil
-}
-
-// GetGradeRules godoc
-// @Summary Get grade rules
-// @Description Get existing grade rules for an event
-// @Tags Assessment
-// @Security ApiKeyAuth && BearerAuth
-// @Produce json
-// @Param eventId path string true "Event ID"
-// @Success 200 {object} map[string]interface{}
-// @Router /api/v1/eo/events/{eventId}/assessment/grade-rules [get]
-func (c *assessmentController) GetGradeRules(ctx *fiber.Ctx) error {
-	var (
-		err     error
-		code    int = http.StatusOK
-		res     interface{}
-		message string = "failed to get grade rules"
-	)
-	sendResp := func() { response.Send(ctx, code, message, res, err) }
-	defer sendResp()
-
-	userId, err := getUserId(ctx)
-	if err != nil { code = http.StatusUnauthorized; return nil }
-	eventId, err := getUUIDParam(ctx, "eventId")
+	levelIdStr := ctx.Query("level_id")
+	levelId, err := uuid.Parse(levelIdStr)
 	if err != nil { code = http.StatusBadRequest; return nil }
 
-	res, err = c.svc.GetGradeRules(ctx.Context(), eventId, userId)
+	res, err = c.svc.GetUnifiedAssessment(ctx.Context(), eventId, levelId, userId)
 	code = domain.GetCode(err)
-	if err == nil { message = "success to get grade rules" }
+	if err == nil { message = "success to get unified assessment" }
 	return nil
 }
 
@@ -709,6 +692,196 @@ func (c *assessmentController) InputScore(ctx *fiber.Ctx) error {
 	if err == nil {
 		message = "success to input score"
 		code = http.StatusCreated
+	}
+	return nil
+}
+
+// CreateAward godoc
+// @Summary Create event award
+// @Description Create a new award category for an event
+// @Tags Event Awards
+// @Security ApiKeyAuth && BearerAuth
+// @Accept json
+// @Produce json
+// @Param eventId path string true "Event ID"
+// @Param req body dto.CreateAwardReq true "Award Details"
+// @Success 201 {object} map[string]interface{}
+// @Router /api/v1/eo/events/{eventId}/assessment/awards [post]
+func (c *assessmentController) CreateAward(ctx *fiber.Ctx) error {
+	var (
+		err     error
+		code    int = http.StatusCreated
+		res     interface{}
+		message string = "failed to create award"
+	)
+	sendResp := func() { response.Send(ctx, code, message, res, err) }
+	defer sendResp()
+
+	userId, err := getUserId(ctx)
+	if err != nil {
+		code = http.StatusUnauthorized
+		return nil
+	}
+	eventId, err := getUUIDParam(ctx, "eventId")
+	if err != nil {
+		code = http.StatusBadRequest
+		return nil
+	}
+
+	var req dto.CreateAwardReq
+	if errParse := ctx.BodyParser(&req); errParse != nil {
+		err = errParse
+		code = http.StatusBadRequest
+		return nil
+	}
+
+	res, err = c.svc.CreateAward(ctx.Context(), eventId, userId, req)
+	code = domain.GetCode(err)
+	if err == nil {
+		message = "success to create award"
+		code = http.StatusCreated
+	}
+	return nil
+}
+
+// GetAwards godoc
+// @Summary Get event awards
+// @Description Get all awards for an event, optionally filtered by level
+// @Tags Event Awards
+// @Security ApiKeyAuth && BearerAuth
+// @Produce json
+// @Param eventId path string true "Event ID"
+// @Param level_id query string false "Level ID (Optional)"
+// @Success 200 {object} map[string]interface{}
+// @Router /api/v1/eo/events/{eventId}/assessment/awards [get]
+func (c *assessmentController) GetAwards(ctx *fiber.Ctx) error {
+	var (
+		err     error
+		code    int = http.StatusOK
+		res     interface{}
+		message string = "failed to get awards"
+	)
+	sendResp := func() { response.Send(ctx, code, message, res, err) }
+	defer sendResp()
+
+	userId, err := getUserId(ctx)
+	if err != nil {
+		code = http.StatusUnauthorized
+		return nil
+	}
+	eventId, err := getUUIDParam(ctx, "eventId")
+	if err != nil {
+		code = http.StatusBadRequest
+		return nil
+	}
+
+	var levelIdPtr *uuid.UUID
+	if lid := ctx.Query("level_id"); lid != "" {
+		if u, err := uuid.Parse(lid); err == nil {
+			levelIdPtr = &u
+		}
+	}
+
+	res, err = c.svc.GetAwards(ctx.Context(), eventId, userId, levelIdPtr)
+	code = domain.GetCode(err)
+	if err == nil {
+		message = "success to get awards"
+	}
+	return nil
+}
+
+// UpdateAward godoc
+// @Summary Update event award
+// @Description Update award details
+// @Tags Event Awards
+// @Security ApiKeyAuth && BearerAuth
+// @Accept json
+// @Produce json
+// @Param eventId path string true "Event ID"
+// @Param id path string true "Award ID"
+// @Param req body dto.UpdateAwardReq true "Updated Award Details"
+// @Success 200 {object} map[string]interface{}
+// @Router /api/v1/eo/events/{eventId}/assessment/awards/{id} [put]
+func (c *assessmentController) UpdateAward(ctx *fiber.Ctx) error {
+	var (
+		err     error
+		code    int = http.StatusOK
+		res     interface{}
+		message string = "failed to update award"
+	)
+	sendResp := func() { response.Send(ctx, code, message, res, err) }
+	defer sendResp()
+
+	userId, err := getUserId(ctx)
+	if err != nil {
+		code = http.StatusUnauthorized
+		return nil
+	}
+	eventId, err := getUUIDParam(ctx, "eventId")
+	if err != nil {
+		code = http.StatusBadRequest
+		return nil
+	}
+	id, err := getUUIDParam(ctx, "id")
+	if err != nil {
+		code = http.StatusBadRequest
+		return nil
+	}
+
+	var req dto.UpdateAwardReq
+	if errParse := ctx.BodyParser(&req); errParse != nil {
+		err = errParse
+		code = http.StatusBadRequest
+		return nil
+	}
+
+	res, err = c.svc.UpdateAward(ctx.Context(), eventId, userId, id, req)
+	code = domain.GetCode(err)
+	if err == nil {
+		message = "success to update award"
+	}
+	return nil
+}
+
+// DeleteAward godoc
+// @Summary Delete event award
+// @Description Remove an award category from an event
+// @Tags Event Awards
+// @Security ApiKeyAuth && BearerAuth
+// @Produce json
+// @Param eventId path string true "Event ID"
+// @Param id path string true "Award ID"
+// @Success 200 {object} map[string]interface{}
+// @Router /api/v1/eo/events/{eventId}/assessment/awards/{id} [delete]
+func (c *assessmentController) DeleteAward(ctx *fiber.Ctx) error {
+	var (
+		err     error
+		code    int = http.StatusOK
+		message string = "failed to delete award"
+	)
+	sendResp := func() { response.Send(ctx, code, message, nil, err) }
+	defer sendResp()
+
+	userId, err := getUserId(ctx)
+	if err != nil {
+		code = http.StatusUnauthorized
+		return nil
+	}
+	eventId, err := getUUIDParam(ctx, "eventId")
+	if err != nil {
+		code = http.StatusBadRequest
+		return nil
+	}
+	id, err := getUUIDParam(ctx, "id")
+	if err != nil {
+		code = http.StatusBadRequest
+		return nil
+	}
+
+	err = c.svc.DeleteAward(ctx.Context(), eventId, userId, id)
+	code = domain.GetCode(err)
+	if err == nil {
+		message = "success to delete award"
 	}
 	return nil
 }
