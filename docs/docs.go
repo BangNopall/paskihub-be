@@ -151,7 +151,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/eo/events/{eventId}/assessment/grade-rules": {
+        "/api/v1/eo/events/{eventId}/assessment/awards": {
             "get": {
                 "security": [
                     {
@@ -159,14 +159,14 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Get existing grade rules for an event",
+                "description": "Get all awards for an event, optionally filtered by level",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "Assessment"
+                    "Event Awards"
                 ],
-                "summary": "Get grade rules",
+                "summary": "Get event awards",
                 "parameters": [
                     {
                         "type": "string",
@@ -174,6 +174,12 @@ const docTemplate = `{
                         "name": "eventId",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Level ID (Optional)",
+                        "name": "level_id",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -193,7 +199,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Configure grade rule mapping for an event",
+                "description": "Create a new award category for an event",
                 "consumes": [
                     "application/json"
                 ],
@@ -201,9 +207,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Assessment"
+                    "Event Awards"
                 ],
-                "summary": "Setup grade rules",
+                "summary": "Create event award",
                 "parameters": [
                     {
                         "type": "string",
@@ -213,13 +219,109 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "description": "Grade Rules Details",
+                        "description": "Award Details",
                         "name": "req",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.SetupGradeRulesReq"
+                            "$ref": "#/definitions/dto.CreateAwardReq"
                         }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/eo/events/{eventId}/assessment/awards/{id}": {
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": [],
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Update award details",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Event Awards"
+                ],
+                "summary": "Update event award",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Event ID",
+                        "name": "eventId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Award ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Updated Award Details",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.UpdateAwardReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": [],
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Remove an award category from an event",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Event Awards"
+                ],
+                "summary": "Delete event award",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Event ID",
+                        "name": "eventId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Award ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -419,7 +521,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Get all score categories for an event",
+                "description": "Get all score categories for an event by level",
                 "produces": [
                     "application/json"
                 ],
@@ -433,6 +535,13 @@ const docTemplate = `{
                         "description": "Event ID",
                         "name": "eventId",
                         "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Level ID",
+                        "name": "level_id",
+                        "in": "query",
                         "required": true
                     }
                 ],
@@ -781,6 +890,49 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/eo/events/{eventId}/assessment/unified": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": [],
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get violations and categories for a specific level in one call",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Assessment"
+                ],
+                "summary": "Get unified assessment system",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Event ID",
+                        "name": "eventId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Level ID",
+                        "name": "level_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/eo/events/{eventId}/assessment/violation-types": {
             "get": {
                 "security": [
@@ -789,7 +941,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Get all violation types for an event",
+                "description": "Get all violation types for an event by level",
                 "produces": [
                     "application/json"
                 ],
@@ -803,6 +955,13 @@ const docTemplate = `{
                         "description": "Event ID",
                         "name": "eventId",
                         "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Level ID",
+                        "name": "level_id",
+                        "in": "query",
                         "required": true
                     }
                 ],
@@ -3270,6 +3429,34 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.CreateAwardReq": {
+            "type": "object",
+            "required": [
+                "event_level_id",
+                "limit_rank",
+                "name",
+                "score_category_ids"
+            ],
+            "properties": {
+                "event_level_id": {
+                    "type": "string"
+                },
+                "limit_rank": {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "name": {
+                    "type": "string"
+                },
+                "score_category_ids": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
         "dto.CreateJudgeReq": {
             "type": "object",
             "required": [
@@ -3284,9 +3471,13 @@ const docTemplate = `{
         "dto.CreateScoreCategoryReq": {
             "type": "object",
             "required": [
+                "event_level_id",
                 "name"
             ],
             "properties": {
+                "event_level_id": {
+                    "type": "string"
+                },
                 "name": {
                     "type": "string"
                 }
@@ -3299,6 +3490,19 @@ const docTemplate = `{
                 "score_categories_id"
             ],
             "properties": {
+                "grades": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "max_score": {
+                    "type": "number",
+                    "minimum": 0
+                },
                 "name": {
                     "type": "string"
                 },
@@ -3310,10 +3514,14 @@ const docTemplate = `{
         "dto.CreateViolationTypeReq": {
             "type": "object",
             "required": [
+                "event_level_id",
                 "name",
                 "point"
             ],
             "properties": {
+                "event_level_id": {
+                    "type": "string"
+                },
                 "name": {
                     "type": "string"
                 },
@@ -3578,30 +3786,6 @@ const docTemplate = `{
                 }
             }
         },
-        "dto.GradeRuleItemReq": {
-            "type": "object",
-            "required": [
-                "grade_name"
-            ],
-            "properties": {
-                "grade_name": {
-                    "type": "string",
-                    "enum": [
-                        "Kurang",
-                        "Cukup",
-                        "Baik",
-                        "Sangat Baik"
-                    ]
-                },
-                "max_score": {
-                    "type": "number"
-                },
-                "min_score": {
-                    "type": "number",
-                    "minimum": 0
-                }
-            }
-        },
         "dto.InputScoreReq": {
             "type": "object",
             "required": [
@@ -3650,16 +3834,26 @@ const docTemplate = `{
                 }
             }
         },
-        "dto.SetupGradeRulesReq": {
+        "dto.UpdateAwardReq": {
             "type": "object",
             "required": [
-                "rules"
+                "limit_rank",
+                "name",
+                "score_category_ids"
             ],
             "properties": {
-                "rules": {
+                "limit_rank": {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "name": {
+                    "type": "string"
+                },
+                "score_category_ids": {
                     "type": "array",
+                    "minItems": 1,
                     "items": {
-                        "$ref": "#/definitions/dto.GradeRuleItemReq"
+                        "type": "string"
                     }
                 }
             }
@@ -3739,6 +3933,19 @@ const docTemplate = `{
                 "name"
             ],
             "properties": {
+                "grades": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "max_score": {
+                    "type": "number",
+                    "minimum": 0
+                },
                 "name": {
                     "type": "string"
                 }

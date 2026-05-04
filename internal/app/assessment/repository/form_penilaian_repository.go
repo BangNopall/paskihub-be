@@ -34,10 +34,10 @@ func (r *formPenilaianRepository) GetEventIDByRegisID(ctx context.Context, regis
 	return regis.EventLevel.EventId, nil
 }
 
-func (r *formPenilaianRepository) GetEventGradeRules(ctx context.Context, eventID uuid.UUID) ([]entity.GradeRule, error) {
+func (r *formPenilaianRepository) GetSubCategoryGradeRules(ctx context.Context, subCategoryIDs []uuid.UUID) ([]entity.GradeRule, error) {
 	var rules []entity.GradeRule
 	err := r.db.WithContext(ctx).
-		Where("event_id = ?", eventID).
+		Where("score_sub_category_id IN ?", subCategoryIDs).
 		Find(&rules).Error
 	return rules, err
 }

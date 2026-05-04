@@ -3,12 +3,12 @@ package service
 import (
 	"context"
 	"errors"
-	"fmt"
 
 	"github.com/BangNopall/paskihub-be/domain/contracts"
 	"github.com/BangNopall/paskihub-be/domain/dto"
 	"github.com/BangNopall/paskihub-be/domain/entity"
 	"github.com/go-playground/validator/v10"
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -33,19 +33,19 @@ func (s *formPenilaianService) BulkInsertScores(ctx context.Context, req dto.Bul
 		}
 	}
 
-	eventID, err := s.repo.GetEventIDByRegisID(ctx, req.RegisID)
-	if err != nil {
-		return fmt.Errorf("failed to get event id from regis id: %w", err)
+	var subCatIDs []uuid.UUID
+	for _, sc := range req.Scores {
+		subCatIDs = append(subCatIDs, sc.SubCategoryID)
 	}
 
-	rules, err := s.repo.GetEventGradeRules(ctx, eventID)
+	rules, err := s.repo.GetSubCategoryGradeRules(ctx, subCatIDs)
 	if err != nil || len(rules) == 0 {
-		return errors.New("grade rules not found for this event")
+		return errors.New("grade rules not found for some sub categories")
 	}
 
 	var scores []entity.Score
 	for _, sc := range req.Scores {
-		grade := getGrade(sc.ScoreValue, rules)
+		grade := getGrade(sc.ScoreValue, sc.SubCategoryID, rules)
 		scores = append(scores, entity.Score{
 			RegisID:       req.RegisID,
 			JudgesID:      req.JudgesID,
@@ -83,9 +83,9 @@ func (s *formPenilaianService) BulkInsertTeamViolations(ctx context.Context, req
 	})
 }
 
-func getGrade(score float64, rules []entity.GradeRule) string {
+func getGrade(score float64, subCatID uuid.UUID, rules []entity.GradeRule) string {
 	for _, rule := range rules {
-		if score >= rule.MinScore && score <= rule.MaxScore {
+		if rule.ScoreSubCategoryID == subCatID && score >= rule.MinScore && score <= rule.MaxScore {
 			return rule.GradeName
 		}
 	}

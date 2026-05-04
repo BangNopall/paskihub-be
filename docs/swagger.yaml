@@ -31,6 +31,26 @@ definitions:
     - regis_id
     - violation_type_ids
     type: object
+  dto.CreateAwardReq:
+    properties:
+      event_level_id:
+        type: string
+      limit_rank:
+        minimum: 1
+        type: integer
+      name:
+        type: string
+      score_category_ids:
+        items:
+          type: string
+        minItems: 1
+        type: array
+    required:
+    - event_level_id
+    - limit_rank
+    - name
+    - score_category_ids
+    type: object
   dto.CreateJudgeReq:
     properties:
       name:
@@ -40,13 +60,25 @@ definitions:
     type: object
   dto.CreateScoreCategoryReq:
     properties:
+      event_level_id:
+        type: string
       name:
         type: string
     required:
+    - event_level_id
     - name
     type: object
   dto.CreateScoreSubCategoryReq:
     properties:
+      grades:
+        additionalProperties:
+          items:
+            type: string
+          type: array
+        type: object
+      max_score:
+        minimum: 0
+        type: number
       name:
         type: string
       score_categories_id:
@@ -57,12 +89,15 @@ definitions:
     type: object
   dto.CreateViolationTypeReq:
     properties:
+      event_level_id:
+        type: string
       name:
         type: string
       point:
         minimum: 0
         type: number
     required:
+    - event_level_id
     - name
     - point
     type: object
@@ -234,23 +269,6 @@ definitions:
       wa_group:
         type: string
     type: object
-  dto.GradeRuleItemReq:
-    properties:
-      grade_name:
-        enum:
-        - Kurang
-        - Cukup
-        - Baik
-        - Sangat Baik
-        type: string
-      max_score:
-        type: number
-      min_score:
-        minimum: 0
-        type: number
-    required:
-    - grade_name
-    type: object
   dto.InputScoreReq:
     properties:
       judges_id:
@@ -284,14 +302,22 @@ definitions:
     - score_value
     - sub_category_id
     type: object
-  dto.SetupGradeRulesReq:
+  dto.UpdateAwardReq:
     properties:
-      rules:
+      limit_rank:
+        minimum: 1
+        type: integer
+      name:
+        type: string
+      score_category_ids:
         items:
-          $ref: '#/definitions/dto.GradeRuleItemReq'
+          type: string
+        minItems: 1
         type: array
     required:
-    - rules
+    - limit_rank
+    - name
+    - score_category_ids
     type: object
   dto.UpdateInstitutionRequest:
     properties:
@@ -342,6 +368,15 @@ definitions:
     type: object
   dto.UpdateScoreSubCategoryReq:
     properties:
+      grades:
+        additionalProperties:
+          items:
+            type: string
+          type: array
+        type: object
+      max_score:
+        minimum: 0
+        type: number
       name:
         type: string
     required:
@@ -552,14 +587,18 @@ paths:
       summary: Bulk insert violations
       tags:
       - Assessment
-  /api/v1/eo/events/{eventId}/assessment/grade-rules:
+  /api/v1/eo/events/{eventId}/assessment/awards:
     get:
-      description: Get existing grade rules for an event
+      description: Get all awards for an event, optionally filtered by level
       parameters:
       - description: Event ID
         in: path
         name: eventId
         required: true
+        type: string
+      - description: Level ID (Optional)
+        in: query
+        name: level_id
         type: string
       produces:
       - application/json
@@ -572,25 +611,53 @@ paths:
       security:
       - ApiKeyAuth: []
         BearerAuth: []
-      summary: Get grade rules
+      summary: Get event awards
       tags:
-      - Assessment
+      - Event Awards
     post:
       consumes:
       - application/json
-      description: Configure grade rule mapping for an event
+      description: Create a new award category for an event
       parameters:
       - description: Event ID
         in: path
         name: eventId
         required: true
         type: string
-      - description: Grade Rules Details
+      - description: Award Details
         in: body
         name: req
         required: true
         schema:
-          $ref: '#/definitions/dto.SetupGradeRulesReq'
+          $ref: '#/definitions/dto.CreateAwardReq'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+        BearerAuth: []
+      summary: Create event award
+      tags:
+      - Event Awards
+  /api/v1/eo/events/{eventId}/assessment/awards/{id}:
+    delete:
+      description: Remove an award category from an event
+      parameters:
+      - description: Event ID
+        in: path
+        name: eventId
+        required: true
+        type: string
+      - description: Award ID
+        in: path
+        name: id
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -602,9 +669,44 @@ paths:
       security:
       - ApiKeyAuth: []
         BearerAuth: []
-      summary: Setup grade rules
+      summary: Delete event award
       tags:
-      - Assessment
+      - Event Awards
+    put:
+      consumes:
+      - application/json
+      description: Update award details
+      parameters:
+      - description: Event ID
+        in: path
+        name: eventId
+        required: true
+        type: string
+      - description: Award ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Updated Award Details
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateAwardReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+        BearerAuth: []
+      summary: Update event award
+      tags:
+      - Event Awards
   /api/v1/eo/events/{eventId}/assessment/judges:
     get:
       description: Get all judges for an event
@@ -723,11 +825,16 @@ paths:
       - Judges
   /api/v1/eo/events/{eventId}/assessment/score-categories:
     get:
-      description: Get all score categories for an event
+      description: Get all score categories for an event by level
       parameters:
       - description: Event ID
         in: path
         name: eventId
+        required: true
+        type: string
+      - description: Level ID
+        in: query
+        name: level_id
         required: true
         type: string
       produces:
@@ -962,13 +1069,46 @@ paths:
       summary: Input single score
       tags:
       - Assessment
-  /api/v1/eo/events/{eventId}/assessment/violation-types:
+  /api/v1/eo/events/{eventId}/assessment/unified:
     get:
-      description: Get all violation types for an event
+      description: Get violations and categories for a specific level in one call
       parameters:
       - description: Event ID
         in: path
         name: eventId
+        required: true
+        type: string
+      - description: Level ID
+        in: query
+        name: level_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+        BearerAuth: []
+      summary: Get unified assessment system
+      tags:
+      - Assessment
+  /api/v1/eo/events/{eventId}/assessment/violation-types:
+    get:
+      description: Get all violation types for an event by level
+      parameters:
+      - description: Event ID
+        in: path
+        name: eventId
+        required: true
+        type: string
+      - description: Level ID
+        in: query
+        name: level_id
         required: true
         type: string
       produces:

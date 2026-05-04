@@ -102,3 +102,73 @@
 {"level":"info","msg":"Application is running on development mode","time":"2026-05-04T03:41:58+07:00"}
 {"level":"info","msg":"[PGSQL CONN][Migrate] Auto Migrating Tables","time":"2026-05-04T03:41:58+07:00"}
 {"level":"info","msg":"redis connected","time":"2026-05-04T03:41:59+07:00"}
+{"level":"info","msg":"Application is running on development mode","time":"2026-05-04T04:06:45+07:00"}
+{"level":"info","msg":"[PGSQL CONN][Migrate] Auto Migrating Tables","time":"2026-05-04T04:06:45+07:00"}
+{"level":"info","msg":"redis connected","time":"2026-05-04T04:06:46+07:00"}
+{"level":"info","msg":"Application is running on development mode","time":"2026-05-04T04:06:53+07:00"}
+{"level":"info","msg":"[PGSQL CONN][Migrate] Auto Migrating Tables","time":"2026-05-04T04:06:53+07:00"}
+{"level":"info","msg":"redis connected","time":"2026-05-04T04:06:54+07:00"}
+{"level":"info","msg":"Application is running on development mode","time":"2026-05-04T04:07:06+07:00"}
+{"level":"info","msg":"[PGSQL CONN][Migrate] Auto Migrating Tables","time":"2026-05-04T04:07:06+07:00"}
+{"level":"info","msg":"redis connected","time":"2026-05-04T04:07:08+07:00"}
+{"level":"info","msg":"Application is running on development mode","time":"2026-05-04T04:07:18+07:00"}
+{"level":"info","msg":"[PGSQL CONN][Migrate] Auto Migrating Tables","time":"2026-05-04T04:07:18+07:00"}
+{"level":"info","msg":"redis connected","time":"2026-05-04T04:07:22+07:00"}
+{"level":"info","msg":"Application is running on development mode","time":"2026-05-04T04:08:01+07:00"}
+{"level":"info","msg":"[PGSQL CONN][Migrate] Auto Migrating Tables","time":"2026-05-04T04:08:01+07:00"}
+{"level":"info","msg":"redis connected","time":"2026-05-04T04:08:05+07:00"}
+{"level":"info","msg":"Application is running on development mode","time":"2026-05-04T04:08:07+07:00"}
+{"level":"info","msg":"[PGSQL CONN][Migrate] Auto Migrating Tables","time":"2026-05-04T04:08:07+07:00"}
+{"level":"info","msg":"redis connected","time":"2026-05-04T04:08:08+07:00"}
+{"level":"info","msg":"Application is running on development mode","time":"2026-05-04T04:08:15+07:00"}
+{"level":"info","msg":"[PGSQL CONN][Migrate] Auto Migrating Tables","time":"2026-05-04T04:08:15+07:00"}
+{"level":"info","msg":"redis connected","time":"2026-05-04T04:08:15+07:00"}
+{"level":"info","msg":"Application is running on development mode","time":"2026-05-04T04:08:23+07:00"}
+{"level":"info","msg":"[PGSQL CONN][Migrate] Auto Migrating Tables","time":"2026-05-04T04:08:23+07:00"}
+{"level":"info","msg":"redis connected","time":"2026-05-04T04:08:24+07:00"}
+{"level":"info","msg":"Application is running on development mode","time":"2026-05-04T04:08:33+07:00"}
+{"level":"info","msg":"[PGSQL CONN][Migrate] Auto Migrating Tables","time":"2026-05-04T04:08:33+07:00"}
+{"level":"info","msg":"redis connected","time":"2026-05-04T04:08:34+07:00"}
+{"level":"info","msg":"Application is running on development mode","time":"2026-05-04T04:08:58+07:00"}
+{"level":"info","msg":"[PGSQL CONN][Migrate] Auto Migrating Tables","time":"2026-05-04T04:08:58+07:00"}
+{"level":"info","msg":"redis connected","time":"2026-05-04T04:08:58+07:00"}
+{"level":"info","msg":"Application is running on development mode","time":"2026-05-04T04:09:04+07:00"}
+{"level":"info","msg":"[PGSQL CONN][Migrate] Auto Migrating Tables","time":"2026-05-04T04:09:04+07:00"}
+{"level":"info","msg":"redis connected","time":"2026-05-04T04:09:04+07:00"}
+{"level":"info","msg":"Application is running on development mode","time":"2026-05-04T04:09:09+07:00"}
+{"level":"info","msg":"[PGSQL CONN][Migrate] Auto Migrating Tables","time":"2026-05-04T04:09:09+07:00"}
+{"level":"info","msg":"redis connected","time":"2026-05-04T04:09:10+07:00"}
+{"level":"info","msg":"Application is running on development mode","time":"2026-05-04T04:09:19+07:00"}
+{"level":"info","msg":"[PGSQL CONN][Migrate] Auto Migrating Tables","time":"2026-05-04T04:09:19+07:00"}
+{"level":"info","msg":"redis connected","time":"2026-05-04T04:09:20+07:00"}
+{"level":"info","msg":"Application is running on development mode","time":"2026-05-04T04:09:26+07:00"}
+{"level":"info","msg":"[PGSQL CONN][Migrate] Auto Migrating Tables","time":"2026-05-04T04:09:26+07:00"}
+{"level":"info","msg":"Application is running on development mode","time":"2026-05-04T04:09:29+07:00"}
+{"level":"info","msg":"[PGSQL CONN][Migrate] Auto Migrating Tables","time":"2026-05-04T04:09:29+07:00"}
+{"level":"info","msg":"redis connected","time":"2026-05-04T04:09:30+07:00"}
+{"level":"info","msg":"Application is running on development mode","time":"2026-05-04T04:09:44+07:00"}
+{"level":"info","msg":"[PGSQL CONN][Migrate] Auto Migrating Tables","time":"2026-05-04T04:09:44+07:00"}
+{"level":"info","msg":"redis connected","time":"2026-05-04T04:09:44+07:00"}
+{"level":"info","msg":"Application is running on development mode","time":"2026-05-04T04:14:21+07:00"}
+{"level":"info","msg":"[PGSQL CONN][Migrate] Auto Migrating Tables","time":"2026-05-04T04:14:21+07:00"}
+{"error":"dial tcp: lookup redis-13497.c1.ap-southeast-1-1.ec2.cloud.redislabs.com: i/o timeout","level":"error","msg":"[REDIS][NewRedisClient] faield to ping redis","time":"2026-05-04T04:14:27+07:00"}
+{"level":"info","msg":"Application is running on development mode","time":"2026-05-04T04:15:57+07:00"}
+{"level":"info","msg":"[PGSQL CONN][Migrate] Dropping All Tables","time":"2026-05-04T04:15:57+07:00"}
+{"level":"info","msg":"[PGSQL CONN][Migrate] Auto Migrating Tables","time":"2026-05-04T04:15:57+07:00"}
+{"level":"info","msg":"[PGSQL CONN][EnsureDefaultSettings] Seeding default system settings","time":"2026-05-04T04:15:57+07:00"}
+{"level":"info","msg":"redis connected","time":"2026-05-04T04:16:00+07:00"}
+{"level":"info","msg":"Application is running on development mode","time":"2026-05-04T04:16:11+07:00"}
+{"level":"info","msg":"[PGSQL CONN][Migrate] Auto Migrating Tables","time":"2026-05-04T04:16:11+07:00"}
+{"level":"info","msg":"redis connected","time":"2026-05-04T04:16:11+07:00"}
+{"error":"dial tcp: lookup redis-13497.c1.ap-southeast-1-1.ec2.cloud.redislabs.com: i/o timeout","level":"error","msg":"[REDIS][Get] faield to get key","time":"2026-05-04T05:06:00+07:00"}
+{"level":"info","msg":"Application is running on development mode","time":"2026-05-04T05:30:25+07:00"}
+{"level":"info","msg":"[PGSQL CONN][Migrate] Dropping All Tables","time":"2026-05-04T05:30:25+07:00"}
+{"level":"info","msg":"[PGSQL CONN][Migrate] Auto Migrating Tables","time":"2026-05-04T05:30:25+07:00"}
+{"level":"info","msg":"[PGSQL CONN][EnsureDefaultSettings] Seeding default system settings","time":"2026-05-04T05:30:25+07:00"}
+{"level":"info","msg":"redis connected","time":"2026-05-04T05:30:27+07:00"}
+{"level":"info","msg":"Application is running on development mode","time":"2026-05-04T05:31:23+07:00"}
+{"level":"info","msg":"[PGSQL CONN][Migrate] Auto Migrating Tables","time":"2026-05-04T05:31:23+07:00"}
+{"level":"info","msg":"redis connected","time":"2026-05-04T05:31:26+07:00"}
+{"level":"info","msg":"Application is running on development mode","time":"2026-05-04T17:41:58+07:00"}
+{"level":"info","msg":"[PGSQL CONN][Migrate] Auto Migrating Tables","time":"2026-05-04T17:41:58+07:00"}
+{"level":"info","msg":"redis connected","time":"2026-05-04T17:41:58+07:00"}

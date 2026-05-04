@@ -11,7 +11,7 @@ import (
 
 type FormPenilaianRepository interface {
 	WithTx(tx *gorm.DB) FormPenilaianRepository
-	GetEventGradeRules(ctx context.Context, eventID uuid.UUID) ([]entity.GradeRule, error)
+	GetSubCategoryGradeRules(ctx context.Context, subCategoryIDs []uuid.UUID) ([]entity.GradeRule, error)
 	GetEventIDByRegisID(ctx context.Context, regisID uuid.UUID) (uuid.UUID, error)
 	BulkUpsertScores(ctx context.Context, scores []entity.Score) error
 	BulkInsertTeamViolations(ctx context.Context, violations []entity.TeamViolation) error
