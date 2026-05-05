@@ -15,9 +15,11 @@ type FormPenilaianRepository interface {
 	GetEventIDByRegisID(ctx context.Context, regisID uuid.UUID) (uuid.UUID, error)
 	BulkUpsertScores(ctx context.Context, scores []entity.Score) error
 	BulkInsertTeamViolations(ctx context.Context, violations []entity.TeamViolation) error
+	UpdateAssessmentStatus(ctx context.Context, regisID uuid.UUID, status string) error
 }
 
 type FormPenilaianService interface {
 	BulkInsertScores(ctx context.Context, req dto.BulkInsertScoresRequest) error
 	BulkInsertTeamViolations(ctx context.Context, req dto.BulkInsertViolationsRequest) error
+	FinalizeAssessment(ctx context.Context, req dto.FinalizeAssessmentRequest) error
 }

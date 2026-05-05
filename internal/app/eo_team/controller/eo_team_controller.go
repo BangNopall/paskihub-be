@@ -370,3 +370,52 @@ func (c *eoTeamController) KickTeam(ctx *fiber.Ctx) error {
 	}
 	return nil
 }
+
+// StartAssessment godoc
+// @Summary Start team assessment
+// @Description Set assessment status to IN_PROGRESS
+// @Tags EO Team
+// @Security ApiKeyAuth && BearerAuth
+// @Produce json
+// @Param eventId path string true "Event ID"
+// @Param registrationId path string true "Registration ID"
+// @Success 200 {object} map[string]interface{}
+// @Router /api/v1/eo/events/{eventId}/teams/{registrationId}/start-assessment [put]
+func (c *eoTeamController) StartAssessment(ctx *fiber.Ctx) error {
+	var (
+		err     error
+		code    int = http.StatusOK
+		res     interface{}
+		message string = "failed to start assessment"
+	)
+
+	sendResp := func() {
+		response.Send(ctx, code, message, res, err)
+	}
+	defer sendResp()
+
+	userId, err := getUserId(ctx)
+	if err != nil {
+		code = http.StatusUnauthorized
+		return nil
+	}
+
+	eventId, err := getUUIDParam(ctx, "eventId")
+	if err != nil {
+		code = http.StatusBadRequest
+		return nil
+	}
+
+	registrationId, err := getUUIDParam(ctx, "registrationId")
+	if err != nil {
+		code = http.StatusBadRequest
+		return nil
+	}
+
+	err = c.svc.StartAssessment(ctx.Context(), eventId, userId, registrationId)
+	code = setCodeFromError(err)
+	if err == nil {
+		message = "success to start assessment"
+	}
+	return nil
+}

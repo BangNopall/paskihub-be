@@ -24,4 +24,5 @@ type IEOTeamService interface {
 	RejectTeam(ctx context.Context, eventId, userId, registrationId uuid.UUID, req dto.EOTeamRejectReq) error
 	KickTeam(ctx context.Context, eventId, userId, registrationId uuid.UUID) error
 	GetStats(ctx context.Context, eventId, userId uuid.UUID) (*dto.EOTeamStatsRes, error)
+	StartAssessment(ctx context.Context, eventId, userId, registrationId uuid.UUID) error
 }

@@ -75,6 +75,7 @@ type ScoreSubCategoryRes struct {
 	Name              string              `json:"name"`
 	MaxScore          float64             `json:"max_score"`
 	Grades            map[string][]string `json:"grades,omitempty"`
+	GradeNumbers      map[string][]int    `json:"grade_numbers,omitempty"`
 }
 
 // Unified Res

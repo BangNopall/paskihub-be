@@ -102,3 +102,41 @@ func (c *formPenilaianController) BulkInsertViolations(ctx *fiber.Ctx) error {
 	message = "success to insert violations"
 	return nil
 }
+
+// FinalizeAssessment godoc
+// @Summary Finalize assessment
+// @Description Bulk insert scores and violations, then set status to COMPLETED
+// @Tags Assessment
+// @Security ApiKeyAuth && BearerAuth
+// @Accept json
+// @Produce json
+// @Param req body dto.FinalizeAssessmentRequest true "Finalize Assessment Request"
+// @Success 200 {object} map[string]interface{}
+// @Router /api/v1/assessment/finalize [post]
+func (c *formPenilaianController) FinalizeAssessment(ctx *fiber.Ctx) error {
+	var (
+		err     error
+		code    int = http.StatusBadRequest
+		res     interface{}
+		message string = "failed to finalize assessment"
+	)
+
+	sendResp := func() {
+		response.Send(ctx, code, message, res, err)
+	}
+	defer sendResp()
+
+	var req dto.FinalizeAssessmentRequest
+	if err = ctx.BodyParser(&req); err != nil {
+		return nil
+	}
+
+	err = c.service.FinalizeAssessment(ctx.Context(), req)
+	code = domain.GetCode(err)
+	if err != nil {
+		return nil
+	}
+
+	message = "success to finalize assessment"
+	return nil
+}

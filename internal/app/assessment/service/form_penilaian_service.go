@@ -83,6 +83,68 @@ func (s *formPenilaianService) BulkInsertTeamViolations(ctx context.Context, req
 	})
 }
 
+func (s *formPenilaianService) FinalizeAssessment(ctx context.Context, req dto.FinalizeAssessmentRequest) error {
+	if s.validate != nil {
+		if err := s.validate.Struct(req); err != nil {
+			return err
+		}
+	}
+
+	var subCatIDs []uuid.UUID
+	for _, sc := range req.Scores {
+		subCatIDs = append(subCatIDs, sc.SubCategoryID)
+	}
+
+	rules, err := s.repo.GetSubCategoryGradeRules(ctx, subCatIDs)
+	if err != nil || len(rules) == 0 {
+		return errors.New("grade rules not found for some sub categories")
+	}
+
+	var scores []entity.Score
+	for _, sc := range req.Scores {
+		grade := getGrade(sc.ScoreValue, sc.SubCategoryID, rules)
+		scores = append(scores, entity.Score{
+			RegisID:       req.RegisID,
+			JudgesID:      req.JudgesID,
+			SubCategoryID: sc.SubCategoryID,
+			ScoreValue:    sc.ScoreValue,
+			Grade:         grade,
+		})
+	}
+
+	var violations []entity.TeamViolation
+	for _, vID := range req.ViolationTypeIDs {
+		violations = append(violations, entity.TeamViolation{
+			RegisID:         req.RegisID,
+			JudgesID:        req.JudgesID,
+			ViolationTypeID: vID,
+		})
+	}
+
+	return s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		txRepo := s.repo.WithTx(tx)
+
+		// 1. Bulk Upsert Scores
+		if err := txRepo.BulkUpsertScores(ctx, scores); err != nil {
+			return err
+		}
+
+		// 2. Bulk Insert Violations
+		// Note: We might want to clear existing violations for this judge/team if it's an update,
+		// but since it's "Finalize", we usually insert new ones or we should have a clear step.
+		// For simplicity, we just insert. If the user wants to clear, they should do it.
+		// Usually, "Finalize" means it's the final state.
+		if len(violations) > 0 {
+			if err := txRepo.BulkInsertTeamViolations(ctx, violations); err != nil {
+				return err
+			}
+		}
+
+		// 3. Update Status to COMPLETED
+		return txRepo.UpdateAssessmentStatus(ctx, req.RegisID, "COMPLETED")
+	})
+}
+
 func getGrade(score float64, subCatID uuid.UUID, rules []entity.GradeRule) string {
 	for _, rule := range rules {
 		if rule.ScoreSubCategoryID == subCatID && score >= rule.MinScore && score <= rule.MaxScore {

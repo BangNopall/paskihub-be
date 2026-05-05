@@ -54,3 +54,10 @@ func (r *formPenilaianRepository) BulkUpsertScores(ctx context.Context, scores [
 func (r *formPenilaianRepository) BulkInsertTeamViolations(ctx context.Context, violations []entity.TeamViolation) error {
 	return r.db.WithContext(ctx).Create(&violations).Error
 }
+
+func (r *formPenilaianRepository) UpdateAssessmentStatus(ctx context.Context, regisID uuid.UUID, status string) error {
+	return r.db.WithContext(ctx).
+		Model(&entity.Registration{}).
+		Where("id = ?", regisID).
+		Update("assessment_status", status).Error
+}

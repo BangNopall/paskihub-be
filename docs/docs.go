@@ -69,6 +69,47 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/assessment/finalize": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": [],
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Bulk insert scores and violations, then set status to COMPLETED",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Assessment"
+                ],
+                "summary": "Finalize assessment",
+                "parameters": [
+                    {
+                        "description": "Finalize Assessment Request",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.FinalizeAssessmentRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/assessment/scores/bulk": {
             "post": {
                 "security": [
@@ -1385,6 +1426,49 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/dto.EOTeamRejectReq"
                         }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/eo/events/{eventId}/teams/{registrationId}/start-assessment": {
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": [],
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Set assessment status to IN_PROGRESS",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "EO Team"
+                ],
+                "summary": "Start team assessment",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Event ID",
+                        "name": "eventId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Registration ID",
+                        "name": "registrationId",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -3783,6 +3867,34 @@ const docTemplate = `{
                 },
                 "wa_group": {
                     "type": "string"
+                }
+            }
+        },
+        "dto.FinalizeAssessmentRequest": {
+            "type": "object",
+            "required": [
+                "judges_id",
+                "regis_id",
+                "scores"
+            ],
+            "properties": {
+                "judges_id": {
+                    "type": "string"
+                },
+                "regis_id": {
+                    "type": "string"
+                },
+                "scores": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.ScoreInput"
+                    }
+                },
+                "violation_type_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 }
             }
         },

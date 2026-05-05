@@ -40,7 +40,13 @@ const (
 	Pending    TransactionStatus = "PENDING"
 	Approve    TransactionStatus = "APPROVE"
 	TSRejected TransactionStatus = "REJECTED"
+
+	AssessPending    AssessmentStatus = "PENDING"
+	AssessInProgress AssessmentStatus = "IN_PROGRESS"
+	AssessCompleted  AssessmentStatus = "COMPLETED"
 )
+
+type AssessmentStatus string
 
 func IsValidEventStatus(s string) bool {
 	switch EventStatus(s) {

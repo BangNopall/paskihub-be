@@ -1,0 +1,42 @@
+{"level":"info","msg":"Application is running on development mode","time":"2026-05-05T08:54:07+07:00"}
+{"level":"info","msg":"[PGSQL CONN][Migrate] Auto Migrating Tables","time":"2026-05-05T08:54:07+07:00"}
+{"level":"info","msg":"redis connected","time":"2026-05-05T08:54:08+07:00"}
+{"level":"info","msg":"Application is running on development mode","time":"2026-05-05T08:54:12+07:00"}
+{"level":"info","msg":"[PGSQL CONN][Migrate] Auto Migrating Tables","time":"2026-05-05T08:54:12+07:00"}
+{"level":"info","msg":"redis connected","time":"2026-05-05T08:54:12+07:00"}
+{"level":"info","msg":"Application is running on development mode","time":"2026-05-05T08:54:21+07:00"}
+{"level":"info","msg":"[PGSQL CONN][Migrate] Auto Migrating Tables","time":"2026-05-05T08:54:21+07:00"}
+{"level":"info","msg":"redis connected","time":"2026-05-05T08:54:21+07:00"}
+{"level":"info","msg":"Application is running on development mode","time":"2026-05-05T08:54:28+07:00"}
+{"level":"info","msg":"[PGSQL CONN][Migrate] Auto Migrating Tables","time":"2026-05-05T08:54:28+07:00"}
+{"level":"info","msg":"redis connected","time":"2026-05-05T08:54:29+07:00"}
+{"level":"info","msg":"Application is running on development mode","time":"2026-05-05T08:54:34+07:00"}
+{"level":"info","msg":"[PGSQL CONN][Migrate] Auto Migrating Tables","time":"2026-05-05T08:54:34+07:00"}
+{"level":"info","msg":"redis connected","time":"2026-05-05T08:54:34+07:00"}
+{"level":"info","msg":"Application is running on development mode","time":"2026-05-05T08:54:48+07:00"}
+{"level":"info","msg":"[PGSQL CONN][Migrate] Auto Migrating Tables","time":"2026-05-05T08:54:48+07:00"}
+{"level":"info","msg":"redis connected","time":"2026-05-05T08:54:48+07:00"}
+{"level":"info","msg":"Application is running on development mode","time":"2026-05-05T08:54:53+07:00"}
+{"level":"info","msg":"[PGSQL CONN][Migrate] Auto Migrating Tables","time":"2026-05-05T08:54:53+07:00"}
+{"level":"info","msg":"redis connected","time":"2026-05-05T08:54:53+07:00"}
+{"level":"info","msg":"Application is running on development mode","time":"2026-05-05T08:54:58+07:00"}
+{"level":"info","msg":"[PGSQL CONN][Migrate] Auto Migrating Tables","time":"2026-05-05T08:54:58+07:00"}
+{"level":"info","msg":"redis connected","time":"2026-05-05T08:54:58+07:00"}
+{"level":"info","msg":"Application is running on development mode","time":"2026-05-05T08:55:50+07:00"}
+{"level":"info","msg":"[PGSQL CONN][Migrate] Dropping All Tables","time":"2026-05-05T08:55:50+07:00"}
+{"level":"info","msg":"[PGSQL CONN][Migrate] Auto Migrating Tables","time":"2026-05-05T08:55:50+07:00"}
+{"level":"info","msg":"[PGSQL CONN][EnsureDefaultSettings] Seeding default system settings","time":"2026-05-05T08:55:50+07:00"}
+{"level":"info","msg":"redis connected","time":"2026-05-05T08:55:51+07:00"}
+{"level":"info","msg":"Application is running on development mode","time":"2026-05-05T08:56:03+07:00"}
+{"level":"info","msg":"[PGSQL CONN][Migrate] Dropping All Tables","time":"2026-05-05T08:56:03+07:00"}
+{"level":"info","msg":"[PGSQL CONN][Migrate] Auto Migrating Tables","time":"2026-05-05T08:56:03+07:00"}
+{"level":"info","msg":"[PGSQL CONN][EnsureDefaultSettings] Seeding default system settings","time":"2026-05-05T08:56:03+07:00"}
+{"level":"info","msg":"redis connected","time":"2026-05-05T08:56:03+07:00"}
+{"level":"info","msg":"Application is running on development mode","time":"2026-05-05T08:57:08+07:00"}
+{"level":"info","msg":"[PGSQL CONN][Migrate] Dropping All Tables","time":"2026-05-05T08:57:08+07:00"}
+{"level":"info","msg":"[PGSQL CONN][Migrate] Auto Migrating Tables","time":"2026-05-05T08:57:08+07:00"}
+{"level":"info","msg":"[PGSQL CONN][EnsureDefaultSettings] Seeding default system settings","time":"2026-05-05T08:57:08+07:00"}
+{"level":"info","msg":"redis connected","time":"2026-05-05T08:57:09+07:00"}
+{"level":"info","msg":"Application is running on development mode","time":"2026-05-05T08:57:26+07:00"}
+{"level":"info","msg":"[PGSQL CONN][Migrate] Auto Migrating Tables","time":"2026-05-05T08:57:26+07:00"}
+{"level":"info","msg":"redis connected","time":"2026-05-05T08:57:26+07:00"}

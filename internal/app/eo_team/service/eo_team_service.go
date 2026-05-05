@@ -224,3 +224,25 @@ func (s *eoTeamService) GetStats(ctx context.Context, eventId, userId uuid.UUID)
 
 	return s.repo.GetStats(ctx, eventId)
 }
+
+func (s *eoTeamService) StartAssessment(ctx context.Context, eventId, userId, registrationId uuid.UUID) error {
+	if err := s.checkOwnership(ctx, eventId, userId); err != nil {
+		return err
+	}
+
+	reg, err := s.repo.FindRegistrationByIdAndEvent(ctx, registrationId, eventId)
+	if err != nil {
+		return err
+	}
+	if reg == nil {
+		return ErrNotFound
+	}
+
+	// Only update to IN_PROGRESS if it's currently PENDING
+	if reg.AssessmentStatus == enums.AssessPending {
+		reg.AssessmentStatus = enums.AssessInProgress
+		return s.repo.UpdateRegistration(ctx, reg)
+	}
+
+	return nil
+}

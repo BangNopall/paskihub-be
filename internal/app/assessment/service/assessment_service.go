@@ -228,12 +228,18 @@ func (s *assessmentService) GetScoreCategories(ctx context.Context, eventId, lev
 		var subcats []dto.ScoreSubCategoryRes
 		for _, sub := range sc.SubCategories {
 			grades := make(map[string][]string)
+			gradeNumbers := make(map[string][]int)
 			for _, gr := range sub.GradeRules {
 				rangeStr := fmt.Sprintf("%v-%v", gr.MinScore, gr.MaxScore)
 				if gr.MinScore == gr.MaxScore {
 					rangeStr = fmt.Sprintf("%v", gr.MinScore)
 				}
 				grades[gr.GradeName] = append(grades[gr.GradeName], rangeStr)
+
+				// Populate gradeNumbers with sequence of integers
+				for i := int(gr.MinScore); i <= int(gr.MaxScore); i++ {
+					gradeNumbers[gr.GradeName] = append(gradeNumbers[gr.GradeName], i)
+				}
 			}
 			subcats = append(subcats, dto.ScoreSubCategoryRes{
 				ID:                sub.ID,
@@ -241,6 +247,7 @@ func (s *assessmentService) GetScoreCategories(ctx context.Context, eventId, lev
 				Name:              sub.Name,
 				MaxScore:          sub.MaxScore,
 				Grades:            grades,
+				GradeNumbers:      gradeNumbers,
 			})
 		}
 		res = append(res, dto.ScoreCategoryRes{

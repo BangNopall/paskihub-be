@@ -18,3 +18,10 @@ type BulkInsertViolationsRequest struct {
 	JudgesID         uuid.UUID   `json:"judges_id" validate:"required"`
 	ViolationTypeIDs []uuid.UUID `json:"violation_type_ids" validate:"required,min=1"`
 }
+
+type FinalizeAssessmentRequest struct {
+	RegisID          uuid.UUID    `json:"regis_id" validate:"required"`
+	JudgesID         uuid.UUID    `json:"judges_id" validate:"required"`
+	Scores           []ScoreInput `json:"scores" validate:"required,dive"`
+	ViolationTypeIDs []uuid.UUID  `json:"violation_type_ids"`
+}

@@ -269,6 +269,25 @@ definitions:
       wa_group:
         type: string
     type: object
+  dto.FinalizeAssessmentRequest:
+    properties:
+      judges_id:
+        type: string
+      regis_id:
+        type: string
+      scores:
+        items:
+          $ref: '#/definitions/dto.ScoreInput'
+        type: array
+      violation_type_ids:
+        items:
+          type: string
+        type: array
+    required:
+    - judges_id
+    - regis_id
+    - scores
+    type: object
   dto.InputScoreReq:
     properties:
       judges_id:
@@ -535,6 +554,32 @@ paths:
       summary: Get all users
       tags:
       - Admin
+  /api/v1/assessment/finalize:
+    post:
+      consumes:
+      - application/json
+      description: Bulk insert scores and violations, then set status to COMPLETED
+      parameters:
+      - description: Finalize Assessment Request
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/dto.FinalizeAssessmentRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+        BearerAuth: []
+      summary: Finalize assessment
+      tags:
+      - Assessment
   /api/v1/assessment/scores/bulk:
     post:
       consumes:
@@ -1375,6 +1420,34 @@ paths:
       - ApiKeyAuth: []
         BearerAuth: []
       summary: Reject team registration
+      tags:
+      - EO Team
+  /api/v1/eo/events/{eventId}/teams/{registrationId}/start-assessment:
+    put:
+      description: Set assessment status to IN_PROGRESS
+      parameters:
+      - description: Event ID
+        in: path
+        name: eventId
+        required: true
+        type: string
+      - description: Registration ID
+        in: path
+        name: registrationId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+        BearerAuth: []
+      summary: Start team assessment
       tags:
       - EO Team
   /api/v1/eo/events/{eventId}/teams/stats:

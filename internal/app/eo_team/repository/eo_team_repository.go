@@ -129,18 +129,15 @@ func (r *eoTeamRepository) GetStats(ctx context.Context, eventId uuid.UUID) (*dt
 }
 
 func (r *eoTeamRepository) GetAssessmentStatus(ctx context.Context, registrationId uuid.UUID) (string, error) {
-	var count int64
+	var registration entity.Registration
 	err := r.db.WithContext(ctx).
-		Model(&entity.Score{}).
-		Where("regis_id = ?", registrationId).
-		Count(&count).Error
+		Select("assessment_status").
+		Where("id = ?", registrationId).
+		First(&registration).Error
 
 	if err != nil {
 		return "PENDING", err
 	}
 
-	if count > 0 {
-		return "COMPLETED", nil
-	}
-	return "PENDING", nil
+	return string(registration.AssessmentStatus), nil
 }

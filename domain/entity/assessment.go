@@ -58,9 +58,9 @@ type GradeRule struct {
 
 type Score struct {
 	ID            uuid.UUID `gorm:"type:uuid;primaryKey;default:uuid_generate_v4()"`
-	RegisID       uuid.UUID `gorm:"type:uuid;not null"`
-	JudgesID      uuid.UUID `gorm:"type:uuid;not null"`
-	SubCategoryID uuid.UUID `gorm:"type:uuid;not null"`
+	RegisID       uuid.UUID `gorm:"type:uuid;not null;index:idx_score_unique,unique"`
+	JudgesID      uuid.UUID `gorm:"type:uuid;not null;index:idx_score_unique,unique"`
+	SubCategoryID uuid.UUID `gorm:"type:uuid;not null;index:idx_score_unique,unique"`
 	ScoreValue    float64   `gorm:"not null"`
 	Grade         string    `gorm:"type:varchar(50);not null"`
 	UpdatedAt     time.Time
