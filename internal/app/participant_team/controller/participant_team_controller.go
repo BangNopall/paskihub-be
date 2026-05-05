@@ -127,9 +127,9 @@ func (c *ParticipantTeamController) UpdateTeam(ctx *fiber.Ctx) error {
 // @Accept multipart/form-data
 // @Produce json
 // @Param name formData string true "Team Name"
-// @Param pelatih_name formData string true "Coach Name"
-// @Param logo_team formData file true "Team Logo"
-// @Param surat_rekomendasi formData file true "Recommendation Letter"
+// @Param coach_name formData string true "Coach Name"
+// @Param logo formData file true "Team Logo"
+// @Param recommendation_letter formData file true "Recommendation Letter"
 // @Success 201 {object} map[string]interface{}
 // @Router /api/v1/peserta/teams [post]
 func (c *ParticipantTeamController) CreateTeam(ctx *fiber.Ctx) error {

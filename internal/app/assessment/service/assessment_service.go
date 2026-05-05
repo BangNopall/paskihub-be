@@ -497,11 +497,16 @@ func (s *assessmentService) CreateAward(ctx context.Context, eventId, userId uui
 		categories = append(categories, entity.ScoreCategory{ID: catId})
 	}
 
+	var levels []entity.EventLevel
+	for _, levelId := range req.EventLevelIDs {
+		levels = append(levels, entity.EventLevel{Id: levelId})
+	}
+
 	award := &entity.EventAward{
 		EventID:         eventId,
-		EventLevelID:    req.EventLevelID,
 		Name:            req.Name,
 		LimitRank:       req.LimitRank,
+		EventLevels:     levels,
 		ScoreCategories: categories,
 	}
 
@@ -509,14 +514,16 @@ func (s *assessmentService) CreateAward(ctx context.Context, eventId, userId uui
 		return nil, domain.ErrInternalServer
 	}
 
-	return s.mapToAwardRes(award), nil
+	// Re-fetch to get full details for response
+	newAward, _ := s.repo.FindAwardById(ctx, award.ID)
+	return s.mapToAwardRes(newAward), nil
 }
 
-func (s *assessmentService) GetAwards(ctx context.Context, eventId, userId uuid.UUID, levelId *uuid.UUID) ([]dto.AwardRes, error) {
+func (s *assessmentService) GetAwards(ctx context.Context, eventId, userId uuid.UUID) ([]dto.AwardRes, error) {
 	if err := s.ensureOwnership(ctx, eventId, userId); err != nil {
 		return nil, err
 	}
-	awards, err := s.repo.GetAwardsByEvent(ctx, eventId, levelId)
+	awards, err := s.repo.GetAwardsByEvent(ctx, eventId)
 	if err != nil {
 		return nil, domain.ErrInternalServer
 	}
@@ -542,7 +549,7 @@ func (s *assessmentService) UpdateAward(ctx context.Context, eventId, userId, id
 	award.Name = req.Name
 	award.LimitRank = req.LimitRank
 
-	if err := s.repo.UpdateAward(ctx, award, req.ScoreCategoryIDs); err != nil {
+	if err := s.repo.UpdateAward(ctx, award, req.EventLevelIDs, req.ScoreCategoryIDs); err != nil {
 		return nil, domain.ErrInternalServer
 	}
 
@@ -576,10 +583,22 @@ func (s *assessmentService) mapToAwardRes(a *entity.EventAward) *dto.AwardRes {
 			Name: c.Name,
 		})
 	}
+
+	var levelIDs []uuid.UUID
+	var levels []dto.EventLevelResponse
+	for _, l := range a.EventLevels {
+		levelIDs = append(levelIDs, l.Id)
+		levels = append(levels, dto.EventLevelResponse{
+			Id:   l.Id,
+			Name: l.Name,
+		})
+	}
+
 	return &dto.AwardRes{
 		ID:              a.ID,
 		EventID:         a.EventID,
-		EventLevelID:    a.EventLevelID,
+		EventLevelIDs:   levelIDs,
+		Levels:          levels,
 		Name:            a.Name,
 		LimitRank:       a.LimitRank,
 		ScoreCategories: cats,

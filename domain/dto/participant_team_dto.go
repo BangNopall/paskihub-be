@@ -18,19 +18,22 @@ type TeamMemberRequest struct {
 }
 
 type ParticipantTeamResponse struct {
-	Id            string `json:"id"`
-	Name          string `json:"name"`
-	LogoPath      string `json:"logo_path"`
-	PaymentStatus string `json:"payment_status"`
+	Id              string `json:"id"`
+	Name            string `json:"name"`
+	LogoPath        string `json:"logo_path"`
+	Pelatih         string `json:"pelatih"`
+	InstitutionType string `json:"institution_type"`
+	PaymentStatus   string `json:"payment_status"`
 }
 
 type TeamDetailResponse struct {
-	Id             string                          `json:"id"`
-	Name           string                          `json:"name"`
-	LogoPath       string                          `json:"logo_path"`
-	Pelatih        string                          `json:"pelatih"`
-	RecLetterPath  string                          `json:"rec_letter_path"`
-	MembersGrouped map[string][]ParticipantTeamMemberResponse `json:"members_grouped"`
+	Id              string                          `json:"id"`
+	Name            string                          `json:"name"`
+	LogoPath        string                          `json:"logo_path"`
+	Pelatih         string                          `json:"pelatih"`
+	InstitutionType string                          `json:"institution_type"`
+	RecLetterPath   string                          `json:"rec_letter_path"`
+	MembersGrouped  map[string][]ParticipantTeamMemberResponse `json:"members_grouped"`
 }
 
 type ParticipantTeamMemberResponse struct {

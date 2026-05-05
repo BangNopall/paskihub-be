@@ -40,9 +40,9 @@ type IAssessmentRepository interface {
 	CreateScore(ctx context.Context, score *entity.Score) error
 
 	CreateAward(ctx context.Context, award *entity.EventAward) error
-	GetAwardsByEvent(ctx context.Context, eventId uuid.UUID, levelId *uuid.UUID) ([]entity.EventAward, error)
+	GetAwardsByEvent(ctx context.Context, eventId uuid.UUID) ([]entity.EventAward, error)
 	FindAwardById(ctx context.Context, id uuid.UUID) (*entity.EventAward, error)
-	UpdateAward(ctx context.Context, award *entity.EventAward, categoryIds []uuid.UUID) error
+	UpdateAward(ctx context.Context, award *entity.EventAward, levelIds []uuid.UUID, categoryIds []uuid.UUID) error
 	DeleteAward(ctx context.Context, id uuid.UUID) error
 }
 
@@ -71,7 +71,7 @@ type IAssessmentService interface {
 	InputScore(ctx context.Context, eventId, userId uuid.UUID, req dto.InputScoreReq) (*dto.ScoreRes, error)
 
 	CreateAward(ctx context.Context, eventId, userId uuid.UUID, req dto.CreateAwardReq) (*dto.AwardRes, error)
-	GetAwards(ctx context.Context, eventId, userId uuid.UUID, levelId *uuid.UUID) ([]dto.AwardRes, error)
+	GetAwards(ctx context.Context, eventId, userId uuid.UUID) ([]dto.AwardRes, error)
 	UpdateAward(ctx context.Context, eventId, userId, id uuid.UUID, req dto.UpdateAwardReq) (*dto.AwardRes, error)
 	DeleteAward(ctx context.Context, eventId, userId, id uuid.UUID) error
 }

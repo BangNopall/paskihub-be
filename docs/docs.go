@@ -200,7 +200,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Get all awards for an event, optionally filtered by level",
+                "description": "Get all awards for an event",
                 "produces": [
                     "application/json"
                 ],
@@ -215,12 +215,6 @@ const docTemplate = `{
                         "name": "eventId",
                         "in": "path",
                         "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Level ID (Optional)",
-                        "name": "level_id",
-                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -2566,21 +2560,21 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "Coach Name",
-                        "name": "pelatih_name",
+                        "name": "coach_name",
                         "in": "formData",
                         "required": true
                     },
                     {
                         "type": "file",
                         "description": "Team Logo",
-                        "name": "logo_team",
+                        "name": "logo",
                         "in": "formData",
                         "required": true
                     },
                     {
                         "type": "file",
                         "description": "Recommendation Letter",
-                        "name": "surat_rekomendasi",
+                        "name": "recommendation_letter",
                         "in": "formData",
                         "required": true
                     }
@@ -3516,14 +3510,18 @@ const docTemplate = `{
         "dto.CreateAwardReq": {
             "type": "object",
             "required": [
-                "event_level_id",
+                "event_level_ids",
                 "limit_rank",
                 "name",
                 "score_category_ids"
             ],
             "properties": {
-                "event_level_id": {
-                    "type": "string"
+                "event_level_ids": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "type": "string"
+                    }
                 },
                 "limit_rank": {
                     "type": "integer",
@@ -3949,11 +3947,19 @@ const docTemplate = `{
         "dto.UpdateAwardReq": {
             "type": "object",
             "required": [
+                "event_level_ids",
                 "limit_rank",
                 "name",
                 "score_category_ids"
             ],
             "properties": {
+                "event_level_ids": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "type": "string"
+                    }
+                },
                 "limit_rank": {
                     "type": "integer",
                     "minimum": 1

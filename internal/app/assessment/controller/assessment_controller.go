@@ -746,12 +746,11 @@ func (c *assessmentController) CreateAward(ctx *fiber.Ctx) error {
 
 // GetAwards godoc
 // @Summary Get event awards
-// @Description Get all awards for an event, optionally filtered by level
+// @Description Get all awards for an event
 // @Tags Event Awards
 // @Security ApiKeyAuth && BearerAuth
 // @Produce json
 // @Param eventId path string true "Event ID"
-// @Param level_id query string false "Level ID (Optional)"
 // @Success 200 {object} map[string]interface{}
 // @Router /api/v1/eo/events/{eventId}/assessment/awards [get]
 func (c *assessmentController) GetAwards(ctx *fiber.Ctx) error {
@@ -775,14 +774,7 @@ func (c *assessmentController) GetAwards(ctx *fiber.Ctx) error {
 		return nil
 	}
 
-	var levelIdPtr *uuid.UUID
-	if lid := ctx.Query("level_id"); lid != "" {
-		if u, err := uuid.Parse(lid); err == nil {
-			levelIdPtr = &u
-		}
-	}
-
-	res, err = c.svc.GetAwards(ctx.Context(), eventId, userId, levelIdPtr)
+	res, err = c.svc.GetAwards(ctx.Context(), eventId, userId)
 	code = domain.GetCode(err)
 	if err == nil {
 		message = "success to get awards"

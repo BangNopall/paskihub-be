@@ -33,8 +33,11 @@ definitions:
     type: object
   dto.CreateAwardReq:
     properties:
-      event_level_id:
-        type: string
+      event_level_ids:
+        items:
+          type: string
+        minItems: 1
+        type: array
       limit_rank:
         minimum: 1
         type: integer
@@ -46,7 +49,7 @@ definitions:
         minItems: 1
         type: array
     required:
-    - event_level_id
+    - event_level_ids
     - limit_rank
     - name
     - score_category_ids
@@ -323,6 +326,11 @@ definitions:
     type: object
   dto.UpdateAwardReq:
     properties:
+      event_level_ids:
+        items:
+          type: string
+        minItems: 1
+        type: array
       limit_rank:
         minimum: 1
         type: integer
@@ -334,6 +342,7 @@ definitions:
         minItems: 1
         type: array
     required:
+    - event_level_ids
     - limit_rank
     - name
     - score_category_ids
@@ -634,16 +643,12 @@ paths:
       - Assessment
   /api/v1/eo/events/{eventId}/assessment/awards:
     get:
-      description: Get all awards for an event, optionally filtered by level
+      description: Get all awards for an event
       parameters:
       - description: Event ID
         in: path
         name: eventId
         required: true
-        type: string
-      - description: Level ID (Optional)
-        in: query
-        name: level_id
         type: string
       produces:
       - application/json
@@ -2158,17 +2163,17 @@ paths:
         type: string
       - description: Coach Name
         in: formData
-        name: pelatih_name
+        name: coach_name
         required: true
         type: string
       - description: Team Logo
         in: formData
-        name: logo_team
+        name: logo
         required: true
         type: file
       - description: Recommendation Letter
         in: formData
-        name: surat_rekomendasi
+        name: recommendation_letter
         required: true
         type: file
       produces:

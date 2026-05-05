@@ -172,19 +172,16 @@ func (r *assessmentRepository) CreateAward(ctx context.Context, award *entity.Ev
 	return r.db.WithContext(ctx).Create(award).Error
 }
 
-func (r *assessmentRepository) GetAwardsByEvent(ctx context.Context, eventId uuid.UUID, levelId *uuid.UUID) ([]entity.EventAward, error) {
+func (r *assessmentRepository) GetAwardsByEvent(ctx context.Context, eventId uuid.UUID) ([]entity.EventAward, error) {
 	var awards []entity.EventAward
-	query := r.db.WithContext(ctx).Preload("ScoreCategories").Where("event_id = ?", eventId)
-	if levelId != nil {
-		query = query.Where("event_level_id = ?", *levelId)
-	}
+	query := r.db.WithContext(ctx).Preload("EventLevels").Preload("ScoreCategories").Where("event_id = ?", eventId)
 	err := query.Find(&awards).Error
 	return awards, err
 }
 
 func (r *assessmentRepository) FindAwardById(ctx context.Context, id uuid.UUID) (*entity.EventAward, error) {
 	var award entity.EventAward
-	err := r.db.WithContext(ctx).Preload("ScoreCategories").First(&award, "id = ?", id).Error
+	err := r.db.WithContext(ctx).Preload("EventLevels").Preload("ScoreCategories").First(&award, "id = ?", id).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, nil
@@ -194,11 +191,20 @@ func (r *assessmentRepository) FindAwardById(ctx context.Context, id uuid.UUID) 
 	return &award, nil
 }
 
-func (r *assessmentRepository) UpdateAward(ctx context.Context, award *entity.EventAward, categoryIds []uuid.UUID) error {
+func (r *assessmentRepository) UpdateAward(ctx context.Context, award *entity.EventAward, levelIds []uuid.UUID, categoryIds []uuid.UUID) error {
 	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		if err := tx.Save(award).Error; err != nil {
 			return err
 		}
+
+		var levels []entity.EventLevel
+		if err := tx.Where("id IN ?", levelIds).Find(&levels).Error; err != nil {
+			return err
+		}
+		if err := tx.Model(award).Association("EventLevels").Replace(levels); err != nil {
+			return err
+		}
+
 		var categories []entity.ScoreCategory
 		if err := tx.Where("id IN ?", categoryIds).Find(&categories).Error; err != nil {
 			return err

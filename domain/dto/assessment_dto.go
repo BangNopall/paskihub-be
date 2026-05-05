@@ -122,23 +122,25 @@ type ScoreRes struct {
 
 // EventAward
 type CreateAwardReq struct {
-	EventLevelID     uuid.UUID   `json:"event_level_id" validate:"required"`
+	EventLevelIDs    []uuid.UUID `json:"event_level_ids" validate:"required,min=1"`
 	Name             string      `json:"name" validate:"required"`
 	LimitRank        int         `json:"limit_rank" validate:"required,min=1"`
 	ScoreCategoryIDs []uuid.UUID `json:"score_category_ids" validate:"required,min=1"`
 }
 
 type UpdateAwardReq struct {
+	EventLevelIDs    []uuid.UUID `json:"event_level_ids" validate:"required,min=1"`
 	Name             string      `json:"name" validate:"required"`
 	LimitRank        int         `json:"limit_rank" validate:"required,min=1"`
 	ScoreCategoryIDs []uuid.UUID `json:"score_category_ids" validate:"required,min=1"`
 }
 
 type AwardRes struct {
-	ID              uuid.UUID          `json:"id"`
-	EventID         uuid.UUID          `json:"event_id"`
-	EventLevelID    uuid.UUID          `json:"event_level_id"`
-	Name            string             `json:"name"`
-	LimitRank       int                `json:"limit_rank"`
-	ScoreCategories []ScoreCategoryRes `json:"score_categories,omitempty"`
+	ID              uuid.UUID            `json:"id"`
+	EventID         uuid.UUID            `json:"event_id"`
+	EventLevelIDs   []uuid.UUID          `json:"event_level_ids"`
+	Levels          []EventLevelResponse `json:"levels,omitempty"`
+	Name            string               `json:"name"`
+	LimitRank       int                  `json:"limit_rank"`
+	ScoreCategories []ScoreCategoryRes   `json:"score_categories,omitempty"`
 }

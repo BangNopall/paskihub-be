@@ -203,10 +203,12 @@ func (s *participantTeamService) GetTeams(ctx context.Context, userID string) ([
 		}
 
 		responses = append(responses, dto.ParticipantTeamResponse{
-			Id:            t.Id.String(),
-			Name:          t.Name,
-			LogoPath:      t.LogoPath,
-			PaymentStatus: paymentStatus,
+			Id:              t.Id.String(),
+			Name:            t.Name,
+			LogoPath:        t.LogoPath,
+			Pelatih:         t.Pelatih,
+			InstitutionType: string(t.Institution.InstitutionType),
+			PaymentStatus:   paymentStatus,
 		})
 	}
 
@@ -237,12 +239,13 @@ func (s *participantTeamService) GetTeamDetail(ctx context.Context, userID strin
 	}
 
 	response := &dto.TeamDetailResponse{
-		Id:             team.Id.String(),
-		Name:           team.Name,
-		LogoPath:       team.LogoPath,
-		Pelatih:        team.Pelatih,
-		RecLetterPath:  team.RecLetterPath,
-		MembersGrouped: groupedMembers,
+		Id:              team.Id.String(),
+		Name:            team.Name,
+		LogoPath:        team.LogoPath,
+		Pelatih:         team.Pelatih,
+		InstitutionType: string(team.Institution.InstitutionType),
+		RecLetterPath:   team.RecLetterPath,
+		MembersGrouped:  groupedMembers,
 	}
 
 	return response, nil

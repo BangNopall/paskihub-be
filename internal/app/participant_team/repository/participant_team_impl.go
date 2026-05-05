@@ -40,13 +40,13 @@ func (r *participantTeamRepository) CreateTeamWithMembers(ctx context.Context, t
 
 func (r *participantTeamRepository) GetTeamsByInstitutionID(ctx context.Context, instiID uuid.UUID) ([]entity.Team, error) {
 	var teams []entity.Team
-	err := r.db.WithContext(ctx).Preload("Registrations").Where("insti_id = ?", instiID).Find(&teams).Error
+	err := r.db.WithContext(ctx).Preload("Registrations").Preload("Institution").Where("insti_id = ?", instiID).Find(&teams).Error
 	return teams, err
 }
 
 func (r *participantTeamRepository) GetTeamByID(ctx context.Context, teamID uuid.UUID) (*entity.Team, error) {
 	var team entity.Team
-	err := r.db.WithContext(ctx).Preload("TeamMembers").Preload("Registrations").First(&team, "id = ?", teamID).Error
+	err := r.db.WithContext(ctx).Preload("TeamMembers").Preload("Registrations").Preload("Institution").First(&team, "id = ?", teamID).Error
 	if err != nil {
 		return nil, err
 	}

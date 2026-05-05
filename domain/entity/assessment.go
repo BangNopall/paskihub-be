@@ -87,7 +87,6 @@ type TeamViolation struct {
 type EventAward struct {
 	ID              uuid.UUID       `gorm:"type:uuid;primaryKey;default:uuid_generate_v4()"`
 	EventID         uuid.UUID       `gorm:"type:uuid;not null"`
-	EventLevelID    uuid.UUID       `gorm:"type:uuid;not null"`
 	Name            string          `gorm:"type:varchar(255);not null"`
 	LimitRank       int             `gorm:"not null;default:1"`
 	CreatedAt       time.Time
@@ -95,6 +94,6 @@ type EventAward struct {
 
 	// Relation
 	Event           Event           `gorm:"foreignKey:EventID;references:Id"`
-	EventLevel      EventLevel      `gorm:"foreignKey:EventLevelID;references:Id"`
+	EventLevels     []EventLevel    `gorm:"many2many:event_award_levels;"`
 	ScoreCategories []ScoreCategory `gorm:"many2many:event_award_score_categories;"`
 }
