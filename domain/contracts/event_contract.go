@@ -26,6 +26,7 @@ type EventRepository interface {
 	FetchAllEvent(ctx context.Context, params *dto.EventParams, relations ...string) ([]entity.Event, error)
 	UpdateEventLevel(ctx context.Context, eventLevel *entity.EventLevel) error
 	DeleteEventLevel(ctx context.Context, eventLevelId uuid.UUID) error
+	UpdateStatus(ctx context.Context, eventId uuid.UUID, status string) error
 }
 
 type EventService interface {

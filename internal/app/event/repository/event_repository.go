@@ -228,3 +228,14 @@ func (r *eventRepository) DeleteEventLevel(ctx context.Context, eventLevelId uui
 	}
 	return nil
 }
+
+func (r *eventRepository) UpdateStatus(ctx context.Context, eventId uuid.UUID, status string) error {
+	err := r.conn.WithContext(ctx).Model(&entity.Event{}).Where("id = ?", eventId).Update("status", status).Error
+	if err != nil {
+		log.Warn(log.LogInfo{
+			"error": err.Error(),
+		}, "[EVENT REPOSITORY][UpdateStatus] failed to update status")
+		return domain.ErrInternalServer
+	}
+	return nil
+}
