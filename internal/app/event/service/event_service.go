@@ -433,6 +433,18 @@ func (s *eventService) DeleteEvent(ctx context.Context, EventId string, UserId s
 	return s.eventRepo.DeleteEvent(ctx, id)
 }
 
+func (s *eventService) UpdateEventStatusByAdmin(ctx context.Context, eventId string, status string) error {
+	ctx, cancel := context.WithTimeout(ctx, s.timeout)
+	defer cancel()
+
+	id, err := uuid.Parse(eventId)
+	if err != nil {
+		return domain.ErrInternalServer
+	}
+
+	return s.eventRepo.UpdateStatus(ctx, id, status)
+}
+
 // Helper to save file
 func (s *eventService) saveFile(file *multipart.FileHeader, dst string) error {
 	src, err := file.Open()

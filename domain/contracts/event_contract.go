@@ -42,4 +42,5 @@ type EventService interface {
 	UpdateEventLevel(ctx context.Context, EventId string, UserId string, EventLevel *dto.EventLevelUpdate) error
 	DeleteEventLevel(ctx context.Context, EventId string, EventLevelId string, UserId string) error
 	DeleteEvent(ctx context.Context, EventId string, UserId string) error
+	UpdateEventStatusByAdmin(ctx context.Context, eventId string, status string) error
 }
