@@ -3,12 +3,19 @@ package dto
 import "mime/multipart"
 
 type OpenEventResponse struct {
-	Id          string                   `json:"id"`
-	Name        string                   `json:"name"`
-	Description string                   `json:"description"`
-	LogoPath    string                   `json:"logo_path"`
-	PosterPath  string                   `json:"poster_path"`
-	Levels      []OpenEventLevelResponse `json:"levels"`
+	Id             string                   `json:"id"`
+	Name           string                   `json:"name"`
+	Description    string                   `json:"description"`
+	LogoPath       string                   `json:"logo_path"`
+	PosterPath     string                   `json:"poster_path"`
+	Organizer      string                   `json:"organizer"`
+	Status         string                   `json:"status"`
+	OpenDate       string                   `json:"open_date"`
+	CloseDate      string                   `json:"close_date"`
+	Location       string                   `json:"location"`
+	MinTeamMembers int                      `json:"min_team_members"`
+	MaxTeamMembers int                      `json:"max_team_members"`
+	Levels         []OpenEventLevelResponse `json:"levels"`
 }
 
 type OpenEventLevelResponse struct {
@@ -30,9 +37,37 @@ type PelunasanEventRequest struct {
 }
 
 type ActiveEventResponse struct {
-	RegistrationId string `json:"registration_id"`
-	EventName      string `json:"event_name"`
-	EventLogoPath  string `json:"event_logo_path"`
-	TeamName       string `json:"team_name"`
-	PaymentStatus  string `json:"payment_status"`
+	RegistrationId  string `json:"registration_id"`
+	EventName       string `json:"event_name"`
+	EventLogoPath   string `json:"event_logo_path"`
+	TeamName        string `json:"team_name"`
+	PaymentStatus   string `json:"payment_status"`
+	PaymentType     string `json:"payment_type"`
+	RejectionReason string `json:"rejection_reason"`
+}
+
+type RegistrationDetailResponse struct {
+	Event struct {
+		Id          string `json:"id"`
+		Title       string `json:"title"`
+		Description string `json:"description"`
+		Date        string `json:"date"`
+		Location    string `json:"location"`
+		Price       string `json:"price"`
+		TargetDate  string `json:"target_date"`
+	} `json:"event"`
+	Team struct {
+		Id            string `json:"id"`
+		Name          string `json:"name"`
+		LogoUrl       string `json:"logo_url"`
+		OfficialCount int    `json:"official_count"`
+		PasukanCount  int    `json:"pasukan_count"`
+	} `json:"team"`
+	Payment struct {
+		Status          string `json:"status"`
+		AmountPaid      string `json:"amount_paid"`
+		TotalAmount     string `json:"total_amount"`
+		RemainingAmount string `json:"remaining_amount"`
+		ProofUrl        string `json:"proof_url"`
+	} `json:"payment"`
 }

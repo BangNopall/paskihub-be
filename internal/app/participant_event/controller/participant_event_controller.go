@@ -156,3 +156,47 @@ func (c *ParticipantEventController) GetActiveEvents(ctx *fiber.Ctx) error {
 	response.Send(ctx, fiber.StatusOK, "Successfully retrieved active events", res, nil)
 	return nil
 }
+
+// GetRegistrationDetail godoc
+// @Summary Get registration detail
+// @Description Get specific registration details including event, team and payment
+// @Tags Participant Event
+// @Security ApiKeyAuth && BearerAuth
+// @Produce json
+// @Param regis_id path string true "Registration ID"
+// @Success 200 {object} map[string]interface{}
+// @Router /api/v1/peserta/events/registrations/{regis_id} [get]
+func (c *ParticipantEventController) GetRegistrationDetail(ctx *fiber.Ctx) error {
+	regisID := ctx.Params("regis_id")
+
+	res, err := c.service.GetRegistrationDetail(ctx.Context(), regisID)
+	if err != nil {
+		response.Send(ctx, fiber.StatusInternalServerError, "Failed to get registration detail", nil, err)
+		return nil
+	}
+
+	response.Send(ctx, fiber.StatusOK, "Successfully retrieved registration detail", res, nil)
+	return nil
+}
+
+// GetScoreboard godoc
+// @Summary Get scoreboard for participants
+// @Description Retrieve the scoreboard if published by the organizer
+// @Tags Participant Event
+// @Security ApiKeyAuth && BearerAuth
+// @Produce json
+// @Param event_level_id path string true "Event Level ID"
+// @Success 200 {object} map[string]interface{}
+// @Router /api/v1/peserta/rekap/scoreboard/{event_level_id} [get]
+func (c *ParticipantEventController) GetScoreboard(ctx *fiber.Ctx) error {
+	eventLevelID := ctx.Params("event_level_id")
+
+	res, err := c.service.GetScoreboard(ctx.Context(), eventLevelID)
+	if err != nil {
+		response.Send(ctx, fiber.StatusInternalServerError, "Failed to get scoreboard", nil, err)
+		return nil
+	}
+
+	response.Send(ctx, fiber.StatusOK, "Successfully retrieved scoreboard", res, nil)
+	return nil
+}

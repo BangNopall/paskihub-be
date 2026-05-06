@@ -1,0 +1,30 @@
+{"level":"info","msg":"Application is running on development mode","time":"2026-05-06T03:43:50+07:00"}
+{"level":"info","msg":"[PGSQL CONN][Migrate] Auto Migrating Tables","time":"2026-05-06T03:43:50+07:00"}
+{"level":"info","msg":"redis connected","time":"2026-05-06T03:43:51+07:00"}
+{"error":"token is malformed: token contains an invalid number of segments","level":"warning","msg":"[JWT][ValidateToken] failed to validate token","time":"2026-05-06T04:48:46+07:00"}
+{"error":"token is malformed: token contains an invalid number of segments","level":"warning","msg":"[MIDDLEWARE][Authentication] failed to validate token","time":"2026-05-06T04:48:46+07:00"}
+{"error":"token is malformed: token contains an invalid number of segments","level":"warning","msg":"[JWT][ValidateToken] failed to validate token","time":"2026-05-06T04:49:06+07:00"}
+{"error":"token is malformed: token contains an invalid number of segments","level":"warning","msg":"[MIDDLEWARE][Authentication] failed to validate token","time":"2026-05-06T04:49:06+07:00"}
+{"error":"token is malformed: token contains an invalid number of segments","level":"warning","msg":"[JWT][ValidateToken] failed to validate token","time":"2026-05-06T04:49:06+07:00"}
+{"error":"token is malformed: token contains an invalid number of segments","level":"warning","msg":"[MIDDLEWARE][Authentication] failed to validate token","time":"2026-05-06T04:49:06+07:00"}
+{"error":"token is malformed: token contains an invalid number of segments","level":"warning","msg":"[JWT][ValidateToken] failed to validate token","time":"2026-05-06T04:49:11+07:00"}
+{"error":"token is malformed: token contains an invalid number of segments","level":"warning","msg":"[MIDDLEWARE][Authentication] failed to validate token","time":"2026-05-06T04:49:11+07:00"}
+{"error":"token is malformed: token contains an invalid number of segments","level":"warning","msg":"[JWT][ValidateToken] failed to validate token","time":"2026-05-06T04:49:11+07:00"}
+{"error":"token is malformed: token contains an invalid number of segments","level":"warning","msg":"[MIDDLEWARE][Authentication] failed to validate token","time":"2026-05-06T04:49:11+07:00"}
+{"error":"token is malformed: token contains an invalid number of segments","level":"warning","msg":"[JWT][ValidateToken] failed to validate token","time":"2026-05-06T04:49:14+07:00"}
+{"error":"token is malformed: token contains an invalid number of segments","level":"warning","msg":"[MIDDLEWARE][Authentication] failed to validate token","time":"2026-05-06T04:49:14+07:00"}
+{"error":"token is malformed: token contains an invalid number of segments","level":"warning","msg":"[JWT][ValidateToken] failed to validate token","time":"2026-05-06T04:49:19+07:00"}
+{"error":"token is malformed: token contains an invalid number of segments","level":"warning","msg":"[MIDDLEWARE][Authentication] failed to validate token","time":"2026-05-06T04:49:19+07:00"}
+{"level":"info","msg":"Application is running on development mode","time":"2026-05-06T20:07:51+07:00"}
+{"level":"info","msg":"[PGSQL CONN][Migrate] Dropping All Tables","time":"2026-05-06T20:07:51+07:00"}
+{"level":"info","msg":"[PGSQL CONN][Migrate] Auto Migrating Tables","time":"2026-05-06T20:07:51+07:00"}
+{"level":"info","msg":"[PGSQL CONN][EnsureDefaultSettings] Seeding default system settings","time":"2026-05-06T20:07:51+07:00"}
+{"level":"info","msg":"redis connected","time":"2026-05-06T20:07:52+07:00"}
+{"level":"info","msg":"Application is running on development mode","time":"2026-05-06T20:08:45+07:00"}
+{"level":"info","msg":"[PGSQL CONN][Migrate] Dropping All Tables","time":"2026-05-06T20:08:45+07:00"}
+{"level":"info","msg":"[PGSQL CONN][Migrate] Auto Migrating Tables","time":"2026-05-06T20:08:45+07:00"}
+{"level":"info","msg":"[PGSQL CONN][EnsureDefaultSettings] Seeding default system settings","time":"2026-05-06T20:08:45+07:00"}
+{"level":"info","msg":"redis connected","time":"2026-05-06T20:08:46+07:00"}
+{"level":"info","msg":"Application is running on development mode","time":"2026-05-06T20:09:06+07:00"}
+{"level":"info","msg":"[PGSQL CONN][Migrate] Auto Migrating Tables","time":"2026-05-06T20:09:06+07:00"}
+{"level":"info","msg":"redis connected","time":"2026-05-06T20:09:07+07:00"}

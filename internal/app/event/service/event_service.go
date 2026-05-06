@@ -59,9 +59,15 @@ func (s *eventService) CreateEvent(ctx context.Context, UserId uuid.UUID, event 
 		return err
 	}
 
-	layout := "2006-01-02 15:04:05"
-	openDate, _ := time.Parse(layout, event.OpenDate)
-	closeDate, _ := time.Parse(layout, event.CloseDate)
+	openDate, err := time.Parse(time.RFC3339, event.OpenDate)
+	if err != nil {
+		// fallback to old layout if RFC3339 fails
+		openDate, _ = time.Parse("2006-01-02 15:04:05", event.OpenDate)
+	}
+	closeDate, err := time.Parse(time.RFC3339, event.CloseDate)
+	if err != nil {
+		closeDate, _ = time.Parse("2006-01-02 15:04:05", event.CloseDate)
+	}
 
 	newEvent := entity.Event{
 		Id:         eventId,
@@ -245,10 +251,18 @@ func (s *eventService) UpdateEvent(ctx context.Context, EventId string, UserId s
 
 	id := event.Id
 
-	layout := "2006-01-02 15:04:05"
-	openDate, _ := time.Parse(layout, event.OpenDate)
-	closeDate, _ := time.Parse(layout, event.CloseDate)
-	compeDate, _ := time.Parse(layout, event.CompeDate)
+	openDate, err := time.Parse(time.RFC3339, event.OpenDate)
+	if err != nil {
+		openDate, _ = time.Parse("2006-01-02 15:04:05", event.OpenDate)
+	}
+	closeDate, err := time.Parse(time.RFC3339, event.CloseDate)
+	if err != nil {
+		closeDate, _ = time.Parse("2006-01-02 15:04:05", event.CloseDate)
+	}
+	compeDate, err := time.Parse(time.RFC3339, event.CompeDate)
+	if err != nil {
+		compeDate, _ = time.Parse("2006-01-02 15:04:05", event.CompeDate)
+	}
 
 	updateEvent := entity.Event{
 		Id:             id,

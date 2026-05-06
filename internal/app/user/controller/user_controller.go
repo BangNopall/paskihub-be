@@ -38,14 +38,19 @@ func InitUserController(
 	userRouter.Get("/verify-email/:email/:emailVerPass", middleware.RateLimiter(), userController.VerifyEmail)
 	userRouter.Put("/reset-password/:token", middleware.RateLimiter(), userController.ResetPassword)
 	userRouter.Post("/forgot-password", middleware.RateLimiter(), userController.ForgotPassword)
+	userRouter.Get("/show/:userId", middleware.Authentication, middleware.RateLimiter(), userController.GetUserById)
 
 	// Admin Routes
 	adminRouter := router.Group("/api/v1/admin")
 	adminRouter.Use(middleware.Authentication, middleware.AuthAdmin)
 	adminRouter.Get("/users", userController.GetUsers)
 	adminRouter.Get("/admins", userController.GetAdmins)
-
-	userRouter.Get("/show/:userId", middleware.Authentication, middleware.RateLimiter(), userController.GetUserById)
+	adminRouter.Get("/users/:userId", userController.GetUserDetailAdmin)
+	adminRouter.Put("/users/:userId/ban", userController.BanUser)
+	adminRouter.Put("/users/:userId/unban", userController.UnbanUser)
+	adminRouter.Put("/users/:userId/verify", userController.VerifyUser)
+	adminRouter.Put("/users/:userId/archive", userController.ArchiveOrganizer)
+	adminRouter.Put("/users/:userId/unarchive", userController.UnarchiveOrganizer)
 }
 
 // GetUserById godoc
@@ -130,6 +135,168 @@ func (c *userController) GetAdmins(ctx *fiber.Ctx) error {
 		return nil
 	}
 	response.Send(ctx, http.StatusOK, "success to fetch admins", res, nil)
+	return nil
+}
+
+// GetUserDetailAdmin godoc
+// @Summary Get admin user detail
+// @Description Retrieve detailed info of a user (Admin only)
+// @Tags Admin
+// @Security ApiKeyAuth && BearerAuth
+// @Produce json
+// @Param userId path string true "User ID"
+// @Success 200 {object} map[string]interface{}
+// @Router /api/v1/admin/users/{userId} [get]
+func (c *userController) GetUserDetailAdmin(ctx *fiber.Ctx) error {
+	userIdStr := ctx.Params("userId")
+	userId, err := uuid.Parse(userIdStr)
+	if err != nil {
+		response.Send(ctx, http.StatusBadRequest, "invalid user id", nil, err)
+		return nil
+	}
+
+	res, err := c.userSvc.FetchUserDetailAdmin(ctx.Context(), userId)
+	if err != nil {
+		response.Send(ctx, domain.GetCode(err), "failed to fetch user detail", nil, err)
+		return nil
+	}
+
+	response.Send(ctx, http.StatusOK, "success to fetch user detail", res, nil)
+	return nil
+}
+
+// BanUser godoc
+// @Summary Ban user
+// @Description Set user status to banned (Admin only)
+// @Tags Admin
+// @Security ApiKeyAuth && BearerAuth
+// @Produce json
+// @Param userId path string true "User ID"
+// @Success 200 {object} map[string]interface{}
+// @Router /api/v1/admin/users/{userId}/ban [put]
+func (c *userController) BanUser(ctx *fiber.Ctx) error {
+	userIdStr := ctx.Params("userId")
+	userId, err := uuid.Parse(userIdStr)
+	if err != nil {
+		response.Send(ctx, http.StatusBadRequest, "invalid user id", nil, err)
+		return nil
+	}
+
+	err = c.userSvc.BanUser(ctx.Context(), userId)
+	if err != nil {
+		response.Send(ctx, domain.GetCode(err), "failed to ban user", nil, err)
+		return nil
+	}
+
+	response.Send(ctx, http.StatusOK, "success to ban user", nil, nil)
+	return nil
+}
+
+// UnbanUser godoc
+// @Summary Unban user
+// @Description Set user status to active (Admin only)
+// @Tags Admin
+// @Security ApiKeyAuth && BearerAuth
+// @Produce json
+// @Param userId path string true "User ID"
+// @Success 200 {object} map[string]interface{}
+// @Router /api/v1/admin/users/{userId}/unban [put]
+func (c *userController) UnbanUser(ctx *fiber.Ctx) error {
+	userIdStr := ctx.Params("userId")
+	userId, err := uuid.Parse(userIdStr)
+	if err != nil {
+		response.Send(ctx, http.StatusBadRequest, "invalid user id", nil, err)
+		return nil
+	}
+
+	err = c.userSvc.UnbanUser(ctx.Context(), userId)
+	if err != nil {
+		response.Send(ctx, domain.GetCode(err), "failed to unban user", nil, err)
+		return nil
+	}
+
+	response.Send(ctx, http.StatusOK, "success to unban user", nil, nil)
+	return nil
+}
+
+// VerifyUser godoc
+// @Summary Verify user email
+// @Description Manually verify a user's email (Admin only)
+// @Tags Admin
+// @Security ApiKeyAuth && BearerAuth
+// @Produce json
+// @Param userId path string true "User ID"
+// @Success 200 {object} map[string]interface{}
+// @Router /api/v1/admin/users/{userId}/verify [put]
+func (c *userController) VerifyUser(ctx *fiber.Ctx) error {
+	userIdStr := ctx.Params("userId")
+	userId, err := uuid.Parse(userIdStr)
+	if err != nil {
+		response.Send(ctx, http.StatusBadRequest, "invalid user id", nil, err)
+		return nil
+	}
+
+	err = c.userSvc.VerifyUser(ctx.Context(), userId)
+	if err != nil {
+		response.Send(ctx, domain.GetCode(err), "failed to verify user", nil, err)
+		return nil
+	}
+
+	response.Send(ctx, http.StatusOK, "success to verify user", nil, nil)
+	return nil
+}
+
+// ArchiveOrganizer godoc
+// @Summary Archive organizer event
+// @Description Set organizer's event status to archived (Admin only)
+// @Tags Admin
+// @Security ApiKeyAuth && BearerAuth
+// @Produce json
+// @Param userId path string true "User ID"
+// @Success 200 {object} map[string]interface{}
+// @Router /api/v1/admin/users/{userId}/archive [put]
+func (c *userController) ArchiveOrganizer(ctx *fiber.Ctx) error {
+	userIdStr := ctx.Params("userId")
+	userId, err := uuid.Parse(userIdStr)
+	if err != nil {
+		response.Send(ctx, http.StatusBadRequest, "invalid user id", nil, err)
+		return nil
+	}
+
+	err = c.userSvc.ArchiveOrganizer(ctx.Context(), userId)
+	if err != nil {
+		response.Send(ctx, domain.GetCode(err), "failed to archive organizer", nil, err)
+		return nil
+	}
+
+	response.Send(ctx, http.StatusOK, "success to archive organizer", nil, nil)
+	return nil
+}
+
+// UnarchiveOrganizer godoc
+// @Summary Unarchive organizer event
+// @Description Set organizer's event status to open (Admin only)
+// @Tags Admin
+// @Security ApiKeyAuth && BearerAuth
+// @Produce json
+// @Param userId path string true "User ID"
+// @Success 200 {object} map[string]interface{}
+// @Router /api/v1/admin/users/{userId}/unarchive [put]
+func (c *userController) UnarchiveOrganizer(ctx *fiber.Ctx) error {
+	userIdStr := ctx.Params("userId")
+	userId, err := uuid.Parse(userIdStr)
+	if err != nil {
+		response.Send(ctx, http.StatusBadRequest, "invalid user id", nil, err)
+		return nil
+	}
+
+	err = c.userSvc.UnarchiveOrganizer(ctx.Context(), userId)
+	if err != nil {
+		response.Send(ctx, domain.GetCode(err), "failed to unarchive organizer", nil, err)
+		return nil
+	}
+
+	response.Send(ctx, http.StatusOK, "success to unarchive organizer", nil, nil)
 	return nil
 }
 

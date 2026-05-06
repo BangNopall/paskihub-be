@@ -67,7 +67,7 @@ type EventResponse struct {
 	BankName       string                 `json:"bank_name"`
 	BankNumber     string                 `json:"bank_number"`
 	WaGroup        string                 `json:"wa_group"`
-	User           UserResponse           `json:"user"`
+	User           *UserResponse          `json:"user,omitempty"`
 	EventLevels    []EventLevelResponse   `json:"event_levels"`
 	Registrations  []RegistrationResponse `json:"registrations"`
 }
@@ -128,7 +128,12 @@ func EventEntityToResponse(event *entity.Event) *EventResponse {
 		BankName:       event.BankName,
 		BankNumber:     event.BankNumber,
 		WaGroup:        event.WaGroup,
-		User:           *UserEntityToResponse(&event.User),
+		User: func() *UserResponse {
+			if event.User.Id != uuid.Nil {
+				return UserEntityToResponse(&event.User)
+			}
+			return nil
+		}(),
 		EventLevels: func() []EventLevelResponse {
 			res := make([]EventLevelResponse, 0)
 			for _, eventLevel := range event.EventLevels {

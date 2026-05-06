@@ -23,6 +23,9 @@ type UserRepository interface {
 	UpdateUser(updateUser *dto.UserUpdate, userId uuid.UUID) error
 	DeleteUnverifiedUser() error
 	FetchAllUsers(ctx context.Context, role *string) ([]entity.User, error)
+	UpdateUserStatus(ctx context.Context, userId uuid.UUID, isBanned bool) error
+	VerifyUserEmail(ctx context.Context, userId uuid.UUID) error
+	FetchUserDetailAdmin(ctx context.Context, userId uuid.UUID) (*entity.User, error)
 }
 
 type UserService interface {
@@ -37,4 +40,10 @@ type UserService interface {
 	DeleteUnverifiedUsers()
 	FetchAllUsers(ctx context.Context, role *string) ([]dto.UserResponse, error)
 	FetchUserById(ctx context.Context, userId uuid.UUID) (dto.UserResponse, error)
+	BanUser(ctx context.Context, userId uuid.UUID) error
+	UnbanUser(ctx context.Context, userId uuid.UUID) error
+	VerifyUser(ctx context.Context, userId uuid.UUID) error
+	FetchUserDetailAdmin(ctx context.Context, userId uuid.UUID) (dto.AdminUserDetailResponse, error)
+	ArchiveOrganizer(ctx context.Context, userId uuid.UUID) error
+	UnarchiveOrganizer(ctx context.Context, userId uuid.UUID) error
 }

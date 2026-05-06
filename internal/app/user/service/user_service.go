@@ -2,8 +2,8 @@ package service
 
 import (
 	"context"
-	"time"
 	"strconv"
+	"time"
 
 	"github.com/BangNopall/paskihub-be/domain"
 	"github.com/BangNopall/paskihub-be/domain/constants"
@@ -28,18 +28,20 @@ import (
 )
 
 type userService struct {
-	userRepo contracts.UserRepository
-	uuid     uuidPkg.UUIDInterface
-	bcrypt   bcrypt.BcryptInterface
-	time     timePkg.TimeInterface
-	goMail   gomail.GoMailInterface
-	jwt      jwt.JwtInterface
-	redis    redis.RedisInterface
-	timeout  time.Duration
+	userRepo  contracts.UserRepository
+	eventRepo contracts.EventRepository
+	uuid      uuidPkg.UUIDInterface
+	bcrypt    bcrypt.BcryptInterface
+	time      timePkg.TimeInterface
+	goMail    gomail.GoMailInterface
+	jwt       jwt.JwtInterface
+	redis     redis.RedisInterface
+	timeout   time.Duration
 }
 
 func NewUserService(
 	userRepo contracts.UserRepository,
+	eventRepo contracts.EventRepository,
 	uuid uuidPkg.UUIDInterface,
 	bcrypt bcrypt.BcryptInterface,
 	time timePkg.TimeInterface,
@@ -50,6 +52,7 @@ func NewUserService(
 ) contracts.UserService {
 	return &userService{
 		userRepo,
+		eventRepo,
 		uuid,
 		bcrypt,
 		time,
@@ -420,4 +423,133 @@ func (s *userService) FetchUserById(ctx context.Context, userId uuid.UUID) (dto.
 		return dto.UserResponse{}, err
 	}
 	return *dto.UserEntityToResponse(&user), nil
+}
+
+func (s *userService) BanUser(ctx context.Context, userId uuid.UUID) error {
+	return s.userRepo.UpdateUserStatus(ctx, userId, true)
+}
+
+func (s *userService) UnbanUser(ctx context.Context, userId uuid.UUID) error {
+	return s.userRepo.UpdateUserStatus(ctx, userId, false)
+}
+
+func (s *userService) VerifyUser(ctx context.Context, userId uuid.UUID) error {
+	return s.userRepo.VerifyUserEmail(ctx, userId)
+}
+
+func (s *userService) FetchUserDetailAdmin(ctx context.Context, userId uuid.UUID) (dto.AdminUserDetailResponse, error) {
+	user, err := s.userRepo.FetchUserDetailAdmin(ctx, userId)
+	if err != nil {
+		return dto.AdminUserDetailResponse{}, err
+	}
+
+	res := dto.AdminUserDetailResponse{
+		Id:       user.Id,
+		Name:     "-",
+		Email:    user.Email,
+		Role:     string(user.Role),
+		Status:   "Active",
+		JoinedAt: user.CreatedAt,
+	}
+
+	if user.IsBanned {
+		res.Status = "Banned"
+	} else if !user.EmailIsVerified {
+		res.Status = "Pending"
+	}
+
+	if len(user.Institutions) > 0 {
+		inst := user.Institutions[0]
+		res.Name = inst.Name
+		res.SchoolName = inst.Name
+		res.Phone = inst.NoWaPj
+		res.Address = inst.Address
+	}
+
+	if user.Role == enums.Organizer {
+		eoData := &dto.AdminUserEODetail{
+			Panitia: []dto.AdminStaffRes{},
+			Events:  []dto.AdminEventRes{},
+			Judges:  []dto.AdminJudgeRes{},
+		}
+		
+		for _, e := range user.Events {
+			eoData.Events = append(eoData.Events, dto.AdminEventRes{
+				EventName: e.Name,
+				CompeDate: e.CompeDate,
+				Location:  e.Location,
+				Status:    string(e.Status),
+			})
+		}
+		res.EOData = eoData
+	} else if user.Role == enums.Peserta {
+		pesertaData := &dto.AdminUserPesertaDetail{
+			Teams:        []dto.AdminTeamRes{},
+			EventHistory: []dto.AdminEventRegistrationRes{},
+		}
+
+		if len(user.Institutions) > 0 {
+			for _, t := range user.Institutions[0].Teams {
+				pesertaData.Teams = append(pesertaData.Teams, dto.AdminTeamRes{
+					TeamName:     t.Name,
+					Coach:        t.Pelatih,
+					MembersCount: len(t.TeamMembers),
+				})
+
+				for _, reg := range t.Registrations {
+					pesertaData.EventHistory = append(pesertaData.EventHistory, dto.AdminEventRegistrationRes{
+						EventName:     reg.EventLevel.Event.Name,
+						PaymentStatus: string(reg.PaymentStatus),
+					})
+				}
+			}
+		}
+		res.PesertaData = pesertaData
+	}
+
+	return res, nil
+}
+
+func (s *userService) ArchiveOrganizer(ctx context.Context, userId uuid.UUID) error {
+	ctx, cancel := context.WithTimeout(ctx, s.timeout)
+	defer cancel()
+
+	var user entity.User
+	err := s.userRepo.FindUser(&user, &dto.UserParam{ID: userId}, "Events")
+	if err != nil {
+		return err
+	}
+
+	if len(user.Events) == 0 {
+		return domain.ErrNotFound
+	}
+
+	event := user.Events[0]
+	update := entity.Event{
+		Status: string(enums.Archived),
+	}
+
+	return s.eventRepo.UpdateEvent(ctx, &update, event.Id)
+}
+
+func (s *userService) UnarchiveOrganizer(ctx context.Context, userId uuid.UUID) error {
+	ctx, cancel := context.WithTimeout(ctx, s.timeout)
+	defer cancel()
+
+	var user entity.User
+	err := s.userRepo.FindUser(&user, &dto.UserParam{ID: userId}, "Events")
+	if err != nil {
+		return err
+	}
+
+	if len(user.Events) == 0 {
+		return domain.ErrNotFound
+	}
+
+	event := user.Events[0]
+	update := entity.Event{
+		Status: string(enums.Open),
+	}
+
+	return s.eventRepo.UpdateEvent(ctx, &update, event.Id)
 }

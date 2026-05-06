@@ -12,8 +12,10 @@ type ParticipantEventRepository interface {
 	GetOpenEvents(ctx context.Context) ([]entity.Event, error)
 	CreateRegistration(ctx context.Context, registration *entity.Registration) error
 	GetRegistrationByID(ctx context.Context, regisID uuid.UUID) (*entity.Registration, error)
+	GetRegistrationWithDetails(ctx context.Context, regisID uuid.UUID) (*entity.Registration, error)
 	UpdateRegistration(ctx context.Context, registration *entity.Registration) error
 	GetActiveRegistrationsByUserID(ctx context.Context, userID uuid.UUID) ([]entity.Registration, error)
+	GetEventLevelByID(ctx context.Context, levelID uuid.UUID) (*entity.EventLevel, error)
 }
 
 type ParticipantEventService interface {
@@ -21,4 +23,6 @@ type ParticipantEventService interface {
 	RegisterEvent(ctx context.Context, req dto.RegisterEventRequest) error
 	PelunasanEvent(ctx context.Context, regisID string, req dto.PelunasanEventRequest) error
 	GetActiveEvents(ctx context.Context, userID string) ([]dto.ActiveEventResponse, error)
+	GetRegistrationDetail(ctx context.Context, regisID string) (dto.RegistrationDetailResponse, error)
+	GetScoreboard(ctx context.Context, eventLevelID string) (dto.ScoreboardResponse, error)
 }

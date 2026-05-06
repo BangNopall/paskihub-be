@@ -8,6 +8,7 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/BangNopall/paskihub-be/domain/entity"
+	"github.com/BangNopall/paskihub-be/internal/infra/database/seeders"
 	"github.com/BangNopall/paskihub-be/internal/infra/env"
 	"github.com/BangNopall/paskihub-be/pkg/helpers/flag"
 	"github.com/BangNopall/paskihub-be/pkg/log"
@@ -181,5 +182,20 @@ func EnsureDefaultSettings(db *gorm.DB) {
 			AccountName:   "PaskiHub Indonesia",
 		}
 		db.Create(&defaultSettings)
+	}
+}
+
+func Seeder(db *gorm.DB, flagVars *flag.Flag) {
+	if !flagVars.Seeder {
+		return
+	}
+
+	if flagVars.SeederModel == "User" {
+		seeders.UserSeeder(db)
+	} else if flagVars.SeederModel == "" {
+		seeders.UserSeeder(db)
+		// Add more seeders here
+	} else {
+		log.Error(nil, "[PGSQL CONN][Seeder] Seeder model not found")
 	}
 }

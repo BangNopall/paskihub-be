@@ -7,6 +7,7 @@ import (
 	"github.com/BangNopall/paskihub-be/internal/infra/database"
 	"github.com/BangNopall/paskihub-be/internal/infra/env"
 	"github.com/BangNopall/paskihub-be/internal/infra/server"
+	"github.com/BangNopall/paskihub-be/pkg/helpers/flag"
 )
 
 // @title						Paskihub API
@@ -29,6 +30,7 @@ func main() {
 	pgsqldb := database.NewPgsqlConn()
 
 	database.Migrate(pgsqldb, os.Args)
+	database.Seeder(pgsqldb, flag.FlagVars)
 
 	server.MountMiddlewares()
 	server.MountRoutes(pgsqldb)

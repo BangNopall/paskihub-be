@@ -563,6 +563,144 @@ paths:
       summary: Get all users
       tags:
       - Admin
+  /api/v1/admin/users/{userId}:
+    get:
+      description: Retrieve detailed info of a user (Admin only)
+      parameters:
+      - description: User ID
+        in: path
+        name: userId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+        BearerAuth: []
+      summary: Get admin user detail
+      tags:
+      - Admin
+  /api/v1/admin/users/{userId}/archive:
+    put:
+      description: Set organizer's event status to archived (Admin only)
+      parameters:
+      - description: User ID
+        in: path
+        name: userId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+        BearerAuth: []
+      summary: Archive organizer event
+      tags:
+      - Admin
+  /api/v1/admin/users/{userId}/ban:
+    put:
+      description: Set user status to banned (Admin only)
+      parameters:
+      - description: User ID
+        in: path
+        name: userId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+        BearerAuth: []
+      summary: Ban user
+      tags:
+      - Admin
+  /api/v1/admin/users/{userId}/unarchive:
+    put:
+      description: Set organizer's event status to open (Admin only)
+      parameters:
+      - description: User ID
+        in: path
+        name: userId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+        BearerAuth: []
+      summary: Unarchive organizer event
+      tags:
+      - Admin
+  /api/v1/admin/users/{userId}/unban:
+    put:
+      description: Set user status to active (Admin only)
+      parameters:
+      - description: User ID
+        in: path
+        name: userId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+        BearerAuth: []
+      summary: Unban user
+      tags:
+      - Admin
+  /api/v1/admin/users/{userId}/verify:
+    put:
+      description: Manually verify a user's email (Admin only)
+      parameters:
+      - description: User ID
+        in: path
+        name: userId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+        BearerAuth: []
+      summary: Verify user email
+      tags:
+      - Admin
   /api/v1/assessment/finalize:
     post:
       consumes:
@@ -2065,6 +2203,29 @@ paths:
       summary: Pelunasan payment for event
       tags:
       - Participant Event
+  /api/v1/peserta/events/registrations/{regis_id}:
+    get:
+      description: Get specific registration details including event, team and payment
+      parameters:
+      - description: Registration ID
+        in: path
+        name: regis_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+        BearerAuth: []
+      summary: Get registration detail
+      tags:
+      - Participant Event
   /api/v1/peserta/profile:
     get:
       description: Retrieve current participant's profile
@@ -2133,6 +2294,29 @@ paths:
       summary: Update participant password
       tags:
       - Participant Profile
+  /api/v1/peserta/rekap/scoreboard/{event_level_id}:
+    get:
+      description: Retrieve the scoreboard if published by the organizer
+      parameters:
+      - description: Event Level ID
+        in: path
+        name: event_level_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+        BearerAuth: []
+      summary: Get scoreboard for participants
+      tags:
+      - Participant Event
   /api/v1/peserta/teams:
     get:
       description: Retrieve a list of teams for the current participant

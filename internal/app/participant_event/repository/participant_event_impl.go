@@ -38,6 +38,27 @@ func (r *participantEventRepository) GetRegistrationByID(ctx context.Context, re
 	return &regis, nil
 }
 
+func (r *participantEventRepository) GetRegistrationWithDetails(ctx context.Context, regisID uuid.UUID) (*entity.Registration, error) {
+	var regis entity.Registration
+	err := r.db.WithContext(ctx).
+		Preload("Team.TeamMembers").
+		Preload("EventLevel.Event").
+		First(&regis, "id = ?", regisID).Error
+	if err != nil {
+		return nil, err
+	}
+	return &regis, nil
+}
+
+func (r *participantEventRepository) GetEventLevelByID(ctx context.Context, levelID uuid.UUID) (*entity.EventLevel, error) {
+	var level entity.EventLevel
+	err := r.db.WithContext(ctx).First(&level, "id = ?", levelID).Error
+	if err != nil {
+		return nil, err
+	}
+	return &level, nil
+}
+
 func (r *participantEventRepository) UpdateRegistration(ctx context.Context, registration *entity.Registration) error {
 	return r.db.WithContext(ctx).Save(registration).Error
 }

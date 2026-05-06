@@ -160,7 +160,7 @@ func (s *httpServer) MountRoutes(db *gorm.DB) {
 	)
 
 	// Service
-	userSvc := userSvc.NewUserService(userRepo, uuid, bcrypt, timePkg, gomail, jwt, redis, time.Second*15)
+	userSvc := userSvc.NewUserService(userRepo, eventRepo, uuid, bcrypt, timePkg, gomail, jwt, redis, time.Second*15)
 	eventSvc := eventSvc.NewEventService(eventRepo, walletRepo, uuid, timePkg, time.Second*15)
 	walletSvc := walletSvc.NewWalletService(walletRepo, eventRepo, settingRepoIns, uuid, time.Second*15)
 	formPenilaianSvc := assessmentSvc.NewFormPenilaianService(formPenilaianRepo, db, s.validator)
@@ -169,7 +169,7 @@ func (s *httpServer) MountRoutes(db *gorm.DB) {
 
 	pProfileSvcIns := pProfileSvc.NewParticipantProfileService(pProfileRepoIns)
 	pTeamSvcIns := pTeamSvc.NewParticipantTeamService(pTeamRepoIns, pProfileRepoIns)
-	pEventSvcIns := pEventSvc.NewParticipantEventService(pEventRepoIns)
+	pEventSvcIns := pEventSvc.NewParticipantEventService(pEventRepoIns, rekapRepo)
 	pAssessSvcIns := pAssessSvc.NewParticipantAssessmentService(pAssessRepoIns)
 	eoTeamSvcIns := eoTeamSvc.NewEOTeamService(eoTeamRepoIns, walletRepo, settingRepoIns, db)
 	dashboardSvcIns := dashboardSvc.NewDashboardService(dashboardRepoIns)

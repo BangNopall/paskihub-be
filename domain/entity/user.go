@@ -15,6 +15,7 @@ type User struct {
 	EmailVerifiedToken  string     `json:"email_verified_token" gorm:"type:varchar(100)"`
 	ForgotPasswordToken string     `json:"forgot_password_token" gorm:"type:varchar(100)"`
 	EmailIsVerified     bool       `json:"email_is_verified" gorm:"type:bool"`
+	IsBanned            bool       `json:"is_banned" gorm:"type:bool;default:false;"`
 	ExpiredToken        time.Time  `json:"-" gorm:"type:timestamp"`
 	ExpiredTokenForgot  time.Time  `json:"-" gorm:"type:timestamp"`
 
