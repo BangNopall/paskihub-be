@@ -213,6 +213,13 @@ func (s *userService) Login(ctx context.Context, user dto.UserLogin) (dto.UserLo
 		return dto.UserLoginResponse{}, err
 	}
 
+	// Update LastLoginAt
+	now := s.time.Now()
+	updateUser := dto.UserUpdate{
+		LastLoginAt: &now,
+	}
+	_ = s.userRepo.UpdateUser(&updateUser, registeredUser.Id)
+
 	return dto.UserLoginResponse{
 		Token: token,
 		Id:    registeredUser.Id.String(),
@@ -224,6 +231,71 @@ func (s *userService) Login(ctx context.Context, user dto.UserLogin) (dto.UserLo
 func (s *userService) DeleteUnverifiedUsers() {
 	s.userRepo.DeleteUnverifiedUser()
 	log.Info(nil, "[USER SERVICE][DeleteUnverifiedUsers] deleted unverified users")
+}
+
+func (s *userService) CreateAdmin(ctx context.Context, req dto.AdminCreateRequest) error {
+	ctx, cancel := context.WithTimeout(ctx, s.timeout)
+	defer cancel()
+
+	hashPassword, err := s.bcrypt.Hash(req.Password)
+	if err != nil {
+		return err
+	}
+
+	userId, err := s.uuid.New()
+	if err != nil {
+		return err
+	}
+
+	newAdmin := entity.User{
+		Id:              userId,
+		Email:           req.Email,
+		Password:        hashPassword,
+		Role:            enums.Admin,
+		EmailIsVerified: true,
+	}
+
+	err = s.userRepo.CreateUser(&newAdmin)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *userService) DeleteAdmin(ctx context.Context, userId uuid.UUID) error {
+	ctx, cancel := context.WithTimeout(ctx, s.timeout)
+	defer cancel()
+
+	var user entity.User
+	err := s.userRepo.FindUser(&user, &dto.UserParam{ID: userId})
+	if err != nil {
+		return err
+	}
+
+	if user.Role != enums.Admin {
+		return domain.ErrForbidden
+	}
+
+	return s.userRepo.DeleteUser(ctx, userId)
+}
+
+func (s *userService) ResetAdminPassword(ctx context.Context, userId uuid.UUID) error {
+	ctx, cancel := context.WithTimeout(ctx, s.timeout)
+	defer cancel()
+
+	var user entity.User
+	err := s.userRepo.FindUser(&user, &dto.UserParam{ID: userId})
+	if err != nil {
+		return err
+	}
+
+	if user.Role != enums.Admin {
+		return domain.ErrForbidden
+	}
+
+	// Reuse ForgotPassword logic to send reset link
+	return s.ForgotPassword(ctx, dto.UserForgotPassword{Email: user.Email})
 }
 
 func (s *userService) VerifyEmail(ctx context.Context, email string, emailVerPass string) error {
@@ -474,11 +546,20 @@ func (s *userService) FetchUserDetailAdmin(ctx context.Context, userId uuid.UUID
 		}
 		
 		for _, e := range user.Events {
+			var levels []dto.AdminEventLevelRes
+			for _, lvl := range e.EventLevels {
+				levels = append(levels, dto.AdminEventLevelRes{
+					Name:     lvl.Name,
+					RegisFee: lvl.RegisFee,
+					DpFee:    lvl.DpFee,
+				})
+			}
 			eoData.Events = append(eoData.Events, dto.AdminEventRes{
-				EventName: e.Name,
-				CompeDate: e.CompeDate,
-				Location:  e.Location,
-				Status:    string(e.Status),
+				EventName:   e.Name,
+				CompeDate:   e.CompeDate,
+				Location:    e.Location,
+				Status:      string(e.Status),
+				EventLevels: levels,
 			})
 		}
 		res.EOData = eoData
@@ -490,16 +571,26 @@ func (s *userService) FetchUserDetailAdmin(ctx context.Context, userId uuid.UUID
 
 		if len(user.Institutions) > 0 {
 			for _, t := range user.Institutions[0].Teams {
+				var members []dto.AdminTeamMemberRes
+				for _, m := range t.TeamMembers {
+					members = append(members, dto.AdminTeamMemberRes{
+						Name: m.FullName,
+						Role: string(m.Role),
+					})
+				}
 				pesertaData.Teams = append(pesertaData.Teams, dto.AdminTeamRes{
 					TeamName:     t.Name,
 					Coach:        t.Pelatih,
 					MembersCount: len(t.TeamMembers),
+					Members:      members,
 				})
 
 				for _, reg := range t.Registrations {
 					pesertaData.EventHistory = append(pesertaData.EventHistory, dto.AdminEventRegistrationRes{
-						EventName:     reg.EventLevel.Event.Name,
-						PaymentStatus: string(reg.PaymentStatus),
+						EventName:        reg.EventLevel.Event.Name,
+						EventLevelName:   reg.EventLevel.Name,
+						PaymentStatus:    string(reg.PaymentStatus),
+						AssessmentStatus: string(reg.AssessmentStatus),
 					})
 				}
 			}

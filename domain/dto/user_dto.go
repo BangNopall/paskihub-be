@@ -55,6 +55,7 @@ type UserResponse struct {
 	ForgotPasswordToken string               `json:"forgot_password_token"`
 	EmailIsVerified     bool                 `json:"email_is_verified"`
 	IsBanned            bool                 `json:"is_banned"`
+	LastLoginAt         *time.Time           `json:"last_login_at"`
 	CreatedAt           time.Time            `json:"created_at"`
 	InstitutionName     string               `json:"name"` // Used to hold dynamic name (Event/Institution/Admin)
 	ExpiredToken        time.Time            `json:"-"`
@@ -65,11 +66,12 @@ type UserResponse struct {
 
 type UserUpdate struct {
 	Password            string    `json:"password" binding:"omitempty,validpassword"`
+	LastLoginAt         *time.Time `json:"last_login_at"`
 	EmailIsVerified     bool      `json:"-"`
 	EmailVerifiedToken  string    `json:"-"`
 	ForgotPasswordToken string    `json:"-"`
 	ExpiredToken        time.Time `json:"-"`
-	ExpiredTokenForgot  time.Time `json:"-"`
+	ExpiredTokenForgot  time.Time `json:"-"`	
 }
 
 type UserPaginationResponse struct {
@@ -103,11 +105,18 @@ type AdminStaffRes struct {
 	Role string `json:"role"` // Usually just "Staff"
 }
 
+type AdminEventLevelRes struct {
+	Name     string `json:"name"`
+	RegisFee string `json:"regis_fee"`
+	DpFee    string `json:"dp_fee"`
+}
+
 type AdminEventRes struct {
-	EventName string    `json:"event_name"`
-	CompeDate time.Time `json:"compe_date"`
-	Location  string    `json:"location"`
-	Status    string    `json:"status"`
+	EventName   string               `json:"event_name"`
+	CompeDate   time.Time            `json:"compe_date"`
+	Location    string               `json:"location"`
+	Status      string               `json:"status"`
+	EventLevels []AdminEventLevelRes `json:"event_levels"`
 }
 
 type AdminJudgeRes struct {
@@ -119,15 +128,23 @@ type AdminUserPesertaDetail struct {
 	EventHistory []AdminEventRegistrationRes  `json:"event_history"`
 }
 
+type AdminTeamMemberRes struct {
+	Name string `json:"name"`
+	Role string `json:"role"`
+}
+
 type AdminTeamRes struct {
-	TeamName     string `json:"team_name"`
-	Coach        string `json:"coach"`
-	MembersCount int    `json:"members_count"`
+	TeamName     string               `json:"team_name"`
+	Coach        string               `json:"coach"`
+	MembersCount int                  `json:"members_count"`
+	Members      []AdminTeamMemberRes `json:"members"`
 }
 
 type AdminEventRegistrationRes struct {
-	EventName     string `json:"event_name"`
-	PaymentStatus string `json:"payment_status"`
+	EventName        string `json:"event_name"`
+	EventLevelName   string `json:"event_level_name"`
+	PaymentStatus    string `json:"payment_status"`
+	AssessmentStatus string `json:"assessment_status"`
 }
 
 func UserEntityToResponse(user *entity.User) *UserResponse {
@@ -174,6 +191,7 @@ func UserEntityToResponse(user *entity.User) *UserResponse {
 		ForgotPasswordToken: user.ForgotPasswordToken,
 		EmailIsVerified:     user.EmailIsVerified,
 		IsBanned:            user.IsBanned,
+		LastLoginAt:         user.LastLoginAt,
 		CreatedAt:           user.CreatedAt,
 		InstitutionName:     name,
 		Event:               evt,
@@ -181,4 +199,9 @@ func UserEntityToResponse(user *entity.User) *UserResponse {
 		ExpiredToken:        user.ExpiredToken,
 		ExpiredTokenForgot:  user.ExpiredTokenForgot,
 	}
+}
+
+type AdminCreateRequest struct {
+	Email    string `json:"email" binding:"required,email"`
+	Password string `json:"password" binding:"required,min=8"`
 }

@@ -16,6 +16,7 @@ type User struct {
 	ForgotPasswordToken string     `json:"forgot_password_token" gorm:"type:varchar(100)"`
 	EmailIsVerified     bool       `json:"email_is_verified" gorm:"type:bool"`
 	IsBanned            bool       `json:"is_banned" gorm:"type:bool;default:false;"`
+	LastLoginAt         *time.Time `json:"last_login_at" gorm:"type:timestamp;default:null;"`
 	ExpiredToken        time.Time  `json:"-" gorm:"type:timestamp"`
 	ExpiredTokenForgot  time.Time  `json:"-" gorm:"type:timestamp"`
 

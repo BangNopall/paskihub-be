@@ -131,7 +131,7 @@ func (r *userRepository) FetchUserDetailAdmin(ctx context.Context, userId uuid.U
 	err := r.conn.WithContext(ctx).
 		Preload("Institutions.Teams.TeamMembers").
 		Preload("Institutions.Teams.Registrations.EventLevel.Event").
-		Preload("Events").
+		Preload("Events.EventLevels").
 		Where("id = ?", userId).
 		First(&user).Error
 
@@ -149,11 +149,18 @@ func (r *userRepository) FetchUserDetailAdmin(ctx context.Context, userId uuid.U
 	if user.Role == enums.Organizer {
 		var staffs []entity.User
 		r.conn.WithContext(ctx).Where("parent_id = ?", userId).Find(&staffs)
-		// We don't have a direct relationship field in entity.User for staff,
-		// so we'll just return user and let the service handle fetching staff if needed,
-		// or we could just inject it into a slice if we had one.
-		// For simplicity, we let the service fetch staff since there's an eoRepo for it.
 	}
 
 	return &user, nil
+}
+
+func (r *userRepository) DeleteUser(ctx context.Context, userId uuid.UUID) error {
+	err := r.conn.WithContext(ctx).Delete(&entity.User{}, userId).Error
+	if err != nil {
+		log.Warn(log.LogInfo{
+			"error": err.Error(),
+		}, "[USER REPOSITORY][DeleteUser] failed to delete user")
+		return domain.ErrInternalServer
+	}
+	return nil
 }

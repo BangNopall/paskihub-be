@@ -26,6 +26,7 @@ type UserRepository interface {
 	UpdateUserStatus(ctx context.Context, userId uuid.UUID, isBanned bool) error
 	VerifyUserEmail(ctx context.Context, userId uuid.UUID) error
 	FetchUserDetailAdmin(ctx context.Context, userId uuid.UUID) (*entity.User, error)
+	DeleteUser(ctx context.Context, userId uuid.UUID) error
 }
 
 type UserService interface {
@@ -46,4 +47,7 @@ type UserService interface {
 	FetchUserDetailAdmin(ctx context.Context, userId uuid.UUID) (dto.AdminUserDetailResponse, error)
 	ArchiveOrganizer(ctx context.Context, userId uuid.UUID) error
 	UnarchiveOrganizer(ctx context.Context, userId uuid.UUID) error
+	CreateAdmin(ctx context.Context, req dto.AdminCreateRequest) error
+	DeleteAdmin(ctx context.Context, userId uuid.UUID) error
+	ResetAdminPassword(ctx context.Context, userId uuid.UUID) error
 }

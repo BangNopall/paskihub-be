@@ -177,7 +177,7 @@ func (s *httpServer) MountRoutes(db *gorm.DB) {
 	settingSvcIns := systemSettingSvc.NewSystemSettingService(settingRepoIns, time.Second*15)
 
 	// Controller
-	userCtr.InitUserController(userSvc, s.app, middleware, redis)
+	userCtr.InitUserController(userSvc, eventSvc, s.app, middleware, redis)
 	eventCtr.InitEventController(eventSvc, s.app, middleware, redis)
 	walletCtr.InitWalletController(walletSvc, s.app, middleware, redis)
 	assessmentCtr.InitFormPenilaianController(formPenilaianSvc, s.app, middleware)

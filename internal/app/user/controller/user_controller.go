@@ -16,19 +16,22 @@ import (
 )
 
 type userController struct {
-	userSvc contracts.UserService
-	redis   redis.RedisInterface
+	userSvc  contracts.UserService
+	eventSvc contracts.EventService
+	redis    redis.RedisInterface
 }
 
 func InitUserController(
 	userSvc contracts.UserService,
+	eventSvc contracts.EventService,
 	router fiber.Router,
 	middleware *middlewares.Middleware,
 	redis redis.RedisInterface,
 ) {
 	userController := &userController{
-		userSvc: userSvc,
-		redis:   redis,
+		userSvc:  userSvc,
+		eventSvc: eventSvc,
+		redis:    redis,
 	}
 
 	userRouter := router.Group("/api/v1/users")
@@ -45,12 +48,97 @@ func InitUserController(
 	adminRouter.Use(middleware.Authentication, middleware.AuthAdmin)
 	adminRouter.Get("/users", userController.GetUsers)
 	adminRouter.Get("/admins", userController.GetAdmins)
+	adminRouter.Post("/admins", userController.CreateAdmin)
+	adminRouter.Delete("/admins/:id", userController.DeleteAdmin)
+	adminRouter.Post("/admins/:id/reset-password", userController.ResetAdminPassword)
 	adminRouter.Get("/users/:userId", userController.GetUserDetailAdmin)
 	adminRouter.Put("/users/:userId/ban", userController.BanUser)
 	adminRouter.Put("/users/:userId/unban", userController.UnbanUser)
 	adminRouter.Put("/users/:userId/verify", userController.VerifyUser)
 	adminRouter.Put("/users/:userId/archive", userController.ArchiveOrganizer)
 	adminRouter.Put("/users/:userId/unarchive", userController.UnarchiveOrganizer)
+	adminRouter.Put("/events/:eventId/status", userController.UpdateEventStatus)
+}
+
+// CreateAdmin godoc
+// @Summary Create a new admin
+// @Description Create a new admin staff account (Admin only)
+// @Tags Admin
+// @Security ApiKeyAuth && BearerAuth
+// @Accept json
+// @Produce json
+// @Param admin body dto.AdminCreateRequest true "Admin Data"
+// @Success 200 {object} map[string]interface{}
+// @Router /api/v1/admin/admins [post]
+func (c *userController) CreateAdmin(ctx *fiber.Ctx) error {
+	var req dto.AdminCreateRequest
+	if err := ctx.BodyParser(&req); err != nil {
+		response.Send(ctx, http.StatusBadRequest, "invalid request", nil, err)
+		return nil
+	}
+
+	err := c.userSvc.CreateAdmin(ctx.Context(), req)
+	if err != nil {
+		response.Send(ctx, domain.GetCode(err), "failed to create admin", nil, err)
+		return nil
+	}
+
+	response.Send(ctx, http.StatusOK, "success to create admin", nil, nil)
+	return nil
+}
+
+// DeleteAdmin godoc
+// @Summary Delete admin account
+// @Description Permanently remove an admin's access (Admin only)
+// @Tags Admin
+// @Security ApiKeyAuth && BearerAuth
+// @Produce json
+// @Param id path string true "Admin User ID"
+// @Success 200 {object} map[string]interface{}
+// @Router /api/v1/admin/admins/{id} [delete]
+func (c *userController) DeleteAdmin(ctx *fiber.Ctx) error {
+	idStr := ctx.Params("id")
+	userId, err := uuid.Parse(idStr)
+	if err != nil {
+		response.Send(ctx, http.StatusBadRequest, "invalid user id", nil, err)
+		return nil
+	}
+
+	err = c.userSvc.DeleteAdmin(ctx.Context(), userId)
+	if err != nil {
+		response.Send(ctx, domain.GetCode(err), "failed to delete admin", nil, err)
+		return nil
+	}
+
+	response.Send(ctx, http.StatusOK, "success to delete admin", nil, nil)
+	return nil
+}
+
+// ResetAdminPassword godoc
+// @Summary Reset admin password
+// @Description Manually trigger a password reset for an admin staff (Admin only)
+// @Tags Admin
+// @Security ApiKeyAuth && BearerAuth
+// @Produce json
+// @Param id path string true "Admin User ID"
+// @Success 200 {object} map[string]interface{}
+// @Router /api/v1/admin/admins/{id}/reset-password [post]
+func (c *userController) ResetAdminPassword(ctx *fiber.Ctx) error {
+	idStr := ctx.Params("id")
+	userId, err := uuid.Parse(idStr)
+	if err != nil {
+		response.Send(ctx, http.StatusBadRequest, "invalid user id", nil, err)
+		return nil
+	}
+
+	err = c.userSvc.ResetAdminPassword(ctx.Context(), userId)
+	if err != nil {
+		response.Send(ctx, domain.GetCode(err), "failed to reset admin password", nil, err)
+		return nil
+	}
+
+	response.Send(ctx, http.StatusOK, "success to trigger password reset", nil, nil)
+	return nil
 }
 
 // GetUserById godoc
@@ -587,3 +675,4 @@ func (c *userController) Logout(ctx *fiber.Ctx) error {
 	message = "success to logout"
 	return nil
 }
+

@@ -1,5 +1,16 @@
 basePath: /
 definitions:
+  dto.AdminCreateRequest:
+    properties:
+      email:
+        type: string
+      password:
+        minLength: 8
+        type: string
+    required:
+    - email
+    - password
+    type: object
   dto.BulkInsertScoresRequest:
     properties:
       judges_id:
@@ -544,6 +555,77 @@ paths:
       - ApiKeyAuth: []
         BearerAuth: []
       summary: Get all admins
+      tags:
+      - Admin
+    post:
+      consumes:
+      - application/json
+      description: Create a new admin staff account (Admin only)
+      parameters:
+      - description: Admin Data
+        in: body
+        name: admin
+        required: true
+        schema:
+          $ref: '#/definitions/dto.AdminCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+        BearerAuth: []
+      summary: Create a new admin
+      tags:
+      - Admin
+  /api/v1/admin/admins/{id}:
+    delete:
+      description: Permanently remove an admin's access (Admin only)
+      parameters:
+      - description: Admin User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+        BearerAuth: []
+      summary: Delete admin account
+      tags:
+      - Admin
+  /api/v1/admin/admins/{id}/reset-password:
+    post:
+      description: Manually trigger a password reset for an admin staff (Admin only)
+      parameters:
+      - description: Admin User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+        BearerAuth: []
+      summary: Reset admin password
       tags:
       - Admin
   /api/v1/admin/users:
