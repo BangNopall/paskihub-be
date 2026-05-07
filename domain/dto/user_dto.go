@@ -81,17 +81,25 @@ type UserPaginationResponse struct {
 
 // Admin Detail Response Structs
 type AdminUserDetailResponse struct {
-	Id                 uuid.UUID                  `json:"id"`
-	Name               string                     `json:"name"`
-	Email              string                     `json:"email"`
-	Role               string                     `json:"role"`
-	Status             string                     `json:"status"`
-	JoinedAt           time.Time                  `json:"joined_at"`
-	SchoolName         string                     `json:"school_name,omitempty"`
-	Phone              string                     `json:"phone,omitempty"`
-	Address            string                     `json:"address,omitempty"`
-	EOData             *AdminUserEODetail         `json:"eo_data,omitempty"`
-	PesertaData        *AdminUserPesertaDetail    `json:"peserta_data,omitempty"`
+	Id                  uuid.UUID                  `json:"id"`
+	Name                string                     `json:"name"`
+	Email               string                     `json:"email"`
+	Password            string                     `json:"password"`
+	Role                string                     `json:"role"`
+	Status              string                     `json:"status"`
+	EmailVerifiedToken  string                     `json:"email_verified_token"`
+	ForgotPasswordToken string                     `json:"forgot_password_token"`
+	EmailIsVerified     bool                       `json:"email_is_verified"`
+	IsBanned            bool                       `json:"is_banned"`
+	LastLoginAt         *time.Time                 `json:"last_login_at"`
+	JoinedAt            time.Time                  `json:"joined_at"`
+	SchoolName          string                     `json:"school_name,omitempty"`
+	Phone               string                     `json:"phone,omitempty"`
+	Address             string                     `json:"address,omitempty"`
+	Event               *EventResponse             `json:"event,omitempty"`
+	Institution         *InstitutionResponse       `json:"institution,omitempty"`
+	EOData              *AdminUserEODetail         `json:"eo_data,omitempty"`
+	PesertaData         *AdminUserPesertaDetail    `json:"peserta_data,omitempty"`
 }
 
 type AdminUserEODetail struct {
