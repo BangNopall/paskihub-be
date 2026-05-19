@@ -266,6 +266,62 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/admin/dashboard": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": [],
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get aggregate statistics, recent top-up transactions, and recent EO registrations for admin dashboard",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Dashboard"
+                ],
+                "summary": "Get admin dashboard",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.AdminDashboardRes"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/admin/events/{eventId}/status": {
             "put": {
                 "security": [
@@ -6358,6 +6414,94 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.AdminDashboardEORegistrationRes": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "registered_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.AdminDashboardRes": {
+            "type": "object",
+            "properties": {
+                "eo_registrations": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.AdminDashboardEORegistrationRes"
+                    }
+                },
+                "recent_transactions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.AdminDashboardTransactionRes"
+                    }
+                },
+                "stats": {
+                    "$ref": "#/definitions/dto.AdminDashboardStats"
+                }
+            }
+        },
+        "dto.AdminDashboardStatValue": {
+            "type": "object",
+            "properties": {
+                "trend": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "number"
+                }
+            }
+        },
+        "dto.AdminDashboardStats": {
+            "type": "object",
+            "properties": {
+                "pending_topups": {
+                    "$ref": "#/definitions/dto.AdminDashboardStatValue"
+                },
+                "total_eo": {
+                    "$ref": "#/definitions/dto.AdminDashboardStatValue"
+                },
+                "total_participants": {
+                    "$ref": "#/definitions/dto.AdminDashboardStatValue"
+                },
+                "total_revenue": {
+                    "$ref": "#/definitions/dto.AdminDashboardStatValue"
+                }
+            }
+        },
+        "dto.AdminDashboardTransactionRes": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "number"
+                },
+                "amount_koin": {
+                    "type": "number"
+                },
+                "eo_name": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/enums.TransactionStatus"
+                },
+                "time_ago": {
+                    "type": "string"
+                }
+            }
+        },
         "dto.AdminEventLevelRes": {
             "type": "object",
             "properties": {
@@ -6466,8 +6610,14 @@ const docTemplate = `{
         "dto.AdminTransactionPaginationResponse": {
             "type": "object",
             "properties": {
-                "pagination": {
-                    "$ref": "#/definitions/dto.PaginationResponse"
+                "limit": {
+                    "type": "integer"
+                },
+                "page": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
                 },
                 "transactions": {
                     "type": "array",
@@ -7624,17 +7774,6 @@ const docTemplate = `{
                 }
             }
         },
-        "dto.PaginationResponse": {
-            "type": "object",
-            "properties": {
-                "page": {
-                    "type": "integer"
-                },
-                "total_pages": {
-                    "type": "integer"
-                }
-            }
-        },
         "dto.ParticipantActivity": {
             "type": "object",
             "properties": {
@@ -7660,6 +7799,12 @@ const docTemplate = `{
                 },
                 "stats": {
                     "$ref": "#/definitions/dto.ParticipantStats"
+                },
+                "upcoming_events": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.ParticipantUpcomingEventRes"
+                    }
                 }
             }
         },
@@ -7733,6 +7878,29 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "pelatih": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.ParticipantUpcomingEventRes": {
+            "type": "object",
+            "properties": {
+                "date": {
+                    "type": "string"
+                },
+                "detail_url_id": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "registered_teams": {
+                    "type": "integer"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "title": {
                     "type": "string"
                 }
             }

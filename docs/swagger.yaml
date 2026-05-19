@@ -30,6 +30,63 @@ definitions:
     - email
     - password
     type: object
+  dto.AdminDashboardEORegistrationRes:
+    properties:
+      email:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      registered_at:
+        type: string
+    type: object
+  dto.AdminDashboardRes:
+    properties:
+      eo_registrations:
+        items:
+          $ref: '#/definitions/dto.AdminDashboardEORegistrationRes'
+        type: array
+      recent_transactions:
+        items:
+          $ref: '#/definitions/dto.AdminDashboardTransactionRes'
+        type: array
+      stats:
+        $ref: '#/definitions/dto.AdminDashboardStats'
+    type: object
+  dto.AdminDashboardStatValue:
+    properties:
+      trend:
+        type: string
+      value:
+        type: number
+    type: object
+  dto.AdminDashboardStats:
+    properties:
+      pending_topups:
+        $ref: '#/definitions/dto.AdminDashboardStatValue'
+      total_eo:
+        $ref: '#/definitions/dto.AdminDashboardStatValue'
+      total_participants:
+        $ref: '#/definitions/dto.AdminDashboardStatValue'
+      total_revenue:
+        $ref: '#/definitions/dto.AdminDashboardStatValue'
+    type: object
+  dto.AdminDashboardTransactionRes:
+    properties:
+      amount:
+        type: number
+      amount_koin:
+        type: number
+      eo_name:
+        type: string
+      id:
+        type: string
+      status:
+        $ref: '#/definitions/enums.TransactionStatus'
+      time_ago:
+        type: string
+    type: object
   dto.AdminEventLevelRes:
     properties:
       dp_fee:
@@ -100,8 +157,12 @@ definitions:
     type: object
   dto.AdminTransactionPaginationResponse:
     properties:
-      pagination:
-        $ref: '#/definitions/dto.PaginationResponse'
+      limit:
+        type: integer
+      page:
+        type: integer
+      total:
+        type: integer
       transactions:
         items:
           $ref: '#/definitions/dto.AdminTransactionResponse'
@@ -866,13 +927,6 @@ definitions:
       total_team:
         $ref: '#/definitions/dto.StatValue'
     type: object
-  dto.PaginationResponse:
-    properties:
-      page:
-        type: integer
-      total_pages:
-        type: integer
-    type: object
   dto.ParticipantActivity:
     properties:
       description:
@@ -890,6 +944,10 @@ definitions:
         type: array
       stats:
         $ref: '#/definitions/dto.ParticipantStats'
+      upcoming_events:
+        items:
+          $ref: '#/definitions/dto.ParticipantUpcomingEventRes'
+        type: array
     type: object
   dto.ParticipantProfileResponse:
     properties:
@@ -937,6 +995,21 @@ definitions:
       payment_status:
         type: string
       pelatih:
+        type: string
+    type: object
+  dto.ParticipantUpcomingEventRes:
+    properties:
+      date:
+        type: string
+      detail_url_id:
+        type: string
+      id:
+        type: string
+      registered_teams:
+        type: integer
+      status:
+        type: string
+      title:
         type: string
     type: object
   dto.PublishScoreboardRequest:
@@ -1773,6 +1846,40 @@ paths:
       summary: Reset admin password
       tags:
       - Admin
+  /api/v1/admin/dashboard:
+    get:
+      description: Get aggregate statistics, recent top-up transactions, and recent
+        EO registrations for admin dashboard
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.AdminDashboardRes'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+        BearerAuth: []
+      summary: Get admin dashboard
+      tags:
+      - Dashboard
   /api/v1/admin/events/{eventId}/status:
     put:
       consumes:
