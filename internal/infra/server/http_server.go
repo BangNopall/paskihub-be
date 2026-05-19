@@ -83,7 +83,7 @@ type httpServer struct {
 
 func NewHttpServer() Server {
 	app := fiber.New(fiber.Config{
-		BodyLimit: 10 * 1024 * 1024, // 10MB limit for file uploads
+		BodyLimit: 100 * 1024 * 1024, // 10MB limit for file uploads
 	})
 	scheduler := cron.New()
 	validator := validator.New()

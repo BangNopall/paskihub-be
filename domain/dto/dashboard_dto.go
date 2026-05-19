@@ -16,8 +16,8 @@ type OrganizerStats struct {
 }
 
 type StatValue struct {
-	Value interface{} `json:"value"`
-	Trend string      `json:"trend"`
+	Value float64 `json:"value"`
+	Trend string  `json:"trend"`
 }
 
 type CoinValue struct {

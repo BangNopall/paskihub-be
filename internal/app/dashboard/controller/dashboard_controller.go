@@ -31,8 +31,11 @@ func InitDashboardController(
 // @Tags Dashboard
 // @Security ApiKeyAuth && BearerAuth
 // @Produce json
-// @Success 200 {object} map[string]interface{}
+// @Success 200 {object} response.Response{data=dto.OrganizerDashboardRes}
 // @Router /api/v1/organizer/dashboard [get]
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 func (c *dashboardController) GetOrganizerDashboard(ctx *fiber.Ctx) error {
 	userIdStr := ctx.Locals("id").(string)
 	userId, _ := uuid.Parse(userIdStr)
@@ -53,8 +56,11 @@ func (c *dashboardController) GetOrganizerDashboard(ctx *fiber.Ctx) error {
 // @Tags Dashboard
 // @Security ApiKeyAuth && BearerAuth
 // @Produce json
-// @Success 200 {object} map[string]interface{}
+// @Success 200 {object} response.Response{data=dto.ParticipantDashboardRes}
 // @Router /api/v1/peserta/dashboard [get]
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 func (c *dashboardController) GetParticipantDashboard(ctx *fiber.Ctx) error {
 	userIdStr := ctx.Locals("id").(string)
 	userId, _ := uuid.Parse(userIdStr)

@@ -80,8 +80,11 @@ func getUserId(ctx *fiber.Ctx) (uuid.UUID, error) {
 // @Produce json
 // @Param eventId path string true "Event ID"
 // @Param req body dto.CreateJudgeReq true "Judge Details"
-// @Success 201 {object} map[string]interface{}
+// @Success 201 {object} response.Response{data=dto.JudgeRes}
 // @Router /api/v1/eo/events/{eventId}/assessment/judges [post]
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 func (c *assessmentController) CreateJudge(ctx *fiber.Ctx) error {
 	var (
 		err     error
@@ -120,8 +123,11 @@ func (c *assessmentController) CreateJudge(ctx *fiber.Ctx) error {
 // @Security ApiKeyAuth && BearerAuth
 // @Produce json
 // @Param eventId path string true "Event ID"
-// @Success 200 {object} map[string]interface{}
+// @Success 200 {object} response.Response{data=[]dto.JudgeRes}
 // @Router /api/v1/eo/events/{eventId}/assessment/judges [get]
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 func (c *assessmentController) GetJudges(ctx *fiber.Ctx) error {
 	var (
 		err     error
@@ -153,8 +159,11 @@ func (c *assessmentController) GetJudges(ctx *fiber.Ctx) error {
 // @Param eventId path string true "Event ID"
 // @Param id path string true "Judge ID"
 // @Param req body dto.UpdateJudgeReq true "Updated Judge Details"
-// @Success 200 {object} map[string]interface{}
+// @Success 200 {object} response.Response{data=dto.JudgeRes}
 // @Router /api/v1/eo/events/{eventId}/assessment/judges/{id} [put]
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 func (c *assessmentController) UpdateJudge(ctx *fiber.Ctx) error {
 	var (
 		err     error
@@ -191,8 +200,11 @@ func (c *assessmentController) UpdateJudge(ctx *fiber.Ctx) error {
 // @Produce json
 // @Param eventId path string true "Event ID"
 // @Param id path string true "Judge ID"
-// @Success 200 {object} map[string]interface{}
+// @Success 200 {object} response.Response
 // @Router /api/v1/eo/events/{eventId}/assessment/judges/{id} [delete]
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 func (c *assessmentController) DeleteJudge(ctx *fiber.Ctx) error {
 	var (
 		err     error
@@ -224,8 +236,11 @@ func (c *assessmentController) DeleteJudge(ctx *fiber.Ctx) error {
 // @Produce json
 // @Param eventId path string true "Event ID"
 // @Param req body dto.CreateViolationTypeReq true "Violation Type Details"
-// @Success 201 {object} map[string]interface{}
+// @Success 201 {object} response.Response{data=dto.ViolationTypeRes}
 // @Router /api/v1/eo/events/{eventId}/assessment/violation-types [post]
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 func (c *assessmentController) CreateViolationType(ctx *fiber.Ctx) error {
 	var (
 		err     error
@@ -263,8 +278,11 @@ func (c *assessmentController) CreateViolationType(ctx *fiber.Ctx) error {
 // @Produce json
 // @Param eventId path string true "Event ID"
 // @Param level_id query string true "Level ID"
-// @Success 200 {object} map[string]interface{}
+// @Success 200 {object} response.Response{data=[]dto.ViolationTypeRes}
 // @Router /api/v1/eo/events/{eventId}/assessment/violation-types [get]
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 func (c *assessmentController) GetViolationTypes(ctx *fiber.Ctx) error {
 	var (
 		err     error
@@ -300,8 +318,11 @@ func (c *assessmentController) GetViolationTypes(ctx *fiber.Ctx) error {
 // @Param eventId path string true "Event ID"
 // @Param id path string true "Violation Type ID"
 // @Param req body dto.UpdateViolationTypeReq true "Updated Violation Type Details"
-// @Success 200 {object} map[string]interface{}
+// @Success 200 {object} response.Response{data=dto.ViolationTypeRes}
 // @Router /api/v1/eo/events/{eventId}/assessment/violation-types/{id} [put]
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 func (c *assessmentController) UpdateViolationType(ctx *fiber.Ctx) error {
 	var (
 		err     error
@@ -338,8 +359,11 @@ func (c *assessmentController) UpdateViolationType(ctx *fiber.Ctx) error {
 // @Produce json
 // @Param eventId path string true "Event ID"
 // @Param id path string true "Violation Type ID"
-// @Success 200 {object} map[string]interface{}
+// @Success 200 {object} response.Response
 // @Router /api/v1/eo/events/{eventId}/assessment/violation-types/{id} [delete]
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 func (c *assessmentController) DeleteViolationType(ctx *fiber.Ctx) error {
 	var (
 		err     error
@@ -371,8 +395,11 @@ func (c *assessmentController) DeleteViolationType(ctx *fiber.Ctx) error {
 // @Produce json
 // @Param eventId path string true "Event ID"
 // @Param req body dto.CreateScoreCategoryReq true "Score Category Details"
-// @Success 201 {object} map[string]interface{}
+// @Success 201 {object} response.Response{data=dto.ScoreCategoryRes}
 // @Router /api/v1/eo/events/{eventId}/assessment/score-categories [post]
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 func (c *assessmentController) CreateScoreCategory(ctx *fiber.Ctx) error {
 	var (
 		err     error
@@ -410,8 +437,11 @@ func (c *assessmentController) CreateScoreCategory(ctx *fiber.Ctx) error {
 // @Produce json
 // @Param eventId path string true "Event ID"
 // @Param level_id query string true "Level ID"
-// @Success 200 {object} map[string]interface{}
+// @Success 200 {object} response.Response{data=[]dto.ScoreCategoryRes}
 // @Router /api/v1/eo/events/{eventId}/assessment/score-categories [get]
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 func (c *assessmentController) GetScoreCategories(ctx *fiber.Ctx) error {
 	var (
 		err     error
@@ -447,8 +477,11 @@ func (c *assessmentController) GetScoreCategories(ctx *fiber.Ctx) error {
 // @Param eventId path string true "Event ID"
 // @Param id path string true "Score Category ID"
 // @Param req body dto.UpdateScoreCategoryReq true "Updated Score Category Details"
-// @Success 200 {object} map[string]interface{}
+// @Success 200 {object} response.Response{data=dto.ScoreCategoryRes}
 // @Router /api/v1/eo/events/{eventId}/assessment/score-categories/{id} [put]
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 func (c *assessmentController) UpdateScoreCategory(ctx *fiber.Ctx) error {
 	var (
 		err     error
@@ -485,8 +518,11 @@ func (c *assessmentController) UpdateScoreCategory(ctx *fiber.Ctx) error {
 // @Produce json
 // @Param eventId path string true "Event ID"
 // @Param id path string true "Score Category ID"
-// @Success 200 {object} map[string]interface{}
+// @Success 200 {object} response.Response
 // @Router /api/v1/eo/events/{eventId}/assessment/score-categories/{id} [delete]
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 func (c *assessmentController) DeleteScoreCategory(ctx *fiber.Ctx) error {
 	var (
 		err     error
@@ -518,8 +554,11 @@ func (c *assessmentController) DeleteScoreCategory(ctx *fiber.Ctx) error {
 // @Produce json
 // @Param eventId path string true "Event ID"
 // @Param req body dto.CreateScoreSubCategoryReq true "Score Sub Category Details"
-// @Success 201 {object} map[string]interface{}
+// @Success 201 {object} response.Response{data=dto.ScoreSubCategoryRes}
 // @Router /api/v1/eo/events/{eventId}/assessment/score-sub-categories [post]
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 func (c *assessmentController) CreateScoreSubCategory(ctx *fiber.Ctx) error {
 	var (
 		err     error
@@ -559,8 +598,11 @@ func (c *assessmentController) CreateScoreSubCategory(ctx *fiber.Ctx) error {
 // @Param eventId path string true "Event ID"
 // @Param id path string true "Score Sub Category ID"
 // @Param req body dto.UpdateScoreSubCategoryReq true "Updated Score Sub Category Details"
-// @Success 200 {object} map[string]interface{}
+// @Success 200 {object} response.Response{data=dto.ScoreSubCategoryRes}
 // @Router /api/v1/eo/events/{eventId}/assessment/score-sub-categories/{id} [put]
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 func (c *assessmentController) UpdateScoreSubCategory(ctx *fiber.Ctx) error {
 	var (
 		err     error
@@ -597,8 +639,11 @@ func (c *assessmentController) UpdateScoreSubCategory(ctx *fiber.Ctx) error {
 // @Produce json
 // @Param eventId path string true "Event ID"
 // @Param id path string true "Score Sub Category ID"
-// @Success 200 {object} map[string]interface{}
+// @Success 200 {object} response.Response
 // @Router /api/v1/eo/events/{eventId}/assessment/score-sub-categories/{id} [delete]
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 func (c *assessmentController) DeleteScoreSubCategory(ctx *fiber.Ctx) error {
 	var (
 		err     error
@@ -629,8 +674,11 @@ func (c *assessmentController) DeleteScoreSubCategory(ctx *fiber.Ctx) error {
 // @Produce json
 // @Param eventId path string true "Event ID"
 // @Param level_id query string true "Level ID"
-// @Success 200 {object} map[string]interface{}
+// @Success 200 {object} response.Response{data=dto.UnifiedAssessmentRes}
 // @Router /api/v1/eo/events/{eventId}/assessment/unified [get]
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 func (c *assessmentController) GetUnifiedAssessment(ctx *fiber.Ctx) error {
 	var (
 		err     error
@@ -665,8 +713,11 @@ func (c *assessmentController) GetUnifiedAssessment(ctx *fiber.Ctx) error {
 // @Produce json
 // @Param eventId path string true "Event ID"
 // @Param req body dto.InputScoreReq true "Score Input Details"
-// @Success 201 {object} map[string]interface{}
+// @Success 201 {object} response.Response{data=dto.ScoreRes}
 // @Router /api/v1/eo/events/{eventId}/assessment/scores [post]
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 func (c *assessmentController) InputScore(ctx *fiber.Ctx) error {
 	var (
 		err     error
@@ -705,8 +756,11 @@ func (c *assessmentController) InputScore(ctx *fiber.Ctx) error {
 // @Produce json
 // @Param eventId path string true "Event ID"
 // @Param req body dto.CreateAwardReq true "Award Details"
-// @Success 201 {object} map[string]interface{}
+// @Success 201 {object} response.Response{data=dto.AwardRes}
 // @Router /api/v1/eo/events/{eventId}/assessment/awards [post]
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 func (c *assessmentController) CreateAward(ctx *fiber.Ctx) error {
 	var (
 		err     error
@@ -751,8 +805,11 @@ func (c *assessmentController) CreateAward(ctx *fiber.Ctx) error {
 // @Security ApiKeyAuth && BearerAuth
 // @Produce json
 // @Param eventId path string true "Event ID"
-// @Success 200 {object} map[string]interface{}
+// @Success 200 {object} response.Response{data=[]dto.AwardRes}
 // @Router /api/v1/eo/events/{eventId}/assessment/awards [get]
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 func (c *assessmentController) GetAwards(ctx *fiber.Ctx) error {
 	var (
 		err     error
@@ -792,8 +849,11 @@ func (c *assessmentController) GetAwards(ctx *fiber.Ctx) error {
 // @Param eventId path string true "Event ID"
 // @Param id path string true "Award ID"
 // @Param req body dto.UpdateAwardReq true "Updated Award Details"
-// @Success 200 {object} map[string]interface{}
+// @Success 200 {object} response.Response{data=dto.AwardRes}
 // @Router /api/v1/eo/events/{eventId}/assessment/awards/{id} [put]
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 func (c *assessmentController) UpdateAward(ctx *fiber.Ctx) error {
 	var (
 		err     error
@@ -843,8 +903,11 @@ func (c *assessmentController) UpdateAward(ctx *fiber.Ctx) error {
 // @Produce json
 // @Param eventId path string true "Event ID"
 // @Param id path string true "Award ID"
-// @Success 200 {object} map[string]interface{}
+// @Success 200 {object} response.Response
 // @Router /api/v1/eo/events/{eventId}/assessment/awards/{id} [delete]
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 func (c *assessmentController) DeleteAward(ctx *fiber.Ctx) error {
 	var (
 		err     error

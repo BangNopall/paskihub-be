@@ -24,6 +24,7 @@ type ParticipantTeamResponse struct {
 	Pelatih         string `json:"pelatih"`
 	InstitutionType string `json:"institution_type"`
 	PaymentStatus   string `json:"payment_status"`
+        MembersCount    int    `json:"members_count"`
 }
 
 type TeamDetailResponse struct {

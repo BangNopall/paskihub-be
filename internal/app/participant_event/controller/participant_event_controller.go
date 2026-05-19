@@ -35,7 +35,9 @@ func (c *ParticipantEventController) Route(router fiber.Router) {
 // @Tags Participant Event
 // @Security ApiKeyAuth && BearerAuth
 // @Produce json
-// @Success 200 {object} map[string]interface{}
+// @Success 200 {object} response.Response{data=[]dto.OpenEventResponse}
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 // @Router /api/v1/peserta/events/open [get]
 func (c *ParticipantEventController) GetOpenEvents(ctx *fiber.Ctx) error {
 	res, err := c.service.GetOpenEvents(ctx.Context())
@@ -59,11 +61,13 @@ func (c *ParticipantEventController) GetOpenEvents(ctx *fiber.Ctx) error {
 // @Param team_id formData string true "Team ID"
 // @Param payment_type formData string true "Payment Type (dp, lunas)"
 // @Param payment_proof formData file true "Payment Proof Image"
-// @Success 201 {object} map[string]interface{}
+// @Success 201 {object} response.Response
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 // @Router /api/v1/peserta/events/register [post]
 func (c *ParticipantEventController) RegisterEvent(ctx *fiber.Ctx) error {
-	userID := ctx.Locals("id").(string) // may be used internally for tracing/validation later
-	_ = userID 
+	userID := ctx.Locals("id").(string)
 
 	form, err := ctx.MultipartForm()
 	if err != nil {
@@ -91,7 +95,7 @@ func (c *ParticipantEventController) RegisterEvent(ctx *fiber.Ctx) error {
 		return nil
 	}
 
-	err = c.service.RegisterEvent(ctx.Context(), req)
+	err = c.service.RegisterEvent(ctx.Context(), userID, req)
 	if err != nil {
 		response.Send(ctx, fiber.StatusInternalServerError, "Failed to register event", nil, err)
 		return nil
@@ -110,7 +114,10 @@ func (c *ParticipantEventController) RegisterEvent(ctx *fiber.Ctx) error {
 // @Produce json
 // @Param id path string true "Registration ID"
 // @Param payment_proof formData file true "Payment Proof Image"
-// @Success 200 {object} map[string]interface{}
+// @Success 200 {object} response.Response
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 // @Router /api/v1/peserta/events/register/{id}/pelunasan [put]
 func (c *ParticipantEventController) PelunasanEvent(ctx *fiber.Ctx) error {
 	regisID := ctx.Params("id")
@@ -142,7 +149,9 @@ func (c *ParticipantEventController) PelunasanEvent(ctx *fiber.Ctx) error {
 // @Tags Participant Event
 // @Security ApiKeyAuth && BearerAuth
 // @Produce json
-// @Success 200 {object} map[string]interface{}
+// @Success 200 {object} response.Response{data=[]dto.ActiveEventResponse}
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 // @Router /api/v1/peserta/events/active [get]
 func (c *ParticipantEventController) GetActiveEvents(ctx *fiber.Ctx) error {
 	userID := ctx.Locals("id").(string)
@@ -164,7 +173,10 @@ func (c *ParticipantEventController) GetActiveEvents(ctx *fiber.Ctx) error {
 // @Security ApiKeyAuth && BearerAuth
 // @Produce json
 // @Param regis_id path string true "Registration ID"
-// @Success 200 {object} map[string]interface{}
+// @Success 200 {object} response.Response{data=dto.RegistrationDetailResponse}
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 404 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 // @Router /api/v1/peserta/events/registrations/{regis_id} [get]
 func (c *ParticipantEventController) GetRegistrationDetail(ctx *fiber.Ctx) error {
 	regisID := ctx.Params("regis_id")
@@ -186,7 +198,10 @@ func (c *ParticipantEventController) GetRegistrationDetail(ctx *fiber.Ctx) error
 // @Security ApiKeyAuth && BearerAuth
 // @Produce json
 // @Param event_level_id path string true "Event Level ID"
-// @Success 200 {object} map[string]interface{}
+// @Success 200 {object} response.Response{data=dto.ScoreboardResponse}
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 404 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 // @Router /api/v1/peserta/rekap/scoreboard/{event_level_id} [get]
 func (c *ParticipantEventController) GetScoreboard(ctx *fiber.Ctx) error {
 	eventLevelID := ctx.Params("event_level_id")

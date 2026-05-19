@@ -43,7 +43,7 @@ func (s *eoService) GetProfile(ctx context.Context, userId uuid.UUID) (dto.EOPro
 	defer cancel()
 
 	var user entity.User
-	err := s.userRepo.FindUser(&user, &dto.UserParam{ID: userId})
+	err := s.userRepo.FindUser(&user, &dto.UserParam{Id: userId})
 	if err != nil {
 		return dto.EOProfileRes{}, domain.ErrUserNotFound
 	}
@@ -58,7 +58,7 @@ func (s *eoService) UpdatePassword(ctx context.Context, userId uuid.UUID, req dt
 	defer cancel()
 
 	var user entity.User
-	err := s.userRepo.FindUser(&user, &dto.UserParam{ID: userId})
+	err := s.userRepo.FindUser(&user, &dto.UserParam{Id: userId})
 	if err != nil {
 		return domain.ErrUserNotFound
 	}

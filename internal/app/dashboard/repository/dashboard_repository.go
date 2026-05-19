@@ -52,8 +52,8 @@ func (r *dashboardRepository) GetOrganizerStats(ctx context.Context, userId uuid
 		Scan(&revenue)
 
 	return &dto.OrganizerStats{
-		TotalEvent: dto.StatValue{Value: totalEvent, Trend: "+0%"},
-		TotalTeam:  dto.StatValue{Value: totalTeam, Trend: "+0%"},
+		TotalEvent: dto.StatValue{Value: float64(totalEvent), Trend: "+0%"},
+		TotalTeam:  dto.StatValue{Value: float64(totalTeam), Trend: "+0%"},
 		CoinBalance: dto.CoinValue{
 			Value: wallet.Saldo,
 			Coins: wallet.Saldo / 1000, // Example conversion

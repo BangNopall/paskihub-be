@@ -14,8 +14,9 @@ type WalletRepository interface {
 	GetWalletByEventId(ctx context.Context, eventId uuid.UUID) (*entity.Wallet, error)
 	CreateTransaction(ctx context.Context, transaction *entity.WalletTransaction) error
 	ApproveTransaction(ctx context.Context, transactionId uuid.UUID) error
-	RejectTransaction(ctx context.Context, transactionId uuid.UUID) error
+	RejectTransaction(ctx context.Context, transactionId uuid.UUID, rejectionReason string) error
 	GetTransactionLogs(ctx context.Context, walletId uuid.UUID) ([]entity.WalletTransaction, error)
+	GetAllTransactions(ctx context.Context, status string, limit, offset int) ([]entity.WalletTransaction, int64, error)
 	GetTransactionById(ctx context.Context, transactionId uuid.UUID) (*entity.WalletTransaction, error)
 	CountTransactionsByStatus(ctx context.Context, walletId uuid.UUID, status string) (int64, error)
 }
@@ -23,7 +24,8 @@ type WalletRepository interface {
 type WalletService interface {
 	GetWalletInfo(ctx context.Context, eventId string, userId string) (*dto.WalletResponse, error)
 	GetTransactionLogs(ctx context.Context, eventId string, userId string) ([]dto.WalletTransactionResponse, error)
+	GetAllTransactions(ctx context.Context, status string, page, limit int) ([]dto.AdminTransactionResponse, int64, error)
 	RequestTopUp(ctx context.Context, eventId string, userId string, req *dto.TopUpRequest, proofFile *multipart.FileHeader) error
 	ApproveTopUp(ctx context.Context, transactionId string, adminUserId string) error
-	RejectTopUp(ctx context.Context, transactionId string, adminUserId string) error
+	RejectTopUp(ctx context.Context, transactionId string, adminUserId string, req *dto.RejectTopUpRequest) error
 }

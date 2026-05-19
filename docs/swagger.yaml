@@ -1,5 +1,24 @@
 basePath: /
 definitions:
+  dto.ActiveEventResponse:
+    properties:
+      event_logo_path:
+        type: string
+      event_name:
+        type: string
+      is_kick:
+        type: boolean
+      payment_status:
+        type: string
+      payment_type:
+        type: string
+      registration_id:
+        type: string
+      rejection_reason:
+        type: string
+      team_name:
+        type: string
+    type: object
   dto.AdminCreateRequest:
     properties:
       email:
@@ -10,6 +29,230 @@ definitions:
     required:
     - email
     - password
+    type: object
+  dto.AdminEventLevelRes:
+    properties:
+      dp_fee:
+        type: string
+      name:
+        type: string
+      regis_fee:
+        type: string
+    type: object
+  dto.AdminEventRegistrationRes:
+    properties:
+      assessment_status:
+        type: string
+      event_level_name:
+        type: string
+      event_name:
+        type: string
+      payment_status:
+        type: string
+    type: object
+  dto.AdminEventRes:
+    properties:
+      compe_date:
+        type: string
+      event_levels:
+        items:
+          $ref: '#/definitions/dto.AdminEventLevelRes'
+        type: array
+      event_name:
+        type: string
+      location:
+        type: string
+      status:
+        type: string
+    type: object
+  dto.AdminJudgeRes:
+    properties:
+      name:
+        type: string
+    type: object
+  dto.AdminStaffRes:
+    properties:
+      name:
+        type: string
+      role:
+        description: Usually just "Staff"
+        type: string
+    type: object
+  dto.AdminTeamMemberRes:
+    properties:
+      name:
+        type: string
+      role:
+        type: string
+    type: object
+  dto.AdminTeamRes:
+    properties:
+      coach:
+        type: string
+      members:
+        items:
+          $ref: '#/definitions/dto.AdminTeamMemberRes'
+        type: array
+      members_count:
+        type: integer
+      team_name:
+        type: string
+    type: object
+  dto.AdminTransactionPaginationResponse:
+    properties:
+      pagination:
+        $ref: '#/definitions/dto.PaginationResponse'
+      transactions:
+        items:
+          $ref: '#/definitions/dto.AdminTransactionResponse'
+        type: array
+    type: object
+  dto.AdminTransactionResponse:
+    properties:
+      amount:
+        type: number
+      amount_koin:
+        type: number
+      created_at:
+        type: string
+      eo_name:
+        type: string
+      id:
+        type: string
+      proof_path:
+        type: string
+      rejection_reason:
+        type: string
+      status:
+        $ref: '#/definitions/enums.TransactionStatus'
+    type: object
+  dto.AdminUserDetailResponse:
+    properties:
+      address:
+        type: string
+      email:
+        type: string
+      email_is_verified:
+        type: boolean
+      eo_data:
+        $ref: '#/definitions/dto.AdminUserEODetail'
+      event:
+        $ref: '#/definitions/dto.EventResponse'
+      id:
+        type: string
+      institution:
+        $ref: '#/definitions/dto.InstitutionResponse'
+      is_banned:
+        type: boolean
+      joined_at:
+        type: string
+      last_login_at:
+        type: string
+      name:
+        type: string
+      peserta_data:
+        $ref: '#/definitions/dto.AdminUserPesertaDetail'
+      phone:
+        type: string
+      role:
+        type: string
+      school_name:
+        type: string
+      status:
+        type: string
+    type: object
+  dto.AdminUserEODetail:
+    properties:
+      events:
+        items:
+          $ref: '#/definitions/dto.AdminEventRes'
+        type: array
+      judges:
+        items:
+          $ref: '#/definitions/dto.AdminJudgeRes'
+        type: array
+      panitia:
+        items:
+          $ref: '#/definitions/dto.AdminStaffRes'
+        type: array
+    type: object
+  dto.AdminUserPesertaDetail:
+    properties:
+      event_history:
+        items:
+          $ref: '#/definitions/dto.AdminEventRegistrationRes'
+        type: array
+      teams:
+        items:
+          $ref: '#/definitions/dto.AdminTeamRes'
+        type: array
+    type: object
+  dto.AssessmentCategoryDetail:
+    properties:
+      category_name:
+        type: string
+      sub_categories:
+        items:
+          $ref: '#/definitions/dto.AssessmentSubCategoryDetail'
+        type: array
+    type: object
+  dto.AssessmentRecapResponse:
+    properties:
+      categories:
+        items:
+          $ref: '#/definitions/dto.AssessmentCategoryDetail'
+        type: array
+      final_score:
+        type: number
+      total_score:
+        type: number
+      total_violation_points:
+        type: number
+      violations:
+        items:
+          $ref: '#/definitions/dto.AssessmentViolationDetail'
+        type: array
+    type: object
+  dto.AssessmentSubCategoryDetail:
+    properties:
+      name:
+        type: string
+      scores:
+        items:
+          $ref: '#/definitions/dto.JudgeScoreDetail'
+        type: array
+    type: object
+  dto.AssessmentViolationDetail:
+    properties:
+      judge_name:
+        type: string
+      name:
+        type: string
+      point:
+        type: number
+    type: object
+  dto.AwardRes:
+    properties:
+      event_id:
+        type: string
+      event_level_ids:
+        items:
+          type: string
+        type: array
+      id:
+        type: string
+      levels:
+        items:
+          $ref: '#/definitions/dto.EventLevelResponse'
+        type: array
+      limit_rank:
+        type: integer
+      name:
+        type: string
+      score_categories:
+        items:
+          $ref: '#/definitions/dto.ScoreCategoryRes'
+        type: array
     type: object
   dto.BulkInsertScoresRequest:
     properties:
@@ -41,6 +284,24 @@ definitions:
     - judges_id
     - regis_id
     - violation_type_ids
+    type: object
+  dto.CategoryScoreDetail:
+    properties:
+      category_id:
+        type: string
+      category_name:
+        type: string
+      sub_categories:
+        items:
+          $ref: '#/definitions/dto.SubCategoryScoreDetail'
+        type: array
+    type: object
+  dto.CoinValue:
+    properties:
+      coins:
+        type: number
+      value:
+        type: number
     type: object
   dto.CreateAwardReq:
     properties:
@@ -125,6 +386,19 @@ definitions:
     required:
     - score_category_ids
     type: object
+  dto.EOActivityRes:
+    properties:
+      event_name:
+        type: string
+      id:
+        type: string
+      status:
+        type: string
+      team_name:
+        type: string
+      time_ago:
+        type: string
+    type: object
   dto.EOProfileRes:
     properties:
       email:
@@ -177,12 +451,97 @@ definitions:
     required:
     - payment_status
     type: object
+  dto.EOTeamDetailRes:
+    properties:
+      contact_email:
+        type: string
+      event_level:
+        type: string
+      institution:
+        type: string
+      institution_address:
+        type: string
+      is_kick:
+        type: boolean
+      logo_path:
+        type: string
+      members:
+        items:
+          $ref: '#/definitions/dto.EOTeamMemberRes'
+        type: array
+      payment_proof_path:
+        type: string
+      payment_status:
+        $ref: '#/definitions/enums.RegistrationStatus'
+      pelatih:
+        type: string
+      rec_letter_path:
+        type: string
+      registration_id:
+        type: string
+      rejection_reason:
+        type: string
+      team_id:
+        type: string
+      team_name:
+        type: string
+    type: object
+  dto.EOTeamListRes:
+    properties:
+      assessment_status:
+        description: PENDING, COMPLETED
+        type: string
+      event_level:
+        type: string
+      institution:
+        type: string
+      institution_type:
+        type: string
+      logo_path:
+        type: string
+      payment_status:
+        $ref: '#/definitions/enums.RegistrationStatus'
+      registration_id:
+        type: string
+      team_id:
+        type: string
+      team_name:
+        type: string
+    type: object
+  dto.EOTeamMemberRes:
+    properties:
+      full_name:
+        type: string
+      id:
+        type: string
+      id_card_path:
+        type: string
+      photo_path:
+        type: string
+      role:
+        $ref: '#/definitions/enums.TeamType'
+    type: object
   dto.EOTeamRejectReq:
     properties:
       rejection_reason:
         type: string
     required:
     - rejection_reason
+    type: object
+  dto.EOTeamStatsRes:
+    properties:
+      approved:
+        type: integer
+      paid_dp:
+        type: integer
+      paid_full:
+        type: integer
+      pending_approval:
+        type: integer
+      rejected:
+        type: integer
+      total_teams:
+        type: integer
     type: object
   dto.EOUpdatePasswordReq:
     properties:
@@ -233,6 +592,17 @@ definitions:
       regis_fee:
         type: string
     type: object
+  dto.EventLevelResponse:
+    properties:
+      dp_fee:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      regis_fee:
+        type: string
+    type: object
   dto.EventLevelUpdate:
     properties:
       dp_fee:
@@ -244,6 +614,55 @@ definitions:
       name:
         type: string
       regis_fee:
+        type: string
+    type: object
+  dto.EventResponse:
+    properties:
+      bank_name:
+        type: string
+      bank_number:
+        type: string
+      close_date:
+        type: string
+      compe_date:
+        type: string
+      description:
+        type: string
+      event_levels:
+        items:
+          $ref: '#/definitions/dto.EventLevelResponse'
+        type: array
+      id:
+        type: string
+      location:
+        type: string
+      logo_path:
+        type: string
+      max_team_members:
+        type: integer
+      min_team_members:
+        type: integer
+      name:
+        type: string
+      name_pj:
+        type: string
+      no_wa_pj:
+        type: string
+      open_date:
+        type: string
+      organizer:
+        type: string
+      poster_path:
+        type: string
+      registrations:
+        items:
+          $ref: '#/definitions/dto.RegistrationResponse'
+        type: array
+      status:
+        type: string
+      user:
+        $ref: '#/definitions/dto.UserResponse'
+      wa_group:
         type: string
     type: object
   dto.EventUpdate:
@@ -319,10 +738,298 @@ definitions:
     - score_value
     - sub_category_id
     type: object
+  dto.InstitutionProfileResponse:
+    properties:
+      address:
+        type: string
+      institution_type:
+        type: string
+      name:
+        type: string
+      name_pj:
+        type: string
+      no_wa_pj:
+        type: string
+    type: object
+  dto.InstitutionResponse:
+    properties:
+      address:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      name_pj:
+        type: string
+      no_wa_pj:
+        type: string
+      teams:
+        items:
+          $ref: '#/definitions/dto.TeamResponse'
+        type: array
+      type:
+        $ref: '#/definitions/enums.InstitutionType'
+      users:
+        items:
+          $ref: '#/definitions/dto.UserResponse'
+        type: array
+    type: object
+  dto.JudgeRes:
+    properties:
+      event_id:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+    type: object
+  dto.JudgeScoreDetail:
+    properties:
+      judge_name:
+        type: string
+      value:
+        type: number
+    type: object
+  dto.OpenEventLevelResponse:
+    properties:
+      dp_fee:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      regis_fee:
+        type: string
+    type: object
+  dto.OpenEventResponse:
+    properties:
+      bank_name:
+        type: string
+      bank_number:
+        type: string
+      close_date:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      levels:
+        items:
+          $ref: '#/definitions/dto.OpenEventLevelResponse'
+        type: array
+      location:
+        type: string
+      logo_path:
+        type: string
+      max_team_members:
+        type: integer
+      min_team_members:
+        type: integer
+      name:
+        type: string
+      name_pj:
+        type: string
+      no_wa_pj:
+        type: string
+      open_date:
+        type: string
+      organizer:
+        type: string
+      poster_path:
+        type: string
+      status:
+        type: string
+    type: object
+  dto.OrganizerDashboardRes:
+    properties:
+      recent_activities:
+        items:
+          $ref: '#/definitions/dto.EOActivityRes'
+        type: array
+      stats:
+        $ref: '#/definitions/dto.OrganizerStats'
+      upcoming_events:
+        items:
+          $ref: '#/definitions/dto.UpcomingEventRes'
+        type: array
+    type: object
+  dto.OrganizerStats:
+    properties:
+      coin_balance:
+        $ref: '#/definitions/dto.CoinValue'
+      revenue:
+        $ref: '#/definitions/dto.StatValue'
+      total_event:
+        $ref: '#/definitions/dto.StatValue'
+      total_team:
+        $ref: '#/definitions/dto.StatValue'
+    type: object
+  dto.PaginationResponse:
+    properties:
+      page:
+        type: integer
+      total_pages:
+        type: integer
+    type: object
+  dto.ParticipantActivity:
+    properties:
+      description:
+        type: string
+      time:
+        type: string
+      title:
+        type: string
+    type: object
+  dto.ParticipantDashboardRes:
+    properties:
+      recent_activities:
+        items:
+          $ref: '#/definitions/dto.ParticipantActivity'
+        type: array
+      stats:
+        $ref: '#/definitions/dto.ParticipantStats'
+    type: object
+  dto.ParticipantProfileResponse:
+    properties:
+      email:
+        type: string
+      institution:
+        $ref: '#/definitions/dto.InstitutionProfileResponse'
+    type: object
+  dto.ParticipantStats:
+    properties:
+      active_event:
+        type: integer
+      finished_event:
+        type: integer
+      pending_payment:
+        type: integer
+      total_team:
+        type: integer
+    type: object
+  dto.ParticipantTeamMemberResponse:
+    properties:
+      full_name:
+        type: string
+      id:
+        type: string
+      id_card_path:
+        type: string
+      photo_path:
+        type: string
+      role:
+        type: string
+    type: object
+  dto.ParticipantTeamResponse:
+    properties:
+      id:
+        type: string
+      institution_type:
+        type: string
+      logo_path:
+        type: string
+      members_count:
+        type: integer
+      name:
+        type: string
+      payment_status:
+        type: string
+      pelatih:
+        type: string
+    type: object
   dto.PublishScoreboardRequest:
     properties:
       is_score_published:
         type: boolean
+    type: object
+  dto.RegistrationDetailResponse:
+    properties:
+      event:
+        properties:
+          date:
+            type: string
+          description:
+            type: string
+          id:
+            type: string
+          location:
+            type: string
+          price:
+            type: string
+          target_date:
+            type: string
+          title:
+            type: string
+        type: object
+      payment:
+        properties:
+          amount_paid:
+            type: string
+          proof_url:
+            type: string
+          remaining_amount:
+            type: string
+          status:
+            type: string
+          total_amount:
+            type: string
+        type: object
+      team:
+        properties:
+          id:
+            type: string
+          logo_url:
+            type: string
+          name:
+            type: string
+          official_count:
+            type: integer
+          pasukan_count:
+            type: integer
+        type: object
+    type: object
+  dto.RegistrationResponse:
+    properties:
+      event_level:
+        $ref: '#/definitions/dto.EventLevelResponse'
+      event_level_id:
+        type: string
+      id:
+        type: string
+      is_kick:
+        type: boolean
+      payment_proof_path:
+        type: string
+      payment_status:
+        $ref: '#/definitions/enums.RegistrationStatus'
+      rejection_reason:
+        type: string
+      team:
+        $ref: '#/definitions/dto.TeamResponse'
+      team_id:
+        type: string
+    type: object
+  dto.RejectTopUpRequest:
+    properties:
+      rejection_reason:
+        type: string
+    required:
+    - rejection_reason
+    type: object
+  dto.ScoreCategoryRes:
+    properties:
+      event_id:
+        type: string
+      event_level_id:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      sub_categories:
+        items:
+          $ref: '#/definitions/dto.ScoreSubCategoryRes'
+        type: array
     type: object
   dto.ScoreInput:
     properties:
@@ -334,6 +1041,213 @@ definitions:
     required:
     - score_value
     - sub_category_id
+    type: object
+  dto.ScoreRes:
+    properties:
+      grade:
+        type: string
+      id:
+        type: string
+      judges_id:
+        type: string
+      regis_id:
+        type: string
+      score_value:
+        type: number
+      sub_category_id:
+        type: string
+    type: object
+  dto.ScoreSubCategoryRes:
+    properties:
+      grade_numbers:
+        additionalProperties:
+          items:
+            type: integer
+          type: array
+        type: object
+      grades:
+        additionalProperties:
+          items:
+            type: string
+          type: array
+        type: object
+      id:
+        type: string
+      max_score:
+        type: number
+      name:
+        type: string
+      score_categories_id:
+        type: string
+    type: object
+  dto.ScoreboardItem:
+    properties:
+      final_score:
+        type: number
+      insti_name:
+        type: string
+      rank:
+        type: integer
+      regis_id:
+        type: string
+      team_name:
+        type: string
+      total_score:
+        type: number
+      total_violation_points:
+        type: number
+    type: object
+  dto.ScoreboardResponse:
+    properties:
+      event_level_id:
+        type: string
+      items:
+        items:
+          $ref: '#/definitions/dto.ScoreboardItem'
+        type: array
+    type: object
+  dto.StatValue:
+    properties:
+      trend:
+        type: string
+      value:
+        type: number
+    type: object
+  dto.SubCategoryScoreDetail:
+    properties:
+      grade:
+        type: string
+      judge_name:
+        type: string
+      score_value:
+        type: number
+      sub_category_id:
+        type: string
+      sub_category_name:
+        type: string
+    type: object
+  dto.SystemSettingResponse:
+    properties:
+      approval_fee:
+        type: number
+      bank_info:
+        properties:
+          account_name:
+            type: string
+          account_number:
+            type: string
+          bank_name:
+            type: string
+        type: object
+      coin_rate:
+        type: number
+    type: object
+  dto.TeamAssessmentDetailResponse:
+    properties:
+      categories:
+        items:
+          $ref: '#/definitions/dto.CategoryScoreDetail'
+        type: array
+      final_score:
+        type: number
+      insti_name:
+        type: string
+      regis_id:
+        type: string
+      team_name:
+        type: string
+      total_score:
+        type: number
+      total_violation:
+        type: number
+      violations:
+        items:
+          $ref: '#/definitions/dto.TeamViolationDetail'
+        type: array
+    type: object
+  dto.TeamDetailResponse:
+    properties:
+      id:
+        type: string
+      institution_type:
+        type: string
+      logo_path:
+        type: string
+      members_grouped:
+        additionalProperties:
+          items:
+            $ref: '#/definitions/dto.ParticipantTeamMemberResponse'
+          type: array
+        type: object
+      name:
+        type: string
+      pelatih:
+        type: string
+      rec_letter_path:
+        type: string
+    type: object
+  dto.TeamMemberResponse:
+    properties:
+      full_name:
+        type: string
+      id:
+        type: string
+      id_card_path:
+        type: string
+      role:
+        $ref: '#/definitions/enums.TeamType'
+    type: object
+  dto.TeamResponse:
+    properties:
+      id:
+        type: string
+      logo_path:
+        type: string
+      name:
+        type: string
+      pelatih:
+        type: string
+      rec_letter_path:
+        type: string
+      team_members:
+        items:
+          $ref: '#/definitions/dto.TeamMemberResponse'
+        type: array
+    type: object
+  dto.TeamViolationDetail:
+    properties:
+      judge_name:
+        type: string
+      point:
+        type: number
+      violation_id:
+        type: string
+      violation_name:
+        type: string
+    type: object
+  dto.UnifiedAssessmentRes:
+    properties:
+      categories:
+        items:
+          $ref: '#/definitions/dto.ScoreCategoryRes'
+        type: array
+      violations:
+        items:
+          $ref: '#/definitions/dto.ViolationTypeRes'
+        type: array
+    type: object
+  dto.UpcomingEventRes:
+    properties:
+      date:
+        type: string
+      id:
+        type: string
+      registered_teams:
+        type: integer
+      status:
+        type: string
+      title:
+        type: string
     type: object
   dto.UpdateAwardReq:
     properties:
@@ -357,6 +1271,13 @@ definitions:
     - limit_rank
     - name
     - score_category_ids
+    type: object
+  dto.UpdateEventStatusRequest:
+    properties:
+      status:
+        type: string
+    required:
+    - status
     type: object
   dto.UpdateInstitutionRequest:
     properties:
@@ -470,6 +1391,17 @@ definitions:
     - email
     - password
     type: object
+  dto.UserLoginResponse:
+    properties:
+      email:
+        type: string
+      id:
+        type: string
+      role:
+        type: string
+      token:
+        type: string
+    type: object
   dto.UserRegister:
     properties:
       confirm_password:
@@ -501,18 +1433,154 @@ definitions:
     - confirm_password
     - password
     type: object
+  dto.UserResponse:
+    properties:
+      created_at:
+        type: string
+      email:
+        type: string
+      email_is_verified:
+        type: boolean
+      event:
+        $ref: '#/definitions/dto.EventResponse'
+      id:
+        type: string
+      institution:
+        $ref: '#/definitions/dto.InstitutionResponse'
+      is_banned:
+        type: boolean
+      last_login_at:
+        type: string
+      name:
+        description: Used to hold dynamic name (Event/Institution/Admin)
+        type: string
+      role:
+        type: string
+    type: object
+  dto.ViolationTypeRes:
+    properties:
+      event_id:
+        type: string
+      event_level_id:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      point:
+        type: number
+    type: object
+  dto.WalletResponse:
+    properties:
+      event_id:
+        type: string
+      id:
+        type: string
+      pending_topup_count:
+        type: integer
+      saldo:
+        type: number
+      saldo_koin:
+        description: Saldo / CoinRate
+        type: number
+      successful_topup_count:
+        type: integer
+    type: object
+  dto.WalletTransactionResponse:
+    properties:
+      amount:
+        type: number
+      amount_koin:
+        description: Amount / CoinRate
+        type: number
+      created_at:
+        type: string
+      id:
+        type: string
+      proof_path:
+        type: string
+      rejection_reason:
+        type: string
+      status:
+        $ref: '#/definitions/enums.TransactionStatus'
+      type:
+        $ref: '#/definitions/enums.WalletType'
+      updated_at:
+        type: string
+      wallet_id:
+        type: string
+    type: object
+  enums.InstitutionType:
+    enum:
+    - SD
+    - SMP
+    - SMA
+    - PURNA
+    - UMUM
+    type: string
+    x-enum-varnames:
+    - SD
+    - SMP
+    - SMA
+    - PURNA
+    - UMUM
   enums.RegistrationStatus:
     enum:
     - WAITING
     - DP_PAID
     - FULL_PAID
     - REJECTED
+    - KICKED
     type: string
     x-enum-varnames:
     - Waiting
     - DPPaid
     - FullPaid
     - Rejected
+    - Kicked
+  enums.TeamType:
+    enum:
+    - PASUKAN
+    - DANPAS
+    - OFFICIAL
+    - PELATIH
+    type: string
+    x-enum-varnames:
+    - Pasukan
+    - Danpas
+    - Official
+    - Pelatih
+  enums.TransactionStatus:
+    enum:
+    - PENDING
+    - APPROVE
+    - REJECTED
+    type: string
+    x-enum-varnames:
+    - Pending
+    - Approve
+    - TSRejected
+  enums.WalletType:
+    enum:
+    - TOPUP
+    - WITHDRAW
+    type: string
+    x-enum-varnames:
+    - TopUp
+    - Withdraw
+  response.ErrorDetail:
+    properties:
+      code:
+        type: string
+      details: {}
+      message:
+        type: string
+    type: object
+  response.ErrorResponse:
+    properties:
+      error:
+        $ref: '#/definitions/response.ErrorDetail'
+    type: object
   response.Response:
     properties:
       code:
@@ -549,8 +1617,26 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/dto.UserResponse'
+                  type: array
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
         BearerAuth: []
@@ -574,8 +1660,23 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
         BearerAuth: []
@@ -597,8 +1698,27 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
         BearerAuth: []
@@ -620,12 +1740,77 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
         BearerAuth: []
       summary: Reset admin password
+      tags:
+      - Admin
+  /api/v1/admin/events/{eventId}/status:
+    put:
+      consumes:
+      - application/json
+      description: Update event status by admin (Admin only)
+      parameters:
+      - description: Event ID
+        in: path
+        name: eventId
+        required: true
+        type: string
+      - description: Status
+        in: body
+        name: status
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateEventStatusRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+        BearerAuth: []
+      summary: Update event status
       tags:
       - Admin
   /api/v1/admin/users:
@@ -637,8 +1822,26 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/dto.UserResponse'
+                  type: array
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
         BearerAuth: []
@@ -660,8 +1863,28 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.AdminUserDetailResponse'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
         BearerAuth: []
@@ -683,8 +1906,23 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
         BearerAuth: []
@@ -706,8 +1944,23 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
         BearerAuth: []
@@ -729,8 +1982,23 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
         BearerAuth: []
@@ -752,8 +2020,23 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
         BearerAuth: []
@@ -775,8 +2058,23 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
         BearerAuth: []
@@ -801,8 +2099,19 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
         BearerAuth: []
@@ -827,8 +2136,19 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
         BearerAuth: []
@@ -853,8 +2173,19 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
         BearerAuth: []
@@ -876,8 +2207,26 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/dto.AwardRes'
+                  type: array
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
         BearerAuth: []
@@ -906,8 +2255,24 @@ paths:
         "201":
           description: Created
           schema:
-            additionalProperties: true
-            type: object
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.AwardRes'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
         BearerAuth: []
@@ -934,8 +2299,19 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
         BearerAuth: []
@@ -969,8 +2345,24 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.AwardRes'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
         BearerAuth: []
@@ -992,8 +2384,26 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/dto.JudgeRes'
+                  type: array
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
         BearerAuth: []
@@ -1022,8 +2432,24 @@ paths:
         "201":
           description: Created
           schema:
-            additionalProperties: true
-            type: object
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.JudgeRes'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
         BearerAuth: []
@@ -1050,8 +2476,19 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
         BearerAuth: []
@@ -1085,8 +2522,24 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.JudgeRes'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
         BearerAuth: []
@@ -1113,8 +2566,26 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/dto.ScoreCategoryRes'
+                  type: array
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
         BearerAuth: []
@@ -1143,8 +2614,24 @@ paths:
         "201":
           description: Created
           schema:
-            additionalProperties: true
-            type: object
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.ScoreCategoryRes'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
         BearerAuth: []
@@ -1171,8 +2658,19 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
         BearerAuth: []
@@ -1206,8 +2704,24 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.ScoreCategoryRes'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
         BearerAuth: []
@@ -1237,8 +2751,24 @@ paths:
         "201":
           description: Created
           schema:
-            additionalProperties: true
-            type: object
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.ScoreSubCategoryRes'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
         BearerAuth: []
@@ -1265,8 +2795,19 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
         BearerAuth: []
@@ -1300,8 +2841,24 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.ScoreSubCategoryRes'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
         BearerAuth: []
@@ -1331,8 +2888,24 @@ paths:
         "201":
           description: Created
           schema:
-            additionalProperties: true
-            type: object
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.ScoreRes'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
         BearerAuth: []
@@ -1359,8 +2932,24 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.UnifiedAssessmentRes'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
         BearerAuth: []
@@ -1387,8 +2976,26 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/dto.ViolationTypeRes'
+                  type: array
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
         BearerAuth: []
@@ -1417,8 +3024,24 @@ paths:
         "201":
           description: Created
           schema:
-            additionalProperties: true
-            type: object
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.ViolationTypeRes'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
         BearerAuth: []
@@ -1445,8 +3068,19 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
         BearerAuth: []
@@ -1480,8 +3114,24 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.ViolationTypeRes'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
         BearerAuth: []
@@ -1511,8 +3161,26 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/dto.EOTeamListRes'
+                  type: array
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
         BearerAuth: []
@@ -1539,8 +3207,28 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.EOTeamDetailRes'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
         BearerAuth: []
@@ -1575,8 +3263,27 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "402":
+          description: Payment Required
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
         BearerAuth: []
@@ -1603,8 +3310,23 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
         BearerAuth: []
@@ -1639,8 +3361,23 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
         BearerAuth: []
@@ -1667,8 +3404,23 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
         BearerAuth: []
@@ -1690,8 +3442,24 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.EOTeamStatsRes'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
         BearerAuth: []
@@ -1713,6 +3481,14 @@ paths:
                 data:
                   $ref: '#/definitions/dto.EOProfileRes'
               type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
         BearerAuth: []
@@ -1738,6 +3514,18 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
         BearerAuth: []
@@ -1762,6 +3550,14 @@ paths:
                     $ref: '#/definitions/dto.EOStaffRes'
                   type: array
               type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
         BearerAuth: []
@@ -1786,6 +3582,18 @@ paths:
           description: Created
           schema:
             $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
         BearerAuth: []
@@ -1808,6 +3616,18 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
         BearerAuth: []
@@ -1838,6 +3658,18 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
         BearerAuth: []
@@ -1867,8 +3699,19 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
         BearerAuth: []
@@ -1895,8 +3738,19 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
         BearerAuth: []
@@ -1930,8 +3784,19 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
         BearerAuth: []
@@ -1953,8 +3818,24 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.EventResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
         BearerAuth: []
@@ -1979,8 +3860,19 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
         BearerAuth: []
@@ -2002,8 +3894,19 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
         BearerAuth: []
@@ -2033,8 +3936,19 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
         BearerAuth: []
@@ -2063,8 +3977,19 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
         BearerAuth: []
@@ -2093,8 +4018,19 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
         BearerAuth: []
@@ -2116,8 +4052,30 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/dto.EventResponse'
+                  type: array
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
         BearerAuth: []
@@ -2133,8 +4091,24 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.OrganizerDashboardRes'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
         BearerAuth: []
@@ -2156,8 +4130,28 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.AssessmentRecapResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
         BearerAuth: []
@@ -2173,8 +4167,24 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.ParticipantDashboardRes'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
         BearerAuth: []
@@ -2190,8 +4200,22 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/dto.ActiveEventResponse'
+                  type: array
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
         BearerAuth: []
@@ -2207,8 +4231,22 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/dto.OpenEventResponse'
+                  type: array
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
         BearerAuth: []
@@ -2247,8 +4285,19 @@ paths:
         "201":
           description: Created
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
         BearerAuth: []
@@ -2277,8 +4326,19 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
         BearerAuth: []
@@ -2300,8 +4360,24 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.RegistrationDetailResponse'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
         BearerAuth: []
@@ -2317,8 +4393,20 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.ParticipantProfileResponse'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
         BearerAuth: []
@@ -2342,8 +4430,19 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
         BearerAuth: []
@@ -2368,8 +4467,19 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
         BearerAuth: []
@@ -2391,8 +4501,24 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.ScoreboardResponse'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
         BearerAuth: []
@@ -2408,8 +4534,22 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/dto.ParticipantTeamResponse'
+                  type: array
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
         BearerAuth: []
@@ -2448,8 +4588,19 @@ paths:
         "201":
           description: Created
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
         BearerAuth: []
@@ -2471,8 +4622,23 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
         BearerAuth: []
@@ -2493,8 +4659,24 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.TeamDetailResponse'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
         BearerAuth: []
@@ -2536,8 +4718,23 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
         BearerAuth: []
@@ -2559,8 +4756,24 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.TeamAssessmentDetailResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
         BearerAuth: []
@@ -2590,8 +4803,24 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.ScoreboardResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
         BearerAuth: []
@@ -2621,8 +4850,19 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
         BearerAuth: []
@@ -2644,8 +4884,24 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.ScoreboardResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
         BearerAuth: []
@@ -2661,8 +4917,24 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.SystemSettingResponse'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
         BearerAuth: []
@@ -2686,8 +4958,23 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
         BearerAuth: []
@@ -2703,8 +4990,22 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.SystemSettingResponse'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Get public system settings
       tags:
       - System Settings
@@ -2726,8 +5027,19 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
       summary: Forgot user password
@@ -2751,8 +5063,24 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.UserLoginResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
       summary: User login
@@ -2767,8 +5095,15 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
         BearerAuth: []
@@ -2798,8 +5133,15 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
       summary: Register a new user
@@ -2828,8 +5170,19 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
       summary: Reset user password
@@ -2850,8 +5203,28 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.UserResponse'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
         BearerAuth: []
@@ -2878,8 +5251,19 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
       summary: Verify user email
@@ -2900,8 +5284,28 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.WalletResponse'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
         BearerAuth: []
@@ -2923,8 +5327,30 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/dto.WalletTransactionResponse'
+                  type: array
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
         BearerAuth: []
@@ -2962,12 +5388,77 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
         BearerAuth: []
       summary: Request wallet top-up
+      tags:
+      - Wallets
+  /api/v1/wallets/admin/transactions:
+    get:
+      description: Get all top-up transactions for all events
+      parameters:
+      - description: Transaction Status (PENDING, APPROVE, REJECTED)
+        in: query
+        name: status
+        type: string
+      - description: Page Number
+        in: query
+        name: page
+        type: integer
+      - description: Items Per Page
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.AdminTransactionPaginationResponse'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+        BearerAuth: []
+      summary: Get all transactions (Admin)
       tags:
       - Wallets
   /api/v1/wallets/admin/transactions/{transactionId}/approve:
@@ -2985,8 +5476,27 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
         BearerAuth: []
@@ -2995,6 +5505,8 @@ paths:
       - Wallets
   /api/v1/wallets/admin/transactions/{transactionId}/reject:
     put:
+      consumes:
+      - application/json
       description: Reject a pending top-up transaction
       parameters:
       - description: Transaction ID
@@ -3002,14 +5514,39 @@ paths:
         name: transactionId
         required: true
         type: string
+      - description: Rejection Reason
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.RejectTopUpRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
       security:
       - ApiKeyAuth: []
         BearerAuth: []

@@ -16,6 +16,10 @@ type OpenEventResponse struct {
 	MinTeamMembers int                      `json:"min_team_members"`
 	MaxTeamMembers int                      `json:"max_team_members"`
 	Levels         []OpenEventLevelResponse `json:"levels"`
+	BankName       string                   `json:"bank_name"`
+	BankNumber     string                   `json:"bank_number"`
+	NamePj         string                   `json:"name_pj"`
+	NoWaPj         string                   `json:"no_wa_pj"`
 }
 
 type OpenEventLevelResponse struct {
@@ -44,6 +48,7 @@ type ActiveEventResponse struct {
 	PaymentStatus   string `json:"payment_status"`
 	PaymentType     string `json:"payment_type"`
 	RejectionReason string `json:"rejection_reason"`
+	IsKick          bool   `json:"is_kick"`
 }
 
 type RegistrationDetailResponse struct {

@@ -34,7 +34,9 @@ func (c *ParticipantProfileController) Route(router fiber.Router) {
 // @Tags Participant Profile
 // @Security ApiKeyAuth && BearerAuth
 // @Produce json
-// @Success 200 {object} map[string]interface{}
+// @Success 200 {object} response.Response{data=dto.ParticipantProfileResponse}
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 // @Router /api/v1/peserta/profile [get]
 func (c *ParticipantProfileController) GetProfile(ctx *fiber.Ctx) error {
 	userID := ctx.Locals("id").(string)
@@ -57,7 +59,10 @@ func (c *ParticipantProfileController) GetProfile(ctx *fiber.Ctx) error {
 // @Accept json
 // @Produce json
 // @Param req body dto.UpdateInstitutionRequest true "Institution Details"
-// @Success 200 {object} map[string]interface{}
+// @Success 200 {object} response.Response
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 // @Router /api/v1/peserta/profile [put]
 func (c *ParticipantProfileController) UpdateInstitution(ctx *fiber.Ctx) error {
 	userID := ctx.Locals("id").(string)
@@ -91,7 +96,10 @@ func (c *ParticipantProfileController) UpdateInstitution(ctx *fiber.Ctx) error {
 // @Accept json
 // @Produce json
 // @Param req body dto.UpdatePasswordRequest true "Password Details"
-// @Success 200 {object} map[string]interface{}
+// @Success 200 {object} response.Response
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 // @Router /api/v1/peserta/profile/security [put]
 func (c *ParticipantProfileController) UpdatePassword(ctx *fiber.Ctx) error {
 	userID := ctx.Locals("id").(string)

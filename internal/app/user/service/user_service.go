@@ -268,7 +268,7 @@ func (s *userService) DeleteAdmin(ctx context.Context, userId uuid.UUID) error {
 	defer cancel()
 
 	var user entity.User
-	err := s.userRepo.FindUser(&user, &dto.UserParam{ID: userId})
+	err := s.userRepo.FindUser(&user, &dto.UserParam{Id: userId})
 	if err != nil {
 		return err
 	}
@@ -285,7 +285,7 @@ func (s *userService) ResetAdminPassword(ctx context.Context, userId uuid.UUID) 
 	defer cancel()
 
 	var user entity.User
-	err := s.userRepo.FindUser(&user, &dto.UserParam{ID: userId})
+	err := s.userRepo.FindUser(&user, &dto.UserParam{Id: userId})
 	if err != nil {
 		return err
 	}
@@ -490,7 +490,7 @@ func (s *userService) FetchAllUsers(ctx context.Context, role *string) ([]dto.Us
 
 func (s *userService) FetchUserById(ctx context.Context, userId uuid.UUID) (dto.UserResponse, error) {
 	var user entity.User
-	err := s.userRepo.FindUser(&user, &dto.UserParam{ID: userId})
+	err := s.userRepo.FindUser(&user, &dto.UserParam{Id: userId})
 	if err != nil {
 		return dto.UserResponse{}, err
 	}
@@ -515,13 +515,20 @@ func (s *userService) FetchUserDetailAdmin(ctx context.Context, userId uuid.UUID
 		return dto.AdminUserDetailResponse{}, err
 	}
 
+	userRes := dto.UserEntityToResponse(user)
+
 	res := dto.AdminUserDetailResponse{
-		Id:       user.Id,
-		Name:     "-",
-		Email:    user.Email,
-		Role:     string(user.Role),
-		Status:   "Active",
-		JoinedAt: user.CreatedAt,
+		Id:                  user.Id,
+		Name:                userRes.InstitutionName,
+		Email:               user.Email,
+		Role:                string(user.Role),
+		Status:              "Active",
+		EmailIsVerified:     userRes.EmailIsVerified,
+		IsBanned:            userRes.IsBanned,
+		LastLoginAt:         userRes.LastLoginAt,
+		JoinedAt:            user.CreatedAt,
+		Event:               userRes.Event,
+		Institution:         userRes.Institution,
 	}
 
 	if user.IsBanned {
@@ -532,70 +539,15 @@ func (s *userService) FetchUserDetailAdmin(ctx context.Context, userId uuid.UUID
 
 	if len(user.Institutions) > 0 {
 		inst := user.Institutions[0]
-		res.Name = inst.Name
 		res.SchoolName = inst.Name
 		res.Phone = inst.NoWaPj
 		res.Address = inst.Address
 	}
 
 	if user.Role == enums.Organizer {
-		eoData := &dto.AdminUserEODetail{
-			Panitia: []dto.AdminStaffRes{},
-			Events:  []dto.AdminEventRes{},
-			Judges:  []dto.AdminJudgeRes{},
-		}
-		
-		for _, e := range user.Events {
-			var levels []dto.AdminEventLevelRes
-			for _, lvl := range e.EventLevels {
-				levels = append(levels, dto.AdminEventLevelRes{
-					Name:     lvl.Name,
-					RegisFee: lvl.RegisFee,
-					DpFee:    lvl.DpFee,
-				})
-			}
-			eoData.Events = append(eoData.Events, dto.AdminEventRes{
-				EventName:   e.Name,
-				CompeDate:   e.CompeDate,
-				Location:    e.Location,
-				Status:      string(e.Status),
-				EventLevels: levels,
-			})
-		}
-		res.EOData = eoData
+		res.EOData = s.mapAdminUserEOData(user)
 	} else if user.Role == enums.Peserta {
-		pesertaData := &dto.AdminUserPesertaDetail{
-			Teams:        []dto.AdminTeamRes{},
-			EventHistory: []dto.AdminEventRegistrationRes{},
-		}
-
-		if len(user.Institutions) > 0 {
-			for _, t := range user.Institutions[0].Teams {
-				var members []dto.AdminTeamMemberRes
-				for _, m := range t.TeamMembers {
-					members = append(members, dto.AdminTeamMemberRes{
-						Name: m.FullName,
-						Role: string(m.Role),
-					})
-				}
-				pesertaData.Teams = append(pesertaData.Teams, dto.AdminTeamRes{
-					TeamName:     t.Name,
-					Coach:        t.Pelatih,
-					MembersCount: len(t.TeamMembers),
-					Members:      members,
-				})
-
-				for _, reg := range t.Registrations {
-					pesertaData.EventHistory = append(pesertaData.EventHistory, dto.AdminEventRegistrationRes{
-						EventName:        reg.EventLevel.Event.Name,
-						EventLevelName:   reg.EventLevel.Name,
-						PaymentStatus:    string(reg.PaymentStatus),
-						AssessmentStatus: string(reg.AssessmentStatus),
-					})
-				}
-			}
-		}
-		res.PesertaData = pesertaData
+		res.PesertaData = s.mapAdminUserPesertaData(user)
 	}
 
 	return res, nil
@@ -606,7 +558,7 @@ func (s *userService) ArchiveOrganizer(ctx context.Context, userId uuid.UUID) er
 	defer cancel()
 
 	var user entity.User
-	err := s.userRepo.FindUser(&user, &dto.UserParam{ID: userId}, "Events")
+	err := s.userRepo.FindUser(&user, &dto.UserParam{Id: userId}, "Events")
 	if err != nil {
 		return err
 	}
@@ -628,7 +580,7 @@ func (s *userService) UnarchiveOrganizer(ctx context.Context, userId uuid.UUID) 
 	defer cancel()
 
 	var user entity.User
-	err := s.userRepo.FindUser(&user, &dto.UserParam{ID: userId}, "Events")
+	err := s.userRepo.FindUser(&user, &dto.UserParam{Id: userId}, "Events")
 	if err != nil {
 		return err
 	}
@@ -643,4 +595,66 @@ func (s *userService) UnarchiveOrganizer(ctx context.Context, userId uuid.UUID) 
 	}
 
 	return s.eventRepo.UpdateEvent(ctx, &update, event.Id)
+}
+
+func (s *userService) mapAdminUserEOData(user *entity.User) *dto.AdminUserEODetail {
+	eoData := &dto.AdminUserEODetail{
+		Panitia: []dto.AdminStaffRes{},
+		Events:  []dto.AdminEventRes{},
+		Judges:  []dto.AdminJudgeRes{},
+	}
+
+	for _, e := range user.Events {
+		var levels []dto.AdminEventLevelRes
+		for _, lvl := range e.EventLevels {
+			levels = append(levels, dto.AdminEventLevelRes{
+				Name:     lvl.Name,
+				RegisFee: lvl.RegisFee,
+				DpFee:    lvl.DpFee,
+			})
+		}
+		eoData.Events = append(eoData.Events, dto.AdminEventRes{
+			EventName:   e.Name,
+			CompeDate:   e.CompeDate,
+			Location:    e.Location,
+			Status:      string(e.Status),
+			EventLevels: levels,
+		})
+	}
+	return eoData
+}
+
+func (s *userService) mapAdminUserPesertaData(user *entity.User) *dto.AdminUserPesertaDetail {
+	pesertaData := &dto.AdminUserPesertaDetail{
+		Teams:        []dto.AdminTeamRes{},
+		EventHistory: []dto.AdminEventRegistrationRes{},
+	}
+
+	if len(user.Institutions) > 0 {
+		for _, t := range user.Institutions[0].Teams {
+			var members []dto.AdminTeamMemberRes
+			for _, m := range t.TeamMembers {
+				members = append(members, dto.AdminTeamMemberRes{
+					Name: m.FullName,
+					Role: string(m.Role),
+				})
+			}
+			pesertaData.Teams = append(pesertaData.Teams, dto.AdminTeamRes{
+				TeamName:     t.Name,
+				Coach:        t.Pelatih,
+				MembersCount: len(t.TeamMembers),
+				Members:      members,
+			})
+
+			for _, reg := range t.Registrations {
+				pesertaData.EventHistory = append(pesertaData.EventHistory, dto.AdminEventRegistrationRes{
+					EventName:        reg.EventLevel.Event.Name,
+					EventLevelName:   reg.EventLevel.Name,
+					PaymentStatus:    string(reg.PaymentStatus),
+					AssessmentStatus: string(reg.AssessmentStatus),
+				})
+			}
+		}
+	}
+	return pesertaData
 }

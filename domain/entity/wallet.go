@@ -14,6 +14,7 @@ type Wallet struct {
 	CreatedAt time.Time `json:"created_at" gorm:"autoCreateTime;"`
 	UpdatedAt time.Time `json:"updated_at" gorm:"autoUpdateTime;"`
 
+	Event             Event               `json:"event" gorm:"foreignKey:EventId;references:Id;"`
 	WalletTransaction []WalletTransaction `json:"wallet_transaction" gorm:"foreignKey:WalletId;references:Id;"`
 }
 
@@ -23,8 +24,9 @@ type WalletTransaction struct {
 	Type      enums.WalletType        `json:"type" gorm:"type:wallet_type;"`
 	Amount    float64                 `json:"amount" gorm:"type:decimal(15,2);"`
 	ProofPath string                  `json:"proof_path" gorm:"type:varchar(255);default:null;"`
-	Status    enums.TransactionStatus `json:"status" gorm:"type:transaction_status;"`
-	CreatedAt time.Time               `json:"created_at" gorm:"autoCreateTime;"`
+	Status          enums.TransactionStatus `json:"status" gorm:"type:transaction_status;"`
+	RejectionReason string                  `json:"rejection_reason" gorm:"type:varchar(255);default:null;"`
+	CreatedAt       time.Time               `json:"created_at" gorm:"autoCreateTime;"`
 	UpdatedAt time.Time               `json:"updated_at" gorm:"autoUpdateTime;"`
 
 	Wallet Wallet `json:"wallet" gorm:"foreignKey:WalletId;references:Id;"`

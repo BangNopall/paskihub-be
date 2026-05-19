@@ -209,6 +209,7 @@ func (s *participantTeamService) GetTeams(ctx context.Context, userID string) ([
 			Pelatih:         t.Pelatih,
 			InstitutionType: string(t.Institution.InstitutionType),
 			PaymentStatus:   paymentStatus,
+                        MembersCount:    len(t.TeamMembers),
 		})
 	}
 

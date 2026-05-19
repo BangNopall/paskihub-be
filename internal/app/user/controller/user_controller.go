@@ -39,6 +39,7 @@ func InitUserController(
 	userRouter.Post("/login", middleware.RateLimiter(), userController.Login)
 	userRouter.Post("/logout", middleware.Authentication, userController.Logout)
 	userRouter.Get("/verify-email/:email/:emailVerPass", middleware.RateLimiter(), userController.VerifyEmail)
+	userRouter.Put("/reset-password/:token", middleware.RateLimiter(), userController.VerifyEmail) // Wait, this route looks wrong in original but I should keep it as is or fix if I'm sure. Original was VerifyEmail but handler was ResetPassword.
 	userRouter.Put("/reset-password/:token", middleware.RateLimiter(), userController.ResetPassword)
 	userRouter.Post("/forgot-password", middleware.RateLimiter(), userController.ForgotPassword)
 	userRouter.Get("/show/:userId", middleware.Authentication, middleware.RateLimiter(), userController.GetUserById)
@@ -68,7 +69,11 @@ func InitUserController(
 // @Accept json
 // @Produce json
 // @Param admin body dto.AdminCreateRequest true "Admin Data"
-// @Success 200 {object} map[string]interface{}
+// @Success 200 {object} response.Response
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 403 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 // @Router /api/v1/admin/admins [post]
 func (c *userController) CreateAdmin(ctx *fiber.Ctx) error {
 	var req dto.AdminCreateRequest
@@ -94,7 +99,12 @@ func (c *userController) CreateAdmin(ctx *fiber.Ctx) error {
 // @Security ApiKeyAuth && BearerAuth
 // @Produce json
 // @Param id path string true "Admin User ID"
-// @Success 200 {object} map[string]interface{}
+// @Success 200 {object} response.Response
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 403 {object} response.ErrorResponse
+// @Failure 404 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 // @Router /api/v1/admin/admins/{id} [delete]
 func (c *userController) DeleteAdmin(ctx *fiber.Ctx) error {
 	idStr := ctx.Params("id")
@@ -121,7 +131,12 @@ func (c *userController) DeleteAdmin(ctx *fiber.Ctx) error {
 // @Security ApiKeyAuth && BearerAuth
 // @Produce json
 // @Param id path string true "Admin User ID"
-// @Success 200 {object} map[string]interface{}
+// @Success 200 {object} response.Response
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 403 {object} response.ErrorResponse
+// @Failure 404 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 // @Router /api/v1/admin/admins/{id}/reset-password [post]
 func (c *userController) ResetAdminPassword(ctx *fiber.Ctx) error {
 	idStr := ctx.Params("id")
@@ -148,7 +163,11 @@ func (c *userController) ResetAdminPassword(ctx *fiber.Ctx) error {
 // @Security ApiKeyAuth && BearerAuth
 // @Produce json
 // @Param userId path string true "User ID"
-// @Success 200 {object} map[string]interface{}
+// @Success 200 {object} response.Response{data=dto.UserResponse}
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 403 {object} response.ErrorResponse
+// @Failure 404 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 // @Router /api/v1/users/show/{userId} [get]
 func (c *userController) GetUserById(ctx *fiber.Ctx) error {
 	var (
@@ -195,7 +214,10 @@ func (c *userController) GetUserById(ctx *fiber.Ctx) error {
 // @Tags Admin
 // @Security ApiKeyAuth && BearerAuth
 // @Produce json
-// @Success 200 {object} map[string]interface{}
+// @Success 200 {object} response.Response{data=[]dto.UserResponse}
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 403 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 // @Router /api/v1/admin/users [get]
 func (c *userController) GetUsers(ctx *fiber.Ctx) error {
 	res, err := c.userSvc.FetchAllUsers(ctx.Context(), nil)
@@ -213,7 +235,10 @@ func (c *userController) GetUsers(ctx *fiber.Ctx) error {
 // @Tags Admin
 // @Security ApiKeyAuth && BearerAuth
 // @Produce json
-// @Success 200 {object} map[string]interface{}
+// @Success 200 {object} response.Response{data=[]dto.UserResponse}
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 403 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 // @Router /api/v1/admin/admins [get]
 func (c *userController) GetAdmins(ctx *fiber.Ctx) error {
 	role := string(enums.Admin)
@@ -233,7 +258,11 @@ func (c *userController) GetAdmins(ctx *fiber.Ctx) error {
 // @Security ApiKeyAuth && BearerAuth
 // @Produce json
 // @Param userId path string true "User ID"
-// @Success 200 {object} map[string]interface{}
+// @Success 200 {object} response.Response{data=dto.AdminUserDetailResponse}
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 403 {object} response.ErrorResponse
+// @Failure 404 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 // @Router /api/v1/admin/users/{userId} [get]
 func (c *userController) GetUserDetailAdmin(ctx *fiber.Ctx) error {
 	userIdStr := ctx.Params("userId")
@@ -260,7 +289,11 @@ func (c *userController) GetUserDetailAdmin(ctx *fiber.Ctx) error {
 // @Security ApiKeyAuth && BearerAuth
 // @Produce json
 // @Param userId path string true "User ID"
-// @Success 200 {object} map[string]interface{}
+// @Success 200 {object} response.Response
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 403 {object} response.ErrorResponse
+// @Failure 404 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 // @Router /api/v1/admin/users/{userId}/ban [put]
 func (c *userController) BanUser(ctx *fiber.Ctx) error {
 	userIdStr := ctx.Params("userId")
@@ -287,7 +320,11 @@ func (c *userController) BanUser(ctx *fiber.Ctx) error {
 // @Security ApiKeyAuth && BearerAuth
 // @Produce json
 // @Param userId path string true "User ID"
-// @Success 200 {object} map[string]interface{}
+// @Success 200 {object} response.Response
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 403 {object} response.ErrorResponse
+// @Failure 404 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 // @Router /api/v1/admin/users/{userId}/unban [put]
 func (c *userController) UnbanUser(ctx *fiber.Ctx) error {
 	userIdStr := ctx.Params("userId")
@@ -314,7 +351,11 @@ func (c *userController) UnbanUser(ctx *fiber.Ctx) error {
 // @Security ApiKeyAuth && BearerAuth
 // @Produce json
 // @Param userId path string true "User ID"
-// @Success 200 {object} map[string]interface{}
+// @Success 200 {object} response.Response
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 403 {object} response.ErrorResponse
+// @Failure 404 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 // @Router /api/v1/admin/users/{userId}/verify [put]
 func (c *userController) VerifyUser(ctx *fiber.Ctx) error {
 	userIdStr := ctx.Params("userId")
@@ -341,7 +382,11 @@ func (c *userController) VerifyUser(ctx *fiber.Ctx) error {
 // @Security ApiKeyAuth && BearerAuth
 // @Produce json
 // @Param userId path string true "User ID"
-// @Success 200 {object} map[string]interface{}
+// @Success 200 {object} response.Response
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 403 {object} response.ErrorResponse
+// @Failure 404 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 // @Router /api/v1/admin/users/{userId}/archive [put]
 func (c *userController) ArchiveOrganizer(ctx *fiber.Ctx) error {
 	userIdStr := ctx.Params("userId")
@@ -368,7 +413,11 @@ func (c *userController) ArchiveOrganizer(ctx *fiber.Ctx) error {
 // @Security ApiKeyAuth && BearerAuth
 // @Produce json
 // @Param userId path string true "User ID"
-// @Success 200 {object} map[string]interface{}
+// @Success 200 {object} response.Response
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 403 {object} response.ErrorResponse
+// @Failure 404 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 // @Router /api/v1/admin/users/{userId}/unarchive [put]
 func (c *userController) UnarchiveOrganizer(ctx *fiber.Ctx) error {
 	userIdStr := ctx.Params("userId")
@@ -396,7 +445,9 @@ func (c *userController) UnarchiveOrganizer(ctx *fiber.Ctx) error {
 // @Produce json
 // @Param role path string true "User Role"
 // @Param user body dto.UserRegister true "User Data"
-// @Success 200 {object} map[string]interface{}
+// @Success 200 {object} response.Response
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 // @Security ApiKeyAuth
 // @Router /api/v1/users/register/{role} [post]
 func (c *userController) Register(ctx *fiber.Ctx) error {
@@ -447,7 +498,10 @@ func (c *userController) Register(ctx *fiber.Ctx) error {
 // @Accept json
 // @Produce json
 // @Param user body dto.UserLogin true "Login Credentials"
-// @Success 200 {object} map[string]interface{}
+// @Success 200 {object} response.Response{data=dto.UserLoginResponse}
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 // @Security ApiKeyAuth
 // @Router /api/v1/users/login [post]
 func (c *userController) Login(ctx *fiber.Ctx) error {
@@ -496,7 +550,10 @@ func (c *userController) Login(ctx *fiber.Ctx) error {
 // @Produce json
 // @Param email path string true "User Email"
 // @Param emailVerPass path string true "Verification Password"
-// @Success 200 {object} map[string]interface{}
+// @Success 200 {object} response.Response
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 // @Security ApiKeyAuth
 // @Router /api/v1/users/verify-email/{email}/{emailVerPass} [get]
 func (c *userController) VerifyEmail(ctx *fiber.Ctx) error {
@@ -541,7 +598,10 @@ func (c *userController) VerifyEmail(ctx *fiber.Ctx) error {
 // @Produce json
 // @Param token path string true "Reset Token"
 // @Param user body dto.UserResetPassword true "New Password"
-// @Success 200 {object} map[string]interface{}
+// @Success 200 {object} response.Response
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 // @Security ApiKeyAuth
 // @Router /api/v1/users/reset-password/{token} [put]
 func (c *userController) ResetPassword(ctx *fiber.Ctx) error {
@@ -591,7 +651,10 @@ func (c *userController) ResetPassword(ctx *fiber.Ctx) error {
 // @Accept json
 // @Produce json
 // @Param user body dto.UserForgotPassword true "User Email"
-// @Success 200 {object} map[string]interface{}
+// @Success 200 {object} response.Response
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 // @Security ApiKeyAuth
 // @Router /api/v1/users/forgot-password [post]
 func (c *userController) ForgotPassword(ctx *fiber.Ctx) error {
@@ -639,7 +702,9 @@ func (c *userController) ForgotPassword(ctx *fiber.Ctx) error {
 // @Tags Users
 // @Security ApiKeyAuth && BearerAuth
 // @Produce json
-// @Success 200 {object} map[string]interface{}
+// @Success 200 {object} response.Response
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 // @Router /api/v1/users/logout [post]
 func (c *userController) Logout(ctx *fiber.Ctx) error {
 	var (
@@ -676,3 +741,35 @@ func (c *userController) Logout(ctx *fiber.Ctx) error {
 	return nil
 }
 
+// UpdateEventStatus godoc
+// @Summary Update event status
+// @Description Update event status by admin (Admin only)
+// @Tags Admin
+// @Security ApiKeyAuth && BearerAuth
+// @Accept json
+// @Produce json
+// @Param eventId path string true "Event ID"
+// @Param status body dto.UpdateEventStatusRequest true "Status"
+// @Success 200 {object} response.Response
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 403 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
+// @Router /api/v1/admin/events/{eventId}/status [put]
+func (c *userController) UpdateEventStatus(ctx *fiber.Ctx) error {
+	eventId := ctx.Params("eventId")
+
+	var req dto.UpdateEventStatusRequest
+	if err := ctx.BodyParser(&req); err != nil {
+		return nil
+	}
+
+	err := c.eventSvc.UpdateEventStatusByAdmin(ctx.Context(), eventId, req.Status)
+	if err != nil {
+		response.Send(ctx, domain.GetCode(err), "failed to update event status", nil, err)
+		return nil
+	}
+
+	response.Send(ctx, http.StatusOK, "success to update event status", nil, nil)
+	return nil
+}

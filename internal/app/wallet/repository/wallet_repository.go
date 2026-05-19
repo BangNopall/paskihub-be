@@ -81,7 +81,7 @@ func (r *walletRepository) ApproveTransaction(ctx context.Context, transactionId
 	return err
 }
 
-func (r *walletRepository) RejectTransaction(ctx context.Context, transactionId uuid.UUID) error {
+func (r *walletRepository) RejectTransaction(ctx context.Context, transactionId uuid.UUID, rejectionReason string) error {
 	err := r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		var transaction entity.WalletTransaction
 		// Fetch transaction with lock for update
@@ -96,8 +96,13 @@ func (r *walletRepository) RejectTransaction(ctx context.Context, transactionId 
 			return domain.ErrBadRequest // Status is not PENDING
 		}
 
-		// Update transaction status
-		if err := tx.Model(&transaction).Update("status", enums.TSRejected).Error; err != nil {
+		// Update transaction status and rejection reason
+		updateData := map[string]interface{}{
+			"status":           enums.TSRejected,
+			"rejection_reason": rejectionReason,
+		}
+
+		if err := tx.Model(&transaction).Updates(updateData).Error; err != nil {
 			return err
 		}
 
@@ -114,6 +119,30 @@ func (r *walletRepository) GetTransactionLogs(ctx context.Context, walletId uuid
 		return nil, err
 	}
 	return transactions, nil
+}
+
+func (r *walletRepository) GetAllTransactions(ctx context.Context, status string, limit, offset int) ([]entity.WalletTransaction, int64, error) {
+	var transactions []entity.WalletTransaction
+	var total int64
+
+	query := r.db.WithContext(ctx).Model(&entity.WalletTransaction{}).
+		Preload("Wallet").Preload("Wallet.Event")
+
+	if status != "" {
+		query = query.Where("status = ?", status)
+	}
+
+	err := query.Count(&total).Error
+	if err != nil {
+		return nil, 0, err
+	}
+
+	err = query.Order("created_at desc").Limit(limit).Offset(offset).Find(&transactions).Error
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return transactions, total, nil
 }
 
 func (r *walletRepository) GetTransactionById(ctx context.Context, transactionId uuid.UUID) (*entity.WalletTransaction, error) {

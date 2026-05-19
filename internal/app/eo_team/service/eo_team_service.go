@@ -213,6 +213,7 @@ func (s *eoTeamService) KickTeam(ctx context.Context, eventId, userId, registrat
 		return ErrNotFound
 	}
 
+	reg.PaymentStatus = enums.Kicked
 	reg.IsKick = true
 	return s.repo.UpdateRegistration(ctx, reg)
 }

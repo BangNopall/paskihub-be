@@ -52,7 +52,7 @@ func (r *participantEventRepository) GetRegistrationWithDetails(ctx context.Cont
 
 func (r *participantEventRepository) GetEventLevelByID(ctx context.Context, levelID uuid.UUID) (*entity.EventLevel, error) {
 	var level entity.EventLevel
-	err := r.db.WithContext(ctx).First(&level, "id = ?", levelID).Error
+	err := r.db.WithContext(ctx).Preload("Event").First(&level, "id = ?", levelID).Error
 	if err != nil {
 		return nil, err
 	}
@@ -77,4 +77,29 @@ func (r *participantEventRepository) GetActiveRegistrationsByUserID(ctx context.
 		Find(&registrations).Error
 
 	return registrations, err
+}
+
+func (r *participantEventRepository) GetTeamWithMembers(ctx context.Context, teamID uuid.UUID) (*entity.Team, error) {
+	var team entity.Team
+	err := r.db.WithContext(ctx).
+		Preload("TeamMembers").
+		Preload("Institution").
+		First(&team, "id = ?", teamID).Error
+	if err != nil {
+		return nil, err
+	}
+	return &team, nil
+}
+
+func (r *participantEventRepository) CheckExistingRegistration(ctx context.Context, teamID, eventID uuid.UUID) (bool, error) {
+	var count int64
+	err := r.db.WithContext(ctx).
+		Model(&entity.Registration{}).
+		Joins("JOIN event_levels ON event_levels.id = registrations.event_level_id").
+		Where("registrations.team_id = ? AND event_levels.event_id = ? AND registrations.is_kick = ?", teamID, eventID, false).
+		Count(&count).Error
+	if err != nil {
+		return false, err
+	}
+	return count > 0, nil
 }

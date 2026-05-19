@@ -48,7 +48,7 @@ func (m *Middleware) Verified(ctx *fiber.Ctx) error {
 	}
 
 	var user entity.User
-	err = m.userRepo.FindUser(&user, &dto.UserParam{ID: userId})
+	err = m.userRepo.FindUser(&user, &dto.UserParam{Id: userId})
 	if err != nil {
 		response.SendErrResp(
 			ctx,

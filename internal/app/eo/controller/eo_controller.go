@@ -45,6 +45,8 @@ func getUserId(ctx *fiber.Ctx) (uuid.UUID, error) {
 // @Security ApiKeyAuth && BearerAuth
 // @Produce json
 // @Success 200 {object} response.Response{data=dto.EOProfileRes}
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 // @Router /api/v1/eo/profile [get]
 func (c *eoController) GetProfile(ctx *fiber.Ctx) error {
 	userId, err := getUserId(ctx)
@@ -72,6 +74,9 @@ func (c *eoController) GetProfile(ctx *fiber.Ctx) error {
 // @Produce json
 // @Param req body dto.EOUpdatePasswordReq true "Update Password Request"
 // @Success 200 {object} response.Response
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 // @Router /api/v1/eo/profile/password [put]
 func (c *eoController) UpdatePassword(ctx *fiber.Ctx) error {
 	userId, err := getUserId(ctx)
@@ -108,6 +113,8 @@ func (c *eoController) UpdatePassword(ctx *fiber.Ctx) error {
 // @Security ApiKeyAuth && BearerAuth
 // @Produce json
 // @Success 200 {object} response.Response{data=[]dto.EOStaffRes}
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 // @Router /api/v1/eo/staff [get]
 func (c *eoController) GetStaffs(ctx *fiber.Ctx) error {
 	userId, err := getUserId(ctx)
@@ -135,6 +142,9 @@ func (c *eoController) GetStaffs(ctx *fiber.Ctx) error {
 // @Produce json
 // @Param req body dto.EOStaffCreateReq true "Staff Create Request"
 // @Success 201 {object} response.Response
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 // @Router /api/v1/eo/staff [post]
 func (c *eoController) CreateStaff(ctx *fiber.Ctx) error {
 	userId, err := getUserId(ctx)
@@ -174,6 +184,9 @@ func (c *eoController) CreateStaff(ctx *fiber.Ctx) error {
 // @Param id path string true "Staff ID"
 // @Param req body dto.EOStaffResetPasswordReq true "Reset Password Request"
 // @Success 200 {object} response.Response
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 // @Router /api/v1/eo/staff/{id}/password [put]
 func (c *eoController) ResetStaffPassword(ctx *fiber.Ctx) error {
 	parentId, err := getUserId(ctx)
@@ -218,6 +231,9 @@ func (c *eoController) ResetStaffPassword(ctx *fiber.Ctx) error {
 // @Produce json
 // @Param id path string true "Staff ID"
 // @Success 200 {object} response.Response
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 // @Router /api/v1/eo/staff/{id} [delete]
 func (c *eoController) DeleteStaff(ctx *fiber.Ctx) error {
 	parentId, err := getUserId(ctx)

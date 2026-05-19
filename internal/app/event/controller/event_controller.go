@@ -55,7 +55,10 @@ func InitEventController(
 // @Accept json
 // @Produce json
 // @Param event body dto.EventCreate true "Event details"
-// @Success 200 {object} map[string]interface{}
+// @Success 200 {object} response.Response
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 // @Router /api/v1/events/create [post]
 func (c *eventController) CreateEvent(ctx *fiber.Ctx) error {
 	var (
@@ -99,7 +102,10 @@ func (c *eventController) CreateEvent(ctx *fiber.Ctx) error {
 // @Security ApiKeyAuth && BearerAuth
 // @Produce json
 // @Param id path string true "Event ID"
-// @Success 200 {object} map[string]interface{}
+// @Success 200 {object} response.Response{data=dto.EventResponse}
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 // @Router /api/v1/events/admin/show/{id} [get]
 func (c *eventController) ShowEventData(ctx *fiber.Ctx) error {
 	var (
@@ -137,7 +143,11 @@ func (c *eventController) ShowEventData(ctx *fiber.Ctx) error {
 // @Security ApiKeyAuth && BearerAuth 
 // @Produce json
 // @Param userId path string true "User ID"
-// @Success 200 {object} map[string]interface{}
+// @Success 200 {object} response.Response{data=[]dto.EventResponse}
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 403 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 // @Router /api/v1/events/user/{userId} [get]
 func (c *eventController) ShowUserEvent(ctx *fiber.Ctx) error {
 	var (
@@ -180,12 +190,15 @@ func (c *eventController) ShowUserEvent(ctx *fiber.Ctx) error {
 // @Summary Upload event logo
 // @Description Upload logo image for an event
 // @Tags Events
-// @Security BearerAuth && ApiKeyAuth
+// @Security ApiKeyAuth && BearerAuth
 // @Accept multipart/form-data
 // @Produce json
 // @Param id path string true "Event ID"
 // @Param logo formData file true "Logo Image"
-// @Success 200 {object} map[string]interface{}
+// @Success 200 {object} response.Response
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 // @Router /api/v1/events/upload/{id}/logo [post]
 func (c *eventController) UploadLogo(ctx *fiber.Ctx) error {
 	var (
@@ -227,7 +240,10 @@ func (c *eventController) UploadLogo(ctx *fiber.Ctx) error {
 // @Produce json
 // @Param id path string true "Event ID"
 // @Param poster formData file true "Poster Image"
-// @Success 200 {object} map[string]interface{}
+// @Success 200 {object} response.Response
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 // @Router /api/v1/events/upload/{id}/poster [post]
 func (c *eventController) UploadPoster(ctx *fiber.Ctx) error {
 	var (
@@ -269,7 +285,10 @@ func (c *eventController) UploadPoster(ctx *fiber.Ctx) error {
 // @Produce json
 // @Param id path string true "Event ID"
 // @Param event body dto.EventUpdate true "Updated details"
-// @Success 200 {object} map[string]interface{}
+// @Success 200 {object} response.Response
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 // @Router /api/v1/events/update/{id} [put]
 func (c *eventController) UpdateEvent(ctx *fiber.Ctx) error {
 	var (
@@ -322,7 +341,10 @@ func (c *eventController) UpdateEvent(ctx *fiber.Ctx) error {
 // @Security ApiKeyAuth && BearerAuth
 // @Produce json
 // @Param id path string true "Event ID"
-// @Success 200 {object} map[string]interface{}
+// @Success 200 {object} response.Response
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 // @Router /api/v1/events/delete/{id} [delete]
 func (c *eventController) DeleteEvent(ctx *fiber.Ctx) error {
 	var (
@@ -359,7 +381,10 @@ func (c *eventController) DeleteEvent(ctx *fiber.Ctx) error {
 // @Produce json
 // @Param id path string true "Event ID"
 // @Param level body dto.EventLevelCreate true "Level details"
-// @Success 200 {object} map[string]interface{}
+// @Success 200 {object} response.Response
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 // @Router /api/v1/events/{id}/levels [post]
 func (c *eventController) CreateEventLevel(ctx *fiber.Ctx) error {
 	var (
@@ -402,7 +427,10 @@ func (c *eventController) CreateEventLevel(ctx *fiber.Ctx) error {
 // @Param id path string true "Event ID"
 // @Param levelId path string true "Level ID"
 // @Param level body dto.EventLevelUpdate true "Updated level details"
-// @Success 200 {object} map[string]interface{}
+// @Success 200 {object} response.Response
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 // @Router /api/v1/events/{id}/levels/{levelId} [put]
 func (c *eventController) UpdateEventLevel(ctx *fiber.Ctx) error {
 	var (
@@ -458,7 +486,10 @@ func (c *eventController) UpdateEventLevel(ctx *fiber.Ctx) error {
 // @Produce json
 // @Param id path string true "Event ID"
 // @Param levelId path string true "Level ID"
-// @Success 200 {object} map[string]interface{}
+// @Success 200 {object} response.Response
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 // @Router /api/v1/events/{id}/levels/{levelId} [delete]
 func (c *eventController) DeleteEventLevel(ctx *fiber.Ctx) error {
 	var (

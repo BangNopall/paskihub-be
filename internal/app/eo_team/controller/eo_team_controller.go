@@ -30,6 +30,7 @@ func InitEOTeamController(
 	group.Put("/:registrationId/approve", middleware.Authentication, middleware.RateLimiter(), middleware.AuthOrganizer, c.ApproveTeam)
 	group.Put("/:registrationId/reject", middleware.Authentication, middleware.RateLimiter(), middleware.AuthOrganizer, c.RejectTeam)
 	group.Put("/:registrationId/kick", middleware.Authentication, middleware.RateLimiter(), middleware.AuthOrganizer, c.KickTeam)
+	group.Put("/:registrationId/start-assessment", middleware.Authentication, middleware.RateLimiter(), middleware.AuthOrganizer, c.StartAssessment)
 }
 
 func getUUIDParam(ctx *fiber.Ctx, key string) (uuid.UUID, error) {
@@ -66,7 +67,10 @@ func setCodeFromError(err error) int {
 // @Security ApiKeyAuth && BearerAuth
 // @Produce json
 // @Param eventId path string true "Event ID"
-// @Success 200 {object} map[string]interface{}
+// @Success 200 {object} response.Response{data=dto.EOTeamStatsRes}
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 // @Router /api/v1/eo/events/{eventId}/teams/stats [get]
 func (c *eoTeamController) GetStats(ctx *fiber.Ctx) error {
 	var (
@@ -110,7 +114,10 @@ func (c *eoTeamController) GetStats(ctx *fiber.Ctx) error {
 // @Param eventId path string true "Event ID"
 // @Param event_level_id query string false "Event Level ID filter"
 // @Param institution_type query string false "Institution Type filter (SD, SMP, SMA, UMUM, PURNA)"
-// @Success 200 {object} map[string]interface{}
+// @Success 200 {object} response.Response{data=[]dto.EOTeamListRes}
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 // @Router /api/v1/eo/events/{eventId}/teams [get]
 func (c *eoTeamController) GetListTeam(ctx *fiber.Ctx) error {
 	var (
@@ -165,7 +172,11 @@ func (c *eoTeamController) GetListTeam(ctx *fiber.Ctx) error {
 // @Produce json
 // @Param eventId path string true "Event ID"
 // @Param registrationId path string true "Registration ID"
-// @Success 200 {object} map[string]interface{}
+// @Success 200 {object} response.Response{data=dto.EOTeamDetailRes}
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 404 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 // @Router /api/v1/eo/events/{eventId}/teams/{registrationId} [get]
 func (c *eoTeamController) GetDetailTeam(ctx *fiber.Ctx) error {
 	var (
@@ -216,7 +227,12 @@ func (c *eoTeamController) GetDetailTeam(ctx *fiber.Ctx) error {
 // @Param eventId path string true "Event ID"
 // @Param registrationId path string true "Registration ID"
 // @Param req body dto.EOTeamApproveReq true "Approval Details"
-// @Success 200 {object} map[string]interface{}
+// @Success 200 {object} response.Response
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 402 {object} response.ErrorResponse
+// @Failure 404 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 // @Router /api/v1/eo/events/{eventId}/teams/{registrationId}/approve [put]
 func (c *eoTeamController) ApproveTeam(ctx *fiber.Ctx) error {
 	var (
@@ -274,7 +290,11 @@ func (c *eoTeamController) ApproveTeam(ctx *fiber.Ctx) error {
 // @Param eventId path string true "Event ID"
 // @Param registrationId path string true "Registration ID"
 // @Param req body dto.EOTeamRejectReq true "Rejection Reason"
-// @Success 200 {object} map[string]interface{}
+// @Success 200 {object} response.Response
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 404 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 // @Router /api/v1/eo/events/{eventId}/teams/{registrationId}/reject [put]
 func (c *eoTeamController) RejectTeam(ctx *fiber.Ctx) error {
 	var (
@@ -330,7 +350,11 @@ func (c *eoTeamController) RejectTeam(ctx *fiber.Ctx) error {
 // @Produce json
 // @Param eventId path string true "Event ID"
 // @Param registrationId path string true "Registration ID"
-// @Success 200 {object} map[string]interface{}
+// @Success 200 {object} response.Response
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 404 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 // @Router /api/v1/eo/events/{eventId}/teams/{registrationId}/kick [put]
 func (c *eoTeamController) KickTeam(ctx *fiber.Ctx) error {
 	var (
@@ -379,7 +403,11 @@ func (c *eoTeamController) KickTeam(ctx *fiber.Ctx) error {
 // @Produce json
 // @Param eventId path string true "Event ID"
 // @Param registrationId path string true "Registration ID"
-// @Success 200 {object} map[string]interface{}
+// @Success 200 {object} response.Response
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 404 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 // @Router /api/v1/eo/events/{eventId}/teams/{registrationId}/start-assessment [put]
 func (c *eoTeamController) StartAssessment(ctx *fiber.Ctx) error {
 	var (

@@ -99,6 +99,10 @@ type EventPaginationResponse struct {
 	Pagination PaginationResponse `json:"pagination"`
 }
 
+type UpdateEventStatusRequest struct {
+	Status string `json:"status" binding:"required"`
+}
+
 func EventLevelEntityToResponse(eventLevel *entity.EventLevel) *EventLevelResponse {
 	return &EventLevelResponse{
 		Id:       eventLevel.Id,

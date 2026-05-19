@@ -214,5 +214,19 @@ func (r *assessmentRepository) UpdateAward(ctx context.Context, award *entity.Ev
 }
 
 func (r *assessmentRepository) DeleteAward(ctx context.Context, id uuid.UUID) error {
-	return r.db.WithContext(ctx).Delete(&entity.EventAward{}, "id = ?", id).Error
+	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		award := &entity.EventAward{ID: id}
+
+		// 1. Clear many-to-many relations in join tables
+		if err := tx.Model(award).Association("EventLevels").Clear(); err != nil {
+			return err
+		}
+
+		if err := tx.Model(award).Association("ScoreCategories").Clear(); err != nil {
+			return err
+		}
+
+		// 2. Delete the main record
+		return tx.Delete(award).Error
+	})
 }

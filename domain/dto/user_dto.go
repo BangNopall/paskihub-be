@@ -14,7 +14,7 @@ type UserRegister struct {
 }
 
 type UserParam struct {
-	ID                  uuid.UUID `json:"id"`
+	Id                  uuid.UUID `json:"id"`
 	Email               string    `json:"email"`
 	ForgotPasswordToken string    `json:"forgot_password_token"`
 }
@@ -34,32 +34,27 @@ type UserResetPassword struct {
 }
 
 type UserLoginResponse struct {
-	Id    string `json:"id"`
-	Email string `json:"email"`
-	Role  string `json:"role"`
-	Token string `json:"token"`
+	Id    string    `json:"id"`
+	Email string    `json:"email"`
+	Role  string    `json:"role"`
+	Token string    `json:"token"`
 }
 
 type UserLoginInfoRes struct {
 	Id    string `json:"id"`
-	Email string `json:"email"`
-	Role  string `json:"role"`
+	Email string    `json:"email"`
+	Role  string    `json:"role"`
 }
 
 type UserResponse struct {
 	Id                  uuid.UUID            `json:"id"`
 	Email               string               `json:"email"`
-	Password            string               `json:"password"`
 	Role                string               `json:"role"`
-	EmailVerifiedToken  string               `json:"email_verified_token"`
-	ForgotPasswordToken string               `json:"forgot_password_token"`
 	EmailIsVerified     bool                 `json:"email_is_verified"`
 	IsBanned            bool                 `json:"is_banned"`
 	LastLoginAt         *time.Time           `json:"last_login_at"`
 	CreatedAt           time.Time            `json:"created_at"`
 	InstitutionName     string               `json:"name"` // Used to hold dynamic name (Event/Institution/Admin)
-	ExpiredToken        time.Time            `json:"-"`
-	ExpiredTokenForgot  time.Time            `json:"-"`
 	Event               *EventResponse       `json:"event,omitempty"`
 	Institution         *InstitutionResponse `json:"institution,omitempty"`
 }
@@ -84,11 +79,8 @@ type AdminUserDetailResponse struct {
 	Id                  uuid.UUID                  `json:"id"`
 	Name                string                     `json:"name"`
 	Email               string                     `json:"email"`
-	Password            string                     `json:"password"`
 	Role                string                     `json:"role"`
 	Status              string                     `json:"status"`
-	EmailVerifiedToken  string                     `json:"email_verified_token"`
-	ForgotPasswordToken string                     `json:"forgot_password_token"`
 	EmailIsVerified     bool                       `json:"email_is_verified"`
 	IsBanned            bool                       `json:"is_banned"`
 	LastLoginAt         *time.Time                 `json:"last_login_at"`
@@ -174,14 +166,10 @@ func UserEntityToResponse(user *entity.User) *UserResponse {
 	case "PESERTA":
 		if len(user.Institutions) > 0 {
 			name = user.Institutions[0].Name
-			instName := "-"
-			if len(user.Institutions) > 0 {
-				instName = user.Institutions[0].Name
-			}
 			// Mapping to InstitutionResponse
 			inst = &InstitutionResponse{
 				Id:      user.Institutions[0].Id,
-				Name:    instName,
+				Name:    user.Institutions[0].Name,
 				Address: user.Institutions[0].Address,
 				Type:    user.Institutions[0].InstitutionType,
 				NamePj:  user.Institutions[0].NamePj,
@@ -194,9 +182,6 @@ func UserEntityToResponse(user *entity.User) *UserResponse {
 		Id:                  user.Id,
 		Email:               user.Email,
 		Role:                string(user.Role),
-		Password:            user.Password,
-		EmailVerifiedToken:  user.EmailVerifiedToken,
-		ForgotPasswordToken: user.ForgotPasswordToken,
 		EmailIsVerified:     user.EmailIsVerified,
 		IsBanned:            user.IsBanned,
 		LastLoginAt:         user.LastLoginAt,
@@ -204,8 +189,6 @@ func UserEntityToResponse(user *entity.User) *UserResponse {
 		InstitutionName:     name,
 		Event:               evt,
 		Institution:         inst,
-		ExpiredToken:        user.ExpiredToken,
-		ExpiredTokenForgot:  user.ExpiredTokenForgot,
 	}
 }
 

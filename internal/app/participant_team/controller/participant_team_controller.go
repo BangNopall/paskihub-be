@@ -44,7 +44,11 @@ func (c *ParticipantTeamController) Route(router fiber.Router) {
 // @Param pelatih_name formData string true "Coach Name"
 // @Param logo_team formData file false "Team Logo"
 // @Param surat_rekomendasi formData file false "Recommendation Letter"
-// @Success 200 {object} map[string]interface{}
+// @Success 200 {object} response.Response
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 404 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 // @Router /api/v1/peserta/teams/{id} [put]
 func (c *ParticipantTeamController) UpdateTeam(ctx *fiber.Ctx) error {
 	userID := ctx.Locals("id").(string)
@@ -130,7 +134,10 @@ func (c *ParticipantTeamController) UpdateTeam(ctx *fiber.Ctx) error {
 // @Param coach_name formData string true "Coach Name"
 // @Param logo formData file true "Team Logo"
 // @Param recommendation_letter formData file true "Recommendation Letter"
-// @Success 201 {object} map[string]interface{}
+// @Success 201 {object} response.Response
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 // @Router /api/v1/peserta/teams [post]
 func (c *ParticipantTeamController) CreateTeam(ctx *fiber.Ctx) error {
 	userID := ctx.Locals("id").(string)
@@ -210,7 +217,9 @@ func (c *ParticipantTeamController) CreateTeam(ctx *fiber.Ctx) error {
 // @Tags Participant Team
 // @Security ApiKeyAuth && BearerAuth
 // @Produce json
-// @Success 200 {object} map[string]interface{}
+// @Success 200 {object} response.Response{data=[]dto.ParticipantTeamResponse}
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 // @Router /api/v1/peserta/teams [get]
 func (c *ParticipantTeamController) GetTeams(ctx *fiber.Ctx) error {
 	userID := ctx.Locals("id").(string)
@@ -232,7 +241,10 @@ func (c *ParticipantTeamController) GetTeams(ctx *fiber.Ctx) error {
 // @Security ApiKeyAuth && BearerAuth
 // @Produce json
 // @Param id path string true "Team ID"
-// @Success 200 {object} map[string]interface{}
+// @Success 200 {object} response.Response{data=dto.TeamDetailResponse}
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 404 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 // @Router /api/v1/peserta/teams/{id} [get]
 func (c *ParticipantTeamController) GetTeamDetail(ctx *fiber.Ctx) error {
 	userID := ctx.Locals("id").(string)
@@ -255,7 +267,11 @@ func (c *ParticipantTeamController) GetTeamDetail(ctx *fiber.Ctx) error {
 // @Security ApiKeyAuth && BearerAuth
 // @Produce json
 // @Param id path string true "Team ID"
-// @Success 200 {object} map[string]interface{}
+// @Success 200 {object} response.Response
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 404 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 // @Router /api/v1/peserta/teams/{id} [delete]
 func (c *ParticipantTeamController) DeleteTeam(ctx *fiber.Ctx) error {
 	userID := ctx.Locals("id").(string)

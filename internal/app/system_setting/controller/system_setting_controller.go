@@ -39,7 +39,10 @@ func InitSystemSettingController(
 // @Description Get public system configurations like coin rate and bank info
 // @Tags System Settings
 // @Produce json
-// @Success 200 {object} map[string]interface{}
+// @Success 200 {object} response.Response{data=dto.SystemSettingResponse}
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
+// @Security ApiKeyAuth
 // @Router /api/v1/settings/public [get]
 func (c *systemSettingController) GetPublicSettings(ctx *fiber.Ctx) error {
 	var (
@@ -70,7 +73,10 @@ func (c *systemSettingController) GetPublicSettings(ctx *fiber.Ctx) error {
 // @Tags System Settings
 // @Security ApiKeyAuth && BearerAuth
 // @Produce json
-// @Success 200 {object} map[string]interface{}
+// @Success 200 {object} response.Response{data=dto.SystemSettingResponse}
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 403 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 // @Router /api/v1/settings [get]
 func (c *systemSettingController) GetSettings(ctx *fiber.Ctx) error {
 	var (
@@ -103,7 +109,11 @@ func (c *systemSettingController) GetSettings(ctx *fiber.Ctx) error {
 // @Accept json
 // @Produce json
 // @Param req body dto.UpdateSystemSettingRequest true "Update Settings Request"
-// @Success 200 {object} map[string]interface{}
+// @Success 200 {object} response.Response
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 403 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 // @Router /api/v1/settings [patch]
 func (c *systemSettingController) UpdateSettings(ctx *fiber.Ctx) error {
 	var (

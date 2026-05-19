@@ -131,8 +131,7 @@ func (s *walletService) GetTransactionLogs(ctx context.Context, eventId string, 
 
 	var responses []dto.WalletTransactionResponse
 	for _, tx := range transactions {
-		resp := dto.WalletTransactionEntityToResponse(&tx)
-		resp.AmountKoin = tx.Amount / setting.CoinRate
+		resp := dto.WalletTransactionEntityToResponse(&tx, setting.CoinRate)
 		responses = append(responses, *resp)
 	}
 
@@ -158,6 +157,11 @@ func (s *walletService) RequestTopUp(ctx context.Context, eventId string, userId
 	}
 
 	wallet, err := s.walletRepo.GetWalletByEventId(ctx, eId)
+	if err != nil {
+		return err
+	}
+
+	setting, err := s.settingRepo.Get(ctx)
 	if err != nil {
 		return err
 	}
@@ -188,7 +192,7 @@ func (s *walletService) RequestTopUp(ctx context.Context, eventId string, userId
 		Id:        txId,
 		WalletId:  wallet.Id,
 		Type:      enums.TopUp,
-		Amount:    req.Amount,
+		Amount:    req.Amount * setting.CoinRate,
 		ProofPath: path,
 		Status:    enums.Pending,
 	}
@@ -210,7 +214,7 @@ func (s *walletService) ApproveTopUp(ctx context.Context, transactionId string, 
 	return s.walletRepo.ApproveTransaction(ctx, txId)
 }
 
-func (s *walletService) RejectTopUp(ctx context.Context, transactionId string, adminUserId string) error {
+func (s *walletService) RejectTopUp(ctx context.Context, transactionId string, adminUserId string, req *dto.RejectTopUpRequest) error {
 	ctx, cancel := context.WithTimeout(ctx, s.timeout)
 	defer cancel()
 
@@ -221,7 +225,51 @@ func (s *walletService) RejectTopUp(ctx context.Context, transactionId string, a
 
 	// Assume router handles admin authorization via JWT token middlewares
 
-	return s.walletRepo.RejectTransaction(ctx, txId)
+	return s.walletRepo.RejectTransaction(ctx, txId, req.RejectionReason)
+}
+
+func (s *walletService) GetAllTransactions(ctx context.Context, status string, page, limit int) ([]dto.AdminTransactionResponse, int64, error) {
+	ctx, cancel := context.WithTimeout(ctx, s.timeout)
+	defer cancel()
+
+	if page <= 0 {
+		page = 1
+	}
+	if limit <= 0 {
+		limit = 10
+	}
+	offset := (page - 1) * limit
+
+	transactions, total, err := s.walletRepo.GetAllTransactions(ctx, status, limit, offset)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	setting, err := s.settingRepo.Get(ctx)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	var responses []dto.AdminTransactionResponse
+	for _, tx := range transactions {
+		eoName := ""
+		if tx.Wallet.Event.Name != "" {
+			eoName = tx.Wallet.Event.Name
+		}
+
+		responses = append(responses, dto.AdminTransactionResponse{
+			Id:              tx.Id,
+			EOName:          eoName,
+			Amount:          tx.Amount,
+			AmountKoin:      tx.Amount / setting.CoinRate,
+			Status:          tx.Status,
+			ProofPath:       tx.ProofPath,
+			RejectionReason: tx.RejectionReason,
+			CreatedAt:       tx.CreatedAt,
+		})
+	}
+
+	return responses, total, nil
 }
 
 func (s *walletService) saveFile(file *multipart.FileHeader, dst string) error {

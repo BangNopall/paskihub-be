@@ -33,6 +33,7 @@ const (
 	DPPaid   RegistrationStatus = "DP_PAID"
 	FullPaid RegistrationStatus = "FULL_PAID"
 	Rejected RegistrationStatus = "REJECTED"
+	Kicked   RegistrationStatus = "KICKED"
 
 	TopUp    WalletType = "TOPUP"
 	Withdraw WalletType = "WITHDRAW"

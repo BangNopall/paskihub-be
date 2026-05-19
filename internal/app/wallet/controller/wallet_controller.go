@@ -37,18 +37,71 @@ func InitWalletController(
 	walletRouter.Post("/:eventId/topup", middleware.Authentication, middleware.RateLimiter(), middleware.AuthOrganizer, walletController.RequestTopUp)
 
 	// Admin Route
+	walletRouter.Get("/admin/transactions", middleware.Authentication, middleware.RateLimiter(), middleware.AuthAdmin, walletController.GetAllTransactions)
 	walletRouter.Put("/admin/transactions/:transactionId/approve", middleware.Authentication, middleware.RateLimiter(), middleware.AuthAdmin, walletController.ApproveTopUp)
 	walletRouter.Put("/admin/transactions/:transactionId/reject", middleware.Authentication, middleware.RateLimiter(), middleware.AuthAdmin, walletController.RejectTopUp)
 }
 
-// GetWalletInfo godoc
+// GetAllTransactions godoc
+// @Summary Get all transactions (Admin)
+// @Description Get all top-up transactions for all events
+// @Tags Wallets
+// @Security ApiKeyAuth && BearerAuth
+// @Produce json
+// @Param status query string false "Transaction Status (PENDING, APPROVE, REJECTED)"
+// @Param page query int false "Page Number"
+// @Param limit query int false "Items Per Page"
+// @Success 200 {object} response.Response{data=dto.AdminTransactionPaginationResponse}
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 403 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
+// @Router /api/v1/wallets/admin/transactions [get]
+func (c *walletController) GetAllTransactions(ctx *fiber.Ctx) error {
+	var (
+		err     error
+		code    int = http.StatusBadRequest
+		res     interface{}
+		message string = "failed to get all transactions"
+	)
+
+	sendResp := func() {
+		response.Send(ctx, code, message, res, err)
+	}
+	defer sendResp()
+
+	status := ctx.Query("status")
+	page, _ := strconv.Atoi(ctx.Query("page", "1"))
+	limit, _ := strconv.Atoi(ctx.Query("limit", "10"))
+
+	transactions, total, err := c.walletSvc.GetAllTransactions(ctx.Context(), status, page, limit)
+	code = domain.GetCode(err)
+	if err != nil {
+		return nil
+	}
+
+	res = map[string]interface{}{
+		"transactions": transactions,
+		"total":        total,
+		"page":         page,
+		"limit":        limit,
+	}
+
+	message = "success to get all transactions"
+	return nil
+}
+
+// ApproveTopUp godoc
 // @Summary Get wallet info
 // @Description Get wallet information for an event
 // @Tags Wallets
 // @Security ApiKeyAuth && BearerAuth
 // @Produce json
 // @Param eventId path string true "Event ID"
-// @Success 200 {object} map[string]interface{}
+// @Success 200 {object} response.Response{data=dto.WalletResponse}
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 403 {object} response.ErrorResponse
+// @Failure 404 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 // @Router /api/v1/wallets/{eventId} [get]
 func (c *walletController) GetWalletInfo(ctx *fiber.Ctx) error {
 	var (
@@ -83,7 +136,11 @@ func (c *walletController) GetWalletInfo(ctx *fiber.Ctx) error {
 // @Security ApiKeyAuth && BearerAuth
 // @Produce json
 // @Param eventId path string true "Event ID"
-// @Success 200 {object} map[string]interface{}
+// @Success 200 {object} response.Response{data=[]dto.WalletTransactionResponse}
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 403 {object} response.ErrorResponse
+// @Failure 404 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 // @Router /api/v1/wallets/{eventId}/logs [get]
 func (c *walletController) GetTransactionLogs(ctx *fiber.Ctx) error {
 	var (
@@ -122,7 +179,12 @@ func (c *walletController) GetTransactionLogs(ctx *fiber.Ctx) error {
 // @Param amount formData number true "Top-up Amount"
 // @Param coupon_code formData string false "Coupon Code"
 // @Param proof formData file true "Transfer Proof Image"
-// @Success 200 {object} map[string]interface{}
+// @Success 200 {object} response.Response
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 403 {object} response.ErrorResponse
+// @Failure 404 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 // @Router /api/v1/wallets/{eventId}/topup [post]
 func (c *walletController) RequestTopUp(ctx *fiber.Ctx) error {
 	var (
@@ -185,7 +247,12 @@ func (c *walletController) RequestTopUp(ctx *fiber.Ctx) error {
 // @Security ApiKeyAuth && BearerAuth
 // @Produce json
 // @Param transactionId path string true "Transaction ID"
-// @Success 200 {object} map[string]interface{}
+// @Success 200 {object} response.Response
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 403 {object} response.ErrorResponse
+// @Failure 404 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 // @Router /api/v1/wallets/admin/transactions/{transactionId}/approve [put]
 func (c *walletController) ApproveTopUp(ctx *fiber.Ctx) error {
 	var (
@@ -218,9 +285,16 @@ func (c *walletController) ApproveTopUp(ctx *fiber.Ctx) error {
 // @Description Reject a pending top-up transaction
 // @Tags Wallets
 // @Security ApiKeyAuth && BearerAuth
+// @Accept json
 // @Produce json
 // @Param transactionId path string true "Transaction ID"
-// @Success 200 {object} map[string]interface{}
+// @Param request body dto.RejectTopUpRequest true "Rejection Reason"
+// @Success 200 {object} response.Response
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 403 {object} response.ErrorResponse
+// @Failure 404 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 // @Router /api/v1/wallets/admin/transactions/{transactionId}/reject [put]
 func (c *walletController) RejectTopUp(ctx *fiber.Ctx) error {
 	var (
@@ -238,7 +312,14 @@ func (c *walletController) RejectTopUp(ctx *fiber.Ctx) error {
 	transactionId := ctx.Params("transactionId")
 	adminUserIdStr := ctx.Locals("id").(string)
 
-	err = c.walletSvc.RejectTopUp(ctx.Context(), transactionId, adminUserIdStr)
+	var req dto.RejectTopUpRequest
+	if err := ctx.BodyParser(&req); err != nil {
+		code = http.StatusBadRequest
+		message = "invalid request body"
+		return nil
+	}
+
+	err = c.walletSvc.RejectTopUp(ctx.Context(), transactionId, adminUserIdStr, &req)
 	code = domain.GetCode(err)
 	if err != nil {
 		return nil

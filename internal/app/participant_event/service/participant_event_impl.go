@@ -80,6 +80,10 @@ func (s *participantEventService) GetOpenEvents(ctx context.Context) ([]dto.Open
 			Location:       ev.Location,
 			MinTeamMembers: ev.MinTeamMembers,
 			MaxTeamMembers: ev.MaxTeamMembers,
+			BankName:       ev.BankName,
+			BankNumber:     ev.BankNumber,
+			NamePj:         ev.NamePj,
+			NoWaPj:         ev.NoWaPj,
 		}
 
 		for _, lvl := range ev.EventLevels {
@@ -96,7 +100,12 @@ func (s *participantEventService) GetOpenEvents(ctx context.Context) ([]dto.Open
 	return res, nil
 }
 
-func (s *participantEventService) RegisterEvent(ctx context.Context, req dto.RegisterEventRequest) error {
+func (s *participantEventService) RegisterEvent(ctx context.Context, userID string, req dto.RegisterEventRequest) error {
+	parsedUserID, err := uuid.Parse(userID)
+	if err != nil {
+		return errors.New("invalid user id")
+	}
+
 	levelID, err := uuid.Parse(req.EventLevelId)
 	if err != nil {
 		return errors.New("invalid event level id")
@@ -107,14 +116,45 @@ func (s *participantEventService) RegisterEvent(ctx context.Context, req dto.Reg
 		return errors.New("invalid team id")
 	}
 
+	// 1. Fetch event level with event
+	level, err := s.repo.GetEventLevelByID(ctx, levelID)
+	if err != nil {
+		return errors.New("event level not found")
+	}
+
+	// 2. Fetch team with members and institution
+	team, err := s.repo.GetTeamWithMembers(ctx, teamID)
+	if err != nil {
+		return errors.New("team not found")
+	}
+
+	// 3. Verify team belongs to the user's institution
+	if team.Institution.UserId != parsedUserID {
+		return errors.New("team does not belong to your institution")
+	}
+
+	// 4. Validate team members count
+	memberCount := len(team.TeamMembers)
+	if memberCount < level.Event.MinTeamMembers || memberCount > level.Event.MaxTeamMembers {
+		return fmt.Errorf("team members count (%d) must be between %d and %d", 
+			memberCount, level.Event.MinTeamMembers, level.Event.MaxTeamMembers)
+	}
+
+	// 5. Check if already registered for this event
+	exists, err := s.repo.CheckExistingRegistration(ctx, teamID, level.EventId)
+	if err != nil {
+		return err
+	}
+	if exists {
+		return errors.New("team is already registered for this event")
+	}
+
 	proofPath, err := saveFile(req.PaymentProof, "public/uploads/payments")
 	if err != nil {
 		return err
 	}
 
 	paymentStatus := enums.Waiting
-	// RegistrationStatus enum typically handles WAITING, DP_PAID, FULL_PAID
-	// Here we just set WAITING since EO needs to verify the proof.
 
 	regis := &entity.Registration{
 		Id:               uuid.New(),
@@ -175,6 +215,7 @@ func (s *participantEventService) GetActiveEvents(ctx context.Context, userID st
 			PaymentStatus:   string(r.PaymentStatus),
 			PaymentType:     r.PaymentType,
 			RejectionReason: r.RejectionReason,
+			IsKick:          r.IsKick,
 		})
 	}
 

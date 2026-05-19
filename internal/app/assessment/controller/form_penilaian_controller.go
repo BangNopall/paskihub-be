@@ -35,8 +35,11 @@ func InitFormPenilaianController(
 // @Accept json
 // @Produce json
 // @Param req body dto.BulkInsertScoresRequest true "Bulk Scores Request"
-// @Success 200 {object} map[string]interface{}
+// @Success 200 {object} response.Response
 // @Router /api/v1/assessment/scores/bulk [post]
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 func (c *formPenilaianController) BulkInsertScores(ctx *fiber.Ctx) error {
 	var (
 		err     error
@@ -73,8 +76,11 @@ func (c *formPenilaianController) BulkInsertScores(ctx *fiber.Ctx) error {
 // @Accept json
 // @Produce json
 // @Param req body dto.BulkInsertViolationsRequest true "Bulk Violations Request"
-// @Success 200 {object} map[string]interface{}
+// @Success 200 {object} response.Response
 // @Router /api/v1/assessment/violations/bulk [post]
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 func (c *formPenilaianController) BulkInsertViolations(ctx *fiber.Ctx) error {
 	var (
 		err     error
@@ -111,8 +117,11 @@ func (c *formPenilaianController) BulkInsertViolations(ctx *fiber.Ctx) error {
 // @Accept json
 // @Produce json
 // @Param req body dto.FinalizeAssessmentRequest true "Finalize Assessment Request"
-// @Success 200 {object} map[string]interface{}
+// @Success 200 {object} response.Response
 // @Router /api/v1/assessment/finalize [post]
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 func (c *formPenilaianController) FinalizeAssessment(ctx *fiber.Ctx) error {
 	var (
 		err     error

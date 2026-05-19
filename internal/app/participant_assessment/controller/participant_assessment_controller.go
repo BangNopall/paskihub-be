@@ -28,7 +28,11 @@ func (c *ParticipantAssessmentController) Route(router fiber.Router) {
 // @Security ApiKeyAuth && BearerAuth
 // @Produce json
 // @Param regis_id path string true "Registration ID"
-// @Success 200 {object} map[string]interface{}
+// @Success 200 {object} response.Response{data=dto.AssessmentRecapResponse}
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 404 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
 // @Router /api/v1/peserta/assessment/recap/{regis_id} [get]
 func (c *ParticipantAssessmentController) GetAssessmentRecap(ctx *fiber.Ctx) error {
 	userID := ctx.Locals("id").(string)
