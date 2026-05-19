@@ -1,0 +1,72 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: paskihub-be:latest
+    container_name: paskihub-be
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    ports:
+      - "${APP_PORT:-3010}:${APP_PORT:-3010}"
+    volumes:
+      - ./.env:/app/.env:ro
+      - paskihub_uploads:/app/public/uploads
+      - paskihub_logs:/app/data/logs
+    networks:
+      - paskihub
+
+  postgres:
+    image: postgres:17-alpine
+    container_name: paskihub-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME:-paskihub}
+      POSTGRES_USER: ${DB_USER:-paskihub}
+      POSTGRES_PASSWORD: ${DB_PASS:-paskihub_password}
+      TZ: Asia/Jakarta
+      PGTZ: Asia/Jakarta
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - paskihub_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - paskihub
+
+  redis:
+    image: redis:7-alpine
+    container_name: paskihub-redis
+    restart: unless-stopped
+    environment:
+      REDIS_PASS: ${REDIS_PASS:-paskihub_redis_password}
+    command: ["redis-server", "--appendonly", "yes", "--requirepass", "${REDIS_PASS:-paskihub_redis_password}"]
+    ports:
+      - "127.0.0.1:6379:6379"
+    volumes:
+      - paskihub_redis_data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -a \"$${REDIS_PASS:-paskihub_redis_password}\" ping | grep PONG"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - paskihub
+
+networks:
+  paskihub:
+    driver: bridge
+
+volumes:
+  paskihub_postgres_data:
+  paskihub_redis_data:
+  paskihub_uploads:
+  paskihub_logs:

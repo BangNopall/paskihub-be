@@ -1,0 +1,13 @@
+.git
+.gitignore
+.DS_Store
+**/.DS_Store
+.env
+.env.*
+!.env*.example
+tmp/
+bin/
+main
+lint.txt
+data/logs/
+public/uploads/

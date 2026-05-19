@@ -86,7 +86,7 @@ func (s *userService) Register(ctx context.Context, role string, user dto.UserRe
 	currentTime := s.time.Now()
 	expiredToken := s.time.Add(time.Hour * 1)
 
-	link := "https://paskihub.com/" + "auth/verify-email/" + user.Email + "/" + emailVerPass
+	link := "https://paskihub.noxval.app" + "/auth/verify-email/" + user.Email + "/" + emailVerPass
 
 	subject := "Verifikasi Email Akun PaskiHub"
 	HTMLbody := html_content.GetEmailVerifHTML(link)
@@ -420,7 +420,7 @@ func (s *userService) ForgotPassword(ctx context.Context, user dto.UserForgotPas
 	currentTime := s.time.Now()
 	expiredToken := s.time.Add(time.Hour * 1)
 
-	link := "https://paskihub.com" + `/auth/reset-password/` + forgotPasswordToken
+	link := "https://paskihub.noxval.app" + `/auth/forgot-password/` + forgotPasswordToken
 
 	subject := "Forgot Password"
 	HTMLbody := html_content.GetEmailForgotPassword(link)
