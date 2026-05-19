@@ -101,7 +101,13 @@ func (r *rekapRepository) GetTeamAssessmentDetail(ctx context.Context, regisID u
 }
 
 func (r *rekapRepository) GetScoreboardByEventLevel(ctx context.Context, eventLevelID uuid.UUID) ([]dto.ScoreboardItem, error) {
-	query := `
+	var items []dto.ScoreboardItem
+	err := r.db.WithContext(ctx).Raw(scoreboardByEventLevelQuery(), eventLevelID).Scan(&items).Error
+	return items, err
+}
+
+func scoreboardByEventLevelQuery() string {
+	return `
 		WITH TeamScore AS (
 			SELECT regis_id, SUM(score_value) as total_score
 			FROM scores
@@ -116,26 +122,30 @@ func (r *rekapRepository) GetScoreboardByEventLevel(ctx context.Context, eventLe
 		SELECT 
 			r.id as regis_id, 
 			t.name as team_name, 
-			i.name as insti_name,
+			COALESCE(i.name, '') as insti_name,
 			COALESCE(ts.total_score, 0) as total_score,
 			COALESCE(tvp.total_violation_points, 0) as total_violation_points,
 			(COALESCE(ts.total_score, 0) - COALESCE(tvp.total_violation_points, 0)) as final_score,
 			RANK() OVER (ORDER BY (COALESCE(ts.total_score, 0) - COALESCE(tvp.total_violation_points, 0)) DESC) as rank
 		FROM registrations r
 		JOIN teams t ON r.team_id = t.id
-		JOIN institutions i ON t.insti_id = i.id
+		LEFT JOIN institutions i ON t.insti_id = i.id
 		LEFT JOIN TeamScore ts ON ts.regis_id = r.id
 		LEFT JOIN TeamViolationPoint tvp ON tvp.regis_id = r.id
 		WHERE r.event_level_id = ?
+			AND r.is_kick = false
 		ORDER BY final_score DESC
 	`
-	var items []dto.ScoreboardItem
-	err := r.db.WithContext(ctx).Raw(query, eventLevelID).Scan(&items).Error
-	return items, err
 }
 
 func (r *rekapRepository) GetLeaderboardCustom(ctx context.Context, eventLevelID uuid.UUID, categoryIDs []uuid.UUID) ([]dto.ScoreboardItem, error) {
-	query := `
+	var items []dto.ScoreboardItem
+	err := r.db.WithContext(ctx).Raw(customLeaderboardQuery(), categoryIDs, eventLevelID).Scan(&items).Error
+	return items, err
+}
+
+func customLeaderboardQuery() string {
+	return `
 		WITH TeamScore AS (
 			SELECT s.regis_id, SUM(s.score_value) as total_score
 			FROM scores s
@@ -152,22 +162,20 @@ func (r *rekapRepository) GetLeaderboardCustom(ctx context.Context, eventLevelID
 		SELECT 
 			r.id as regis_id, 
 			t.name as team_name, 
-			i.name as insti_name,
+			COALESCE(i.name, '') as insti_name,
 			COALESCE(ts.total_score, 0) as total_score,
 			COALESCE(tvp.total_violation_points, 0) as total_violation_points,
 			(COALESCE(ts.total_score, 0) - COALESCE(tvp.total_violation_points, 0)) as final_score,
 			RANK() OVER (ORDER BY (COALESCE(ts.total_score, 0) - COALESCE(tvp.total_violation_points, 0)) DESC) as rank
 		FROM registrations r
 		JOIN teams t ON r.team_id = t.id
-		JOIN institutions i ON t.insti_id = i.id
+		LEFT JOIN institutions i ON t.insti_id = i.id
 		LEFT JOIN TeamScore ts ON ts.regis_id = r.id
 		LEFT JOIN TeamViolationPoint tvp ON tvp.regis_id = r.id
 		WHERE r.event_level_id = ?
+			AND r.is_kick = false
 		ORDER BY final_score DESC
 	`
-	var items []dto.ScoreboardItem
-	err := r.db.WithContext(ctx).Raw(query, categoryIDs, eventLevelID).Scan(&items).Error
-	return items, err
 }
 
 func (r *rekapRepository) UpdateScorePublishedStatus(ctx context.Context, eventLevelID uuid.UUID, isPublished bool) error {

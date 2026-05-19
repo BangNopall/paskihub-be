@@ -4,13 +4,13 @@ import "github.com/google/uuid"
 
 // Scoreboard Response DTOs
 type ScoreboardItem struct {
-	RegisID              uuid.UUID `json:"regis_id"`
-	TeamName             string    `json:"team_name"`
-	InstitutionName      string    `json:"insti_name"`
-	TotalScore           float64   `json:"total_score"`
-	TotalViolationPoints float64   `json:"total_violation_points"`
-	FinalScore           float64   `json:"final_score"`
-	Rank                 int       `json:"rank"`
+	RegisID              uuid.UUID `json:"regis_id" gorm:"column:regis_id"`
+	TeamName             string    `json:"team_name" gorm:"column:team_name"`
+	InstitutionName      string    `json:"insti_name" gorm:"column:insti_name"`
+	TotalScore           float64   `json:"total_score" gorm:"column:total_score"`
+	TotalViolationPoints float64   `json:"total_violation_points" gorm:"column:total_violation_points"`
+	FinalScore           float64   `json:"final_score" gorm:"column:final_score"`
+	Rank                 int       `json:"rank" gorm:"column:rank"`
 }
 
 type ScoreboardResponse struct {
