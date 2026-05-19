@@ -21,8 +21,31 @@ func InitDashboardController(
 ) {
 	c := &dashboardController{svc: svc}
 
+	app.Get("/api/v1/admin/dashboard", middleware.Authentication, middleware.RateLimiter(), middleware.AuthAdmin, c.GetAdminDashboard)
 	app.Get("/api/v1/organizer/dashboard", middleware.Authentication, middleware.RateLimiter(), middleware.AuthOrganizer, c.GetOrganizerDashboard)
 	app.Get("/api/v1/peserta/dashboard", middleware.Authentication, middleware.RateLimiter(), middleware.AuthPeserta, c.GetParticipantDashboard)
+}
+
+// GetAdminDashboard godoc
+// @Summary Get admin dashboard
+// @Description Get aggregate statistics, recent top-up transactions, and recent EO registrations for admin dashboard
+// @Tags Dashboard
+// @Security ApiKeyAuth && BearerAuth
+// @Produce json
+// @Success 200 {object} response.Response{data=dto.AdminDashboardRes}
+// @Router /api/v1/admin/dashboard [get]
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 403 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
+func (c *dashboardController) GetAdminDashboard(ctx *fiber.Ctx) error {
+	res, err := c.svc.GetAdminDashboard(ctx.Context())
+	if err != nil {
+		response.Send(ctx, http.StatusInternalServerError, "failed to get dashboard", nil, err)
+		return nil
+	}
+
+	response.Send(ctx, http.StatusOK, "success to get dashboard", res, nil)
+	return nil
 }
 
 // GetOrganizerDashboard godoc

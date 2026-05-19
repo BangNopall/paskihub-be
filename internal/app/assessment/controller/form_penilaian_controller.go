@@ -25,6 +25,7 @@ func InitFormPenilaianController(
 
 	routes.Post("/scores/bulk", middleware.Authentication, middleware.RateLimiter(), middleware.AuthOrganizer, c.BulkInsertScores)
 	routes.Post("/violations/bulk", middleware.Authentication, middleware.RateLimiter(), middleware.AuthOrganizer, c.BulkInsertViolations)
+	routes.Post("/finalize", middleware.Authentication, middleware.RateLimiter(), middleware.AuthOrganizer, c.FinalizeAssessment)
 }
 
 // BulkInsertScores godoc

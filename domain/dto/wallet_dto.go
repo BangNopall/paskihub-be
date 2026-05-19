@@ -52,7 +52,9 @@ type RejectTopUpRequest struct {
 
 type AdminTransactionPaginationResponse struct {
 	Transactions []AdminTransactionResponse `json:"transactions"`
-	Pagination   PaginationResponse         `json:"pagination"`
+	Total        int64                      `json:"total"`
+	Page         int                        `json:"page"`
+	Limit        int                        `json:"limit"`
 }
 
 func WalletEntityToResponse(wallet *entity.Wallet, coinRate float64) *WalletResponse {
