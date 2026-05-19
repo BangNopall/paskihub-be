@@ -220,11 +220,18 @@ func (s *userService) Login(ctx context.Context, user dto.UserLogin) (dto.UserLo
 	}
 	_ = s.userRepo.UpdateUser(&updateUser, registeredUser.Id)
 
+	var parentId *string
+	if registeredUser.ParentId != nil {
+		parentIdValue := registeredUser.ParentId.String()
+		parentId = &parentIdValue
+	}
+
 	return dto.UserLoginResponse{
-		Token: token,
-		Id:    registeredUser.Id.String(),
-		Email: registeredUser.Email,
-		Role:  string(registeredUser.Role),
+		Token:    token,
+		Id:       registeredUser.Id.String(),
+		Email:    registeredUser.Email,
+		Role:     string(registeredUser.Role),
+		ParentId: parentId,
 	}, nil
 }
 
@@ -518,17 +525,17 @@ func (s *userService) FetchUserDetailAdmin(ctx context.Context, userId uuid.UUID
 	userRes := dto.UserEntityToResponse(user)
 
 	res := dto.AdminUserDetailResponse{
-		Id:                  user.Id,
-		Name:                userRes.InstitutionName,
-		Email:               user.Email,
-		Role:                string(user.Role),
-		Status:              "Active",
-		EmailIsVerified:     userRes.EmailIsVerified,
-		IsBanned:            userRes.IsBanned,
-		LastLoginAt:         userRes.LastLoginAt,
-		JoinedAt:            user.CreatedAt,
-		Event:               userRes.Event,
-		Institution:         userRes.Institution,
+		Id:              user.Id,
+		Name:            userRes.InstitutionName,
+		Email:           user.Email,
+		Role:            string(user.Role),
+		Status:          "Active",
+		EmailIsVerified: userRes.EmailIsVerified,
+		IsBanned:        userRes.IsBanned,
+		LastLoginAt:     userRes.LastLoginAt,
+		JoinedAt:        user.CreatedAt,
+		Event:           userRes.Event,
+		Institution:     userRes.Institution,
 	}
 
 	if user.IsBanned {

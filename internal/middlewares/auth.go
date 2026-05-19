@@ -43,7 +43,7 @@ func (m *Middleware) Authentication(ctx *fiber.Ctx) error {
 	}
 
 	tokenString := splitted[1]
-	id, email, role, err := m.jwt.ValidateToken(tokenString)
+	id, email, role, parentId, err := m.jwt.ValidateToken(tokenString)
 	if err != nil {
 		log.Warn(log.LogInfo{
 			"error": err,
@@ -86,6 +86,9 @@ func (m *Middleware) Authentication(ctx *fiber.Ctx) error {
 	ctx.Locals("id", id.String())
 	ctx.Locals("email", email)
 	ctx.Locals("role", role)
+	if parentId != nil {
+		ctx.Locals("parent_id", parentId.String())
+	}
 	ctx.Next()
 	return nil
 }

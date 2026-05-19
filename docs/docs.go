@@ -8606,6 +8606,9 @@ const docTemplate = `{
                 "id": {
                     "type": "string"
                 },
+                "parent_id": {
+                    "type": "string"
+                },
                 "role": {
                     "type": "string"
                 },

@@ -34,70 +34,71 @@ type UserResetPassword struct {
 }
 
 type UserLoginResponse struct {
-	Id    string    `json:"id"`
-	Email string    `json:"email"`
-	Role  string    `json:"role"`
-	Token string    `json:"token"`
+	Id       string  `json:"id"`
+	Email    string  `json:"email"`
+	Role     string  `json:"role"`
+	ParentId *string `json:"parent_id,omitempty"`
+	Token    string  `json:"token"`
 }
 
 type UserLoginInfoRes struct {
 	Id    string `json:"id"`
-	Email string    `json:"email"`
-	Role  string    `json:"role"`
+	Email string `json:"email"`
+	Role  string `json:"role"`
 }
 
 type UserResponse struct {
-	Id                  uuid.UUID            `json:"id"`
-	Email               string               `json:"email"`
-	Role                string               `json:"role"`
-	EmailIsVerified     bool                 `json:"email_is_verified"`
-	IsBanned            bool                 `json:"is_banned"`
-	LastLoginAt         *time.Time           `json:"last_login_at"`
-	CreatedAt           time.Time            `json:"created_at"`
-	InstitutionName     string               `json:"name"` // Used to hold dynamic name (Event/Institution/Admin)
-	Event               *EventResponse       `json:"event,omitempty"`
-	Institution         *InstitutionResponse `json:"institution,omitempty"`
+	Id              uuid.UUID            `json:"id"`
+	Email           string               `json:"email"`
+	Role            string               `json:"role"`
+	EmailIsVerified bool                 `json:"email_is_verified"`
+	IsBanned        bool                 `json:"is_banned"`
+	LastLoginAt     *time.Time           `json:"last_login_at"`
+	CreatedAt       time.Time            `json:"created_at"`
+	InstitutionName string               `json:"name"` // Used to hold dynamic name (Event/Institution/Admin)
+	Event           *EventResponse       `json:"event,omitempty"`
+	Institution     *InstitutionResponse `json:"institution,omitempty"`
 }
 
 type UserUpdate struct {
-	Password            string    `json:"password" binding:"omitempty,validpassword"`
+	Password            string     `json:"password" binding:"omitempty,validpassword"`
 	LastLoginAt         *time.Time `json:"last_login_at"`
-	EmailIsVerified     bool      `json:"-"`
-	EmailVerifiedToken  string    `json:"-"`
-	ForgotPasswordToken string    `json:"-"`
-	ExpiredToken        time.Time `json:"-"`
-	ExpiredTokenForgot  time.Time `json:"-"`	
+	EmailIsVerified     bool       `json:"-"`
+	EmailVerifiedToken  string     `json:"-"`
+	ForgotPasswordToken string     `json:"-"`
+	ExpiredToken        time.Time  `json:"-"`
+	ExpiredTokenForgot  time.Time  `json:"-"`
 }
 
 type UserPaginationResponse struct {
-	Users []UserResponse `json:"users"`
+	Users      []UserResponse     `json:"users"`
 	Pagination PaginationResponse `json:"pagination"`
 }
 
 // Admin Detail Response Structs
 type AdminUserDetailResponse struct {
-	Id                  uuid.UUID                  `json:"id"`
-	Name                string                     `json:"name"`
-	Email               string                     `json:"email"`
-	Role                string                     `json:"role"`
-	Status              string                     `json:"status"`
-	EmailIsVerified     bool                       `json:"email_is_verified"`
-	IsBanned            bool                       `json:"is_banned"`
-	LastLoginAt         *time.Time                 `json:"last_login_at"`
-	JoinedAt            time.Time                  `json:"joined_at"`
-	SchoolName          string                     `json:"school_name,omitempty"`
-	Phone               string                     `json:"phone,omitempty"`
-	Address             string                     `json:"address,omitempty"`
-	Event               *EventResponse             `json:"event,omitempty"`
-	Institution         *InstitutionResponse       `json:"institution,omitempty"`
-	EOData              *AdminUserEODetail         `json:"eo_data,omitempty"`
-	PesertaData         *AdminUserPesertaDetail    `json:"peserta_data,omitempty"`
+	Id              uuid.UUID               `json:"id"`
+	Name            string                  `json:"name"`
+	Email           string                  `json:"email"`
+	Role            string                  `json:"role"`
+	Status          string                  `json:"status"`
+	EmailIsVerified bool                    `json:"email_is_verified"`
+	IsBanned        bool                    `json:"is_banned"`
+	LastLoginAt     *time.Time              `json:"last_login_at"`
+	JoinedAt        time.Time               `json:"joined_at"`
+	SchoolName      string                  `json:"school_name,omitempty"`
+	Phone           string                  `json:"phone,omitempty"`
+	Address         string                  `json:"address,omitempty"`
+	Event           *EventResponse          `json:"event,omitempty"`
+	Institution     *InstitutionResponse    `json:"institution,omitempty"`
+	EOData          *AdminUserEODetail      `json:"eo_data,omitempty"`
+	PesertaData     *AdminUserPesertaDetail `json:"peserta_data,omitempty"`
 }
 
 type AdminUserEODetail struct {
-	Panitia []AdminStaffRes   `json:"panitia"`
-	Events  []AdminEventRes   `json:"events"`
-	Judges  []AdminJudgeRes   `json:"judges"`
+	Panitia []AdminStaffRes `json:"panitia"`
+	Events  []AdminEventRes `json:"events"`
+	Judges  []AdminJudgeRes `json:"judges"`
 }
 
 type AdminStaffRes struct {
@@ -124,8 +125,8 @@ type AdminJudgeRes struct {
 }
 
 type AdminUserPesertaDetail struct {
-	Teams        []AdminTeamRes               `json:"teams"`
-	EventHistory []AdminEventRegistrationRes  `json:"event_history"`
+	Teams        []AdminTeamRes              `json:"teams"`
+	EventHistory []AdminEventRegistrationRes `json:"event_history"`
 }
 
 type AdminTeamMemberRes struct {
@@ -179,16 +180,16 @@ func UserEntityToResponse(user *entity.User) *UserResponse {
 	}
 
 	return &UserResponse{
-		Id:                  user.Id,
-		Email:               user.Email,
-		Role:                string(user.Role),
-		EmailIsVerified:     user.EmailIsVerified,
-		IsBanned:            user.IsBanned,
-		LastLoginAt:         user.LastLoginAt,
-		CreatedAt:           user.CreatedAt,
-		InstitutionName:     name,
-		Event:               evt,
-		Institution:         inst,
+		Id:              user.Id,
+		Email:           user.Email,
+		Role:            string(user.Role),
+		EmailIsVerified: user.EmailIsVerified,
+		IsBanned:        user.IsBanned,
+		LastLoginAt:     user.LastLoginAt,
+		CreatedAt:       user.CreatedAt,
+		InstitutionName: name,
+		Event:           evt,
+		Institution:     inst,
 	}
 }
 

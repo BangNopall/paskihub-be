@@ -15,7 +15,7 @@ import (
 
 type JwtInterface interface {
 	GenerateToken(userId uuid.UUID, payload entity.User) (string, error)
-	ValidateToken(tokenString string) (uuid.UUID, string, string, error)
+	ValidateToken(tokenString string) (uuid.UUID, string, string, *uuid.UUID, error)
 }
 
 type JwtStruct struct {
@@ -24,9 +24,10 @@ type JwtStruct struct {
 }
 
 type Claims struct {
-	Id        uuid.UUID
-	Email	  string
-	Role	  string
+	Id       uuid.UUID
+	Email    string
+	Role     string
+	ParentId *uuid.UUID `json:"parent_id,omitempty"`
 	jwt.RegisteredClaims
 }
 
@@ -49,9 +50,10 @@ func getJwt() JwtInterface {
 
 func (j *JwtStruct) GenerateToken(id uuid.UUID, payload entity.User) (string, error) {
 	claim := &Claims{
-		Id:        id,
-		Email:     payload.Email,
-		Role:      string(payload.Role),
+		Id:       id,
+		Email:    payload.Email,
+		Role:     string(payload.Role),
+		ParentId: payload.ParentId,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(j.ExpiredTime)),
 		},
@@ -70,7 +72,7 @@ func (j *JwtStruct) GenerateToken(id uuid.UUID, payload entity.User) (string, er
 	return tokenString, nil
 }
 
-func (j *JwtStruct) ValidateToken(tokenString string) (uuid.UUID, string, string, error) {
+func (j *JwtStruct) ValidateToken(tokenString string) (uuid.UUID, string, string, *uuid.UUID, error) {
 	var id uuid.UUID
 	var claims Claims
 	token, err := jwt.ParseWithClaims(tokenString, &claims, func(token *jwt.Token) (interface{}, error) {
@@ -82,7 +84,7 @@ func (j *JwtStruct) ValidateToken(tokenString string) (uuid.UUID, string, string
 			"error": err.Error(),
 		}, "[JWT][ValidateToken] failed to validate token")
 
-		return id, "", "", err
+		return id, "", "", nil, err
 	}
 
 	if !token.Valid {
@@ -90,12 +92,12 @@ func (j *JwtStruct) ValidateToken(tokenString string) (uuid.UUID, string, string
 			"error": "invalid token",
 		}, "[JWT][ValidateToken] invalid token")
 
-		return id, "", "", domain.ErrInvalidToken
+		return id, "", "", nil, domain.ErrInvalidToken
 	}
 
 	id = claims.Id
 	email := claims.Email
 	role := claims.Role
 
-	return id, email, role, nil
+	return id, email, role, claims.ParentId, nil
 }

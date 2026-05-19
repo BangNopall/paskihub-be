@@ -140,7 +140,7 @@ func (c *eventController) ShowEventData(ctx *fiber.Ctx) error {
 // @Summary Show auth user's events
 // @Description Get all events created by specific user/organizer
 // @Tags Events
-// @Security ApiKeyAuth && BearerAuth 
+// @Security ApiKeyAuth && BearerAuth
 // @Produce json
 // @Param userId path string true "User ID"
 // @Success 200 {object} response.Response{data=[]dto.EventResponse}
@@ -164,7 +164,8 @@ func (c *eventController) ShowUserEvent(ctx *fiber.Ctx) error {
 
 	userIdStr := ctx.Params("userId")
 	authUserIdStr := ctx.Locals("id").(string)
-	if authUserIdStr != userIdStr {
+	parentIdStr, _ := ctx.Locals("parent_id").(string)
+	if authUserIdStr != userIdStr && parentIdStr != userIdStr {
 		code = http.StatusForbidden
 		message = "forbidden access"
 		err = domain.ErrForbidden
@@ -323,7 +324,7 @@ func (c *eventController) UpdateEvent(ctx *fiber.Ctx) error {
 		err = domain.ErrBadRequest
 		return nil
 	}
- 
+
 	err = c.eventSvc.UpdateEvent(ctx.Context(), id, userIdStr, &event)
 	code = domain.GetCode(err)
 	if err != nil {
