@@ -44,7 +44,8 @@ func (s *participantAssessmentService) GetAssessmentRecap(ctx context.Context, u
 	}
 
 	eventID := regis.EventLevel.Event.Id
-	categories, err := s.repo.GetScoreCategoriesByEventID(ctx, eventID)
+	eventLevelID := regis.EventLevel.Id
+	categories, err := s.repo.GetScoreCategoriesByEventLevel(ctx, eventID, eventLevelID)
 	if err != nil {
 		return nil, err
 	}
@@ -61,6 +62,7 @@ func (s *participantAssessmentService) GetAssessmentRecap(ctx context.Context, u
 
 	var totalScore float64
 	var totalViolationPoints float64
+	var maxScore float64
 
 	scoreMap := make(map[string][]dto.JudgeScoreDetail)
 	for _, sc := range scores {
@@ -89,6 +91,7 @@ func (s *participantAssessmentService) GetAssessmentRecap(ctx context.Context, u
 		}
 
 		for _, subC := range c.SubCategories {
+			maxScore += subC.MaxScore
 			subCDetail := dto.AssessmentSubCategoryDetail{
 				Name:   subC.Name,
 				Scores: scoreMap[subC.ID.String()],
@@ -105,6 +108,7 @@ func (s *participantAssessmentService) GetAssessmentRecap(ctx context.Context, u
 		TotalScore:           totalScore,
 		TotalViolationPoints: totalViolationPoints,
 		FinalScore:           finalScore,
+		MaxScore:             maxScore,
 		Violations:           violationDetails,
 		Categories:           categoryDetails,
 	}, nil

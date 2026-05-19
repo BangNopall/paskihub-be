@@ -27,6 +27,10 @@ func (c *ParticipantEventController) Route(router fiber.Router) {
 	eventGroup.Post("/register", c.RegisterEvent)
 	eventGroup.Put("/register/:id/pelunasan", c.PelunasanEvent)
 	eventGroup.Get("/active", c.GetActiveEvents)
+	eventGroup.Get("/registrations/:regis_id", c.GetRegistrationDetail)
+
+	rekapGroup := router.Group("/rekap")
+	rekapGroup.Get("/scoreboard/:event_level_id", c.GetScoreboard)
 }
 
 // GetOpenEvents godoc
@@ -179,9 +183,10 @@ func (c *ParticipantEventController) GetActiveEvents(ctx *fiber.Ctx) error {
 // @Failure 500 {object} response.ErrorResponse
 // @Router /api/v1/peserta/events/registrations/{regis_id} [get]
 func (c *ParticipantEventController) GetRegistrationDetail(ctx *fiber.Ctx) error {
+	userID := ctx.Locals("id").(string)
 	regisID := ctx.Params("regis_id")
 
-	res, err := c.service.GetRegistrationDetail(ctx.Context(), regisID)
+	res, err := c.service.GetRegistrationDetail(ctx.Context(), userID, regisID)
 	if err != nil {
 		response.Send(ctx, fiber.StatusInternalServerError, "Failed to get registration detail", nil, err)
 		return nil

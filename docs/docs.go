@@ -6625,6 +6625,9 @@ const docTemplate = `{
                 "final_score": {
                     "type": "number"
                 },
+                "max_score": {
+                    "type": "number"
+                },
                 "total_score": {
                     "type": "number"
                 },
@@ -7760,6 +7763,9 @@ const docTemplate = `{
                         "location": {
                             "type": "string"
                         },
+                        "logo_url": {
+                            "type": "string"
+                        },
                         "price": {
                             "type": "string"
                         },
@@ -7770,6 +7776,9 @@ const docTemplate = `{
                             "type": "string"
                         }
                     }
+                },
+                "event_level_id": {
+                    "type": "string"
                 },
                 "payment": {
                     "type": "object",

@@ -136,7 +136,7 @@ func (s *participantEventService) RegisterEvent(ctx context.Context, userID stri
 	// 4. Validate team members count
 	memberCount := len(team.TeamMembers)
 	if memberCount < level.Event.MinTeamMembers || memberCount > level.Event.MaxTeamMembers {
-		return fmt.Errorf("team members count (%d) must be between %d and %d", 
+		return fmt.Errorf("team members count (%d) must be between %d and %d",
 			memberCount, level.Event.MinTeamMembers, level.Event.MaxTeamMembers)
 	}
 
@@ -222,10 +222,23 @@ func (s *participantEventService) GetActiveEvents(ctx context.Context, userID st
 	return res, nil
 }
 
-func (s *participantEventService) GetRegistrationDetail(ctx context.Context, regisID string) (dto.RegistrationDetailResponse, error) {
+func (s *participantEventService) GetRegistrationDetail(ctx context.Context, userID string, regisID string) (dto.RegistrationDetailResponse, error) {
+	parsedUserID, err := uuid.Parse(userID)
+	if err != nil {
+		return dto.RegistrationDetailResponse{}, errors.New("invalid user id")
+	}
+
 	parsedID, err := uuid.Parse(regisID)
 	if err != nil {
 		return dto.RegistrationDetailResponse{}, errors.New("invalid registration id")
+	}
+
+	isOwner, err := s.repo.GetRegistrationOwnership(ctx, parsedID, parsedUserID)
+	if err != nil {
+		return dto.RegistrationDetailResponse{}, err
+	}
+	if !isOwner {
+		return dto.RegistrationDetailResponse{}, errors.New("unauthorized to view this registration")
 	}
 
 	regis, err := s.repo.GetRegistrationWithDetails(ctx, parsedID)
@@ -234,6 +247,7 @@ func (s *participantEventService) GetRegistrationDetail(ctx context.Context, reg
 	}
 
 	res := dto.RegistrationDetailResponse{}
+	res.EventLevelId = regis.EventLevelId.String()
 	res.Event.Id = regis.EventLevel.Event.Id.String()
 	res.Event.Title = regis.EventLevel.Event.Name
 	res.Event.Description = regis.EventLevel.Event.Description
@@ -241,6 +255,7 @@ func (s *participantEventService) GetRegistrationDetail(ctx context.Context, reg
 	res.Event.Location = regis.EventLevel.Event.Location
 	res.Event.Price = regis.EventLevel.RegisFee
 	res.Event.TargetDate = regis.EventLevel.Event.CompeDate.Format(time.RFC3339)
+	res.Event.LogoUrl = regis.EventLevel.Event.LogoPath
 
 	res.Team.Id = regis.Team.Id.String()
 	res.Team.Name = regis.Team.Name

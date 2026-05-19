@@ -6622,6 +6622,9 @@
                 "final_score": {
                     "type": "number"
                 },
+                "max_score": {
+                    "type": "number"
+                },
                 "total_score": {
                     "type": "number"
                 },
@@ -7757,6 +7760,9 @@
                         "location": {
                             "type": "string"
                         },
+                        "logo_url": {
+                            "type": "string"
+                        },
                         "price": {
                             "type": "string"
                         },
@@ -7767,6 +7773,9 @@
                             "type": "string"
                         }
                     }
+                },
+                "event_level_id": {
+                    "type": "string"
                 },
                 "payment": {
                     "type": "object",

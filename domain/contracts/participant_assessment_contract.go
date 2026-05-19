@@ -13,7 +13,7 @@ type ParticipantAssessmentRepository interface {
 	GetViolationsByRegisID(ctx context.Context, regisID uuid.UUID) ([]entity.TeamViolation, error)
 	GetRegistrationOwnership(ctx context.Context, regisID uuid.UUID, userID uuid.UUID) (bool, error)
 	GetRegistrationByID(ctx context.Context, regisID uuid.UUID) (*entity.Registration, error)
-	GetScoreCategoriesByEventID(ctx context.Context, eventID uuid.UUID) ([]entity.ScoreCategory, error)
+	GetScoreCategoriesByEventLevel(ctx context.Context, eventID uuid.UUID, eventLevelID uuid.UUID) ([]entity.ScoreCategory, error)
 }
 
 type ParticipantAssessmentService interface {

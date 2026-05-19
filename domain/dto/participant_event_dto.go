@@ -52,7 +52,8 @@ type ActiveEventResponse struct {
 }
 
 type RegistrationDetailResponse struct {
-	Event struct {
+	EventLevelId string `json:"event_level_id"`
+	Event        struct {
 		Id          string `json:"id"`
 		Title       string `json:"title"`
 		Description string `json:"description"`
@@ -60,6 +61,7 @@ type RegistrationDetailResponse struct {
 		Location    string `json:"location"`
 		Price       string `json:"price"`
 		TargetDate  string `json:"target_date"`
+		LogoUrl     string `json:"logo_url"`
 	} `json:"event"`
 	Team struct {
 		Id            string `json:"id"`

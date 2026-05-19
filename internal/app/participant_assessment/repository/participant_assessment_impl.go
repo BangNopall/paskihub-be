@@ -64,8 +64,11 @@ func (r *participantAssessmentRepository) GetRegistrationByID(ctx context.Contex
 	return &regis, nil
 }
 
-func (r *participantAssessmentRepository) GetScoreCategoriesByEventID(ctx context.Context, eventID uuid.UUID) ([]entity.ScoreCategory, error) {
+func (r *participantAssessmentRepository) GetScoreCategoriesByEventLevel(ctx context.Context, eventID uuid.UUID, eventLevelID uuid.UUID) ([]entity.ScoreCategory, error) {
 	var categories []entity.ScoreCategory
-	err := r.db.WithContext(ctx).Preload("SubCategories").Where("event_id = ?", eventID).Find(&categories).Error
+	err := r.db.WithContext(ctx).
+		Preload("SubCategories").
+		Where("event_id = ? AND event_level_id = ?", eventID, eventLevelID).
+		Find(&categories).Error
 	return categories, err
 }

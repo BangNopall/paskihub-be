@@ -4,6 +4,7 @@ type AssessmentRecapResponse struct {
 	TotalScore           float64                     `json:"total_score"`
 	TotalViolationPoints float64                     `json:"total_violation_points"`
 	FinalScore           float64                     `json:"final_score"`
+	MaxScore             float64                     `json:"max_score"`
 	Violations           []AssessmentViolationDetail `json:"violations"`
 	Categories           []AssessmentCategoryDetail  `json:"categories"`
 }
