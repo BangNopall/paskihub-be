@@ -31,7 +31,7 @@ services:
       TZ: Asia/Jakarta
       PGTZ: Asia/Jakarta
     ports:
-      - "2020:5432"
+      - "127.0.0.1:2020:5432"
     volumes:
       - paskihub_postgres_data:/var/lib/postgresql/data
     healthcheck:
