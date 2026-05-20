@@ -9,7 +9,7 @@
         "contact": {},
         "version": "1.0"
     },
-    "host": "localhost:3010",
+    "host": "localhost:3050",
     "basePath": "/",
     "paths": {
         "/api/v1/admin/admins": {

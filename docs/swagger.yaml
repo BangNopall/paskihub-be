@@ -1682,7 +1682,7 @@ definitions:
     - Success
     - Fail
     - Error
-host: localhost:3010
+host: localhost:3050
 info:
   contact: {}
   description: This is Paskihub API Documentation

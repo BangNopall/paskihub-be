@@ -14,7 +14,7 @@ import (
 // @version					1.0
 // @description				This is Paskihub API Documentation
 // @Security ApiKeyAuth
-// @host						localhost:3010
+// @host						localhost:3050
 // @schemes					http
 // @BasePath 				/
 // @securityDefinitions.apikey	BearerAuth
