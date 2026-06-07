@@ -52,7 +52,11 @@ func SendErrResp(
 	errMsg := ""
 
 	if err != nil {
-		errMsg = err.Error()
+		if code >= 500 {
+			errMsg = "Internal Server Error"
+		} else {
+			errMsg = err.Error()
+		}
 	}
 
 	ctx.Status(code).JSON(ErrorResponse{

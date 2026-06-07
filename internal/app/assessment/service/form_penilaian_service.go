@@ -50,7 +50,10 @@ func (s *formPenilaianService) BulkInsertScores(ctx context.Context, organizerID
 
 	var scores []entity.Score
 	for _, sc := range req.Scores {
-		grade := getGrade(sc.ScoreValue, sc.SubCategoryID, rules)
+		grade, err := getGrade(sc.ScoreValue, sc.SubCategoryID, rules)
+		if err != nil {
+			return err
+		}
 		scores = append(scores, entity.Score{
 			RegisID:       req.RegisID,
 			JudgesID:      req.JudgesID,
@@ -121,7 +124,10 @@ func (s *formPenilaianService) FinalizeAssessment(ctx context.Context, organizer
 
 	var scores []entity.Score
 	for _, sc := range req.Scores {
-		grade := getGrade(sc.ScoreValue, sc.SubCategoryID, rules)
+		grade, err := getGrade(sc.ScoreValue, sc.SubCategoryID, rules)
+		if err != nil {
+			return err
+		}
 		scores = append(scores, entity.Score{
 			RegisID:       req.RegisID,
 			JudgesID:      req.JudgesID,
@@ -193,11 +199,11 @@ func validateAssessmentOwnership(
 	return nil
 }
 
-func getGrade(score float64, subCatID uuid.UUID, rules []entity.GradeRule) string {
+func getGrade(score float64, subCatID uuid.UUID, rules []entity.GradeRule) (string, error) {
 	for _, rule := range rules {
 		if rule.ScoreSubCategoryID == subCatID && score >= rule.MinScore && score <= rule.MaxScore {
-			return rule.GradeName
+			return rule.GradeName, nil
 		}
 	}
-	return "Undefined"
+	return "", errors.New("score does not match any grade rules")
 }

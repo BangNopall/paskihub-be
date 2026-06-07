@@ -34,7 +34,7 @@ func (m *Middleware) Authentication(ctx *fiber.Ctx) error {
 
 	splitted := strings.Split(bearer, " ")
 
-	if len(splitted) < 2 {
+	if len(splitted) < 2 || splitted[0] != "Bearer" {
 		response.SendErrResp(
 			ctx,
 			400,

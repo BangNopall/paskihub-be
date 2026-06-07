@@ -9,7 +9,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"time"
 
 	"github.com/BangNopall/paskihub-be/domain"
 	"github.com/BangNopall/paskihub-be/domain/contracts"
@@ -46,7 +45,8 @@ func saveFile(fileHeader *multipart.FileHeader, folderPath string) (string, erro
 		return "", err
 	}
 
-	filename := fmt.Sprintf("%d_%s", time.Now().UnixNano(), fileHeader.Filename)
+	ext := filepath.Ext(fileHeader.Filename)
+	filename := fmt.Sprintf("%s%s", uuid.New().String(), ext)
 	fullPath := filepath.Join(folderPath, filename)
 
 	src, err := fileHeader.Open()

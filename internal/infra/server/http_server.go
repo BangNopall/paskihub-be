@@ -87,7 +87,7 @@ type httpServer struct {
 
 func NewHttpServer() Server {
 	app := fiber.New(fiber.Config{
-		BodyLimit: 100 * 1024 * 1024, // 10MB limit for file uploads
+		BodyLimit: 10 * 1024 * 1024, // 10MB limit for file uploads
 	})
 	scheduler := cron.New()
 	validator := validator.New()
@@ -187,15 +187,15 @@ func (s *httpServer) MountRoutes(db *gorm.DB) error {
 	privateFileSvcIns := privateFileSvc.NewPrivateFileService(privateFileRepoIns)
 
 	// Controller
-	userCtr.InitUserController(userSvc, eventSvc, s.app, middleware, redisClient)
-	eventCtr.InitEventController(eventSvc, s.app, middleware, redisClient)
+	userCtr.InitUserController(userSvc, eventSvc, s.app, middleware, redisClient, s.validator)
+	eventCtr.InitEventController(eventSvc, s.app, middleware, redisClient, s.validator)
 	walletCtr.InitWalletController(walletSvc, s.app, middleware, redisClient)
 	assessmentCtr.InitFormPenilaianController(formPenilaianSvc, s.app, middleware)
 	assessmentCtr.InitRekapController(rekapSvc, s.app, middleware)
 	assessmentCtr.InitAssessmentController(assessmentSvcIns, s.app, middleware)
 	eoTeamCtr.InitEOTeamController(eoTeamSvcIns, s.app, middleware)
 	dashboardCtr.InitDashboardController(dashboardSvcIns, s.app, middleware)
-	systemSettingCtr.InitSystemSettingController(settingSvcIns, s.app, middleware)
+	systemSettingCtr.InitSystemSettingController(settingSvcIns, s.app, middleware, s.validator)
 	privateFileCtr.InitPrivateFileController(privateFileSvcIns, s.app, middleware)
 
 	eoControllerIns := eoCtr.NewEOController(eoSvcIns, s.validator)

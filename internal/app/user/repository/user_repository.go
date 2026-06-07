@@ -2,6 +2,8 @@ package repository
 
 import (
 	"context"
+	"time"
+
 	"gorm.io/gorm"
 
 	"github.com/google/uuid"
@@ -40,7 +42,8 @@ func (r *userRepository) CreateUser(user *entity.User) error {
 }
 
 func (r *userRepository) DeleteUnverifiedUser() error {
-	err := r.conn.Where("email_is_verified = ?", false).Delete(&entity.User{}).Error
+	result := r.conn.Where("email_is_verified = ? AND created_at < ?", false, time.Now().Add(-24*time.Hour)).Delete(&entity.User{})
+	err := result.Error
 
 	if err != nil {
 		log.Error(log.LogInfo{
@@ -77,7 +80,8 @@ func (r *userRepository) FindUser(user *entity.User, userParam *dto.UserParam, r
 }
 
 func (r *userRepository) UpdateUser(updateUser *dto.UserUpdate, userId uuid.UUID) error {
-	err := r.conn.Model(&entity.User{}).Where("id = ?", userId).Updates(updateUser).Error
+	result := r.conn.Model(&entity.User{}).Where("id = ?", userId).Updates(updateUser)
+	err := result.Error
 	if err != nil {
 
 		if err == gorm.ErrDuplicatedKey {
@@ -89,6 +93,10 @@ func (r *userRepository) UpdateUser(updateUser *dto.UserUpdate, userId uuid.UUID
 		}, "[USER REPOSITORY][UpdateUser] failed to update user")
 
 		return domain.ErrInternalServer
+	}
+
+	if result.RowsAffected == 0 {
+		return domain.ErrNotFound
 	}
 
 	return nil
@@ -105,23 +113,31 @@ func (r *userRepository) FetchAllUsers(ctx context.Context, role *string) ([]ent
 }
 
 func (r *userRepository) UpdateUserStatus(ctx context.Context, userId uuid.UUID, isBanned bool) error {
-	err := r.conn.WithContext(ctx).Model(&entity.User{}).Where("id = ?", userId).Update("is_banned", isBanned).Error
+	result := r.conn.WithContext(ctx).Model(&entity.User{}).Where("id = ?", userId).Update("is_banned", isBanned)
+	err := result.Error
 	if err != nil {
 		log.Warn(log.LogInfo{
 			"error": err.Error(),
 		}, "[USER REPOSITORY][UpdateUserStatus] failed to update user status")
 		return domain.ErrInternalServer
 	}
+	if result.RowsAffected == 0 {
+		return domain.ErrNotFound
+	}
 	return nil
 }
 
 func (r *userRepository) VerifyUserEmail(ctx context.Context, userId uuid.UUID) error {
-	err := r.conn.WithContext(ctx).Model(&entity.User{}).Where("id = ?", userId).Update("email_is_verified", true).Error
+	result := r.conn.WithContext(ctx).Model(&entity.User{}).Where("id = ?", userId).Update("email_is_verified", true)
+	err := result.Error
 	if err != nil {
 		log.Warn(log.LogInfo{
 			"error": err.Error(),
 		}, "[USER REPOSITORY][VerifyUserEmail] failed to verify user email")
 		return domain.ErrInternalServer
+	}
+	if result.RowsAffected == 0 {
+		return domain.ErrNotFound
 	}
 	return nil
 }
@@ -155,12 +171,16 @@ func (r *userRepository) FetchUserDetailAdmin(ctx context.Context, userId uuid.U
 }
 
 func (r *userRepository) DeleteUser(ctx context.Context, userId uuid.UUID) error {
-	err := r.conn.WithContext(ctx).Delete(&entity.User{}, userId).Error
+	result := r.conn.WithContext(ctx).Delete(&entity.User{}, userId)
+	err := result.Error
 	if err != nil {
 		log.Warn(log.LogInfo{
 			"error": err.Error(),
 		}, "[USER REPOSITORY][DeleteUser] failed to delete user")
 		return domain.ErrInternalServer
+	}
+	if result.RowsAffected == 0 {
+		return domain.ErrNotFound
 	}
 	return nil
 }

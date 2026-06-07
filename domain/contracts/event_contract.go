@@ -11,6 +11,7 @@ import (
 
 type EventRepository interface {
 	CreateEvent(ctx context.Context, event *entity.Event) error
+	CreateEventWithWallet(ctx context.Context, event *entity.Event, wallet *entity.Wallet) error
 	UpdateEvent(ctx context.Context, updateEvent *entity.Event, eventId uuid.UUID) error
 	FetchAllByConditionAndRelation(
 		condition string,

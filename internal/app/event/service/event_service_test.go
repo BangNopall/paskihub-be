@@ -21,6 +21,10 @@ func (r *stubEventRepository) CreateEvent(ctx context.Context, event *entity.Eve
 	return nil
 }
 
+func (r *stubEventRepository) CreateEventWithWallet(ctx context.Context, event *entity.Event, wallet *entity.Wallet) error {
+	return nil
+}
+
 func (r *stubEventRepository) UpdateEvent(ctx context.Context, updateEvent *entity.Event, eventID uuid.UUID) error {
 	return nil
 }

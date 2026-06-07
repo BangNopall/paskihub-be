@@ -39,7 +39,8 @@ func saveFile(fileHeader *multipart.FileHeader, folderPath string) (string, erro
 		return "", err
 	}
 
-	filename := fmt.Sprintf("%d_%s", time.Now().UnixNano(), fileHeader.Filename)
+	ext := filepath.Ext(fileHeader.Filename)
+	filename := fmt.Sprintf("%s%s", uuid.New().String(), ext)
 	fullPath := filepath.Join(folderPath, filename)
 
 	src, err := fileHeader.Open()

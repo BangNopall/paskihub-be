@@ -36,8 +36,32 @@ func (r *eventRepository) CreateEvent(ctx context.Context, event *entity.Event) 
 	return nil
 }
 
+func (r *eventRepository) CreateEventWithWallet(ctx context.Context, event *entity.Event, wallet *entity.Wallet) error {
+	err := r.conn.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Create(event).Error; err != nil {
+			return err
+		}
+		if err := tx.Create(wallet).Error; err != nil {
+			return err
+		}
+		return nil
+	})
+
+	if err != nil {
+		if err == gorm.ErrDuplicatedKey {
+			return domain.ErrDuplicateEntry
+		}
+		log.Warn(log.LogInfo{
+			"error": err.Error(),
+		}, "[EVENT REPOSITORY][CreateEventWithWallet] failed to create event and wallet")
+		return domain.ErrInternalServer
+	}
+	return nil
+}
+
 func (r *eventRepository) UpdateEvent(ctx context.Context, updateEvent *entity.Event, eventId uuid.UUID) error {
-	err := r.conn.Model(&entity.Event{}).Where("id = ?", eventId).Updates(updateEvent).Error
+	result := r.conn.Model(&entity.Event{}).Where("id = ?", eventId).Updates(updateEvent)
+	err := result.Error
 	if err != nil {
 		if err == gorm.ErrDuplicatedKey {
 			return domain.ErrDuplicateEntry
@@ -48,6 +72,9 @@ func (r *eventRepository) UpdateEvent(ctx context.Context, updateEvent *entity.E
 		}, "[EVENT REPOSITORY][UpdateEvent] failed to update event")
 
 		return domain.ErrInternalServer
+	}
+	if result.RowsAffected == 0 {
+		return domain.ErrNotFound
 	}
 	return nil
 }
@@ -97,12 +124,16 @@ func (r *eventRepository) FetchAllByConditionAndRelation(
 }
 
 func (r *eventRepository) DeleteEvent(ctx context.Context, eventId uuid.UUID) error {
-	err := r.conn.Where("id = ?", eventId).Delete(&entity.Event{}).Error
+	result := r.conn.Where("id = ?", eventId).Delete(&entity.Event{})
+	err := result.Error
 	if err != nil {
 		log.Warn(log.LogInfo{
 			"error": err.Error(),
 		}, "[EVENT REPOSITORY][DeleteEvent] failed to delete event")
 		return domain.ErrInternalServer
+	}
+	if result.RowsAffected == 0 {
+		return domain.ErrNotFound
 	}
 	return nil
 }
@@ -245,12 +276,16 @@ func (r *eventRepository) DeleteEventLevel(ctx context.Context, eventId, eventLe
 }
 
 func (r *eventRepository) UpdateStatus(ctx context.Context, eventId uuid.UUID, status string) error {
-	err := r.conn.WithContext(ctx).Model(&entity.Event{}).Where("id = ?", eventId).Update("status", status).Error
+	result := r.conn.WithContext(ctx).Model(&entity.Event{}).Where("id = ?", eventId).Update("status", status)
+	err := result.Error
 	if err != nil {
 		log.Warn(log.LogInfo{
 			"error": err.Error(),
 		}, "[EVENT REPOSITORY][UpdateStatus] failed to update status")
 		return domain.ErrInternalServer
+	}
+	if result.RowsAffected == 0 {
+		return domain.ErrNotFound
 	}
 	return nil
 }
