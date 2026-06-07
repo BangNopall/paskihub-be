@@ -192,6 +192,8 @@ func Seeder(db *gorm.DB, flagVars *flag.Flag) {
 
 	if flagVars.SeederModel == "User" {
 		seeders.UserSeeder(db)
+	} else if flagVars.SeederModel == "Demo" {
+		seeders.DemoSeeder(db)
 	} else if flagVars.SeederModel == "" {
 		seeders.UserSeeder(db)
 		// Add more seeders here

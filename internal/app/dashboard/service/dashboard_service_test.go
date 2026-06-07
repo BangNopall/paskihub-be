@@ -15,6 +15,7 @@ type stubDashboardRepo struct {
 	adminStats          *dto.AdminDashboardStats
 	adminTransactions   []dto.AdminDashboardTransactionRes
 	adminRegistrations  []dto.AdminDashboardEORegistrationRes
+	homeStats           *dto.HomeStatsResponse
 }
 
 func (r stubDashboardRepo) GetOrganizerStats(ctx context.Context, userId uuid.UUID) (*dto.OrganizerStats, error) {
@@ -51,6 +52,10 @@ func (r stubDashboardRepo) GetAdminRecentTransactions(ctx context.Context, limit
 
 func (r stubDashboardRepo) GetAdminEORegistrations(ctx context.Context, limit int) ([]dto.AdminDashboardEORegistrationRes, error) {
 	return r.adminRegistrations, nil
+}
+
+func (r stubDashboardRepo) GetHomeStats(ctx context.Context) (*dto.HomeStatsResponse, error) {
+	return r.homeStats, nil
 }
 
 func TestGetParticipantDashboardIncludesUpcomingEvents(t *testing.T) {
@@ -98,6 +103,35 @@ func TestGetParticipantDashboardIncludesUpcomingEvents(t *testing.T) {
 	}
 	if upcoming.RegisteredTeams != 18 {
 		t.Fatalf("expected registered_teams 18, got %d", upcoming.RegisteredTeams)
+	}
+}
+
+func TestGetHomeStatsReturnsPublicAggregateStats(t *testing.T) {
+	svc := NewDashboardService(stubDashboardRepo{
+		homeStats: &dto.HomeStatsResponse{
+			TotalEvents:       120,
+			TotalOrganizers:   45,
+			TotalParticipants: 980,
+			TotalTeams:        210,
+		},
+	})
+
+	res, err := svc.GetHomeStats(context.Background())
+	if err != nil {
+		t.Fatalf("GetHomeStats returned error: %v", err)
+	}
+
+	if res.TotalEvents != 120 {
+		t.Fatalf("expected total_events 120, got %d", res.TotalEvents)
+	}
+	if res.TotalOrganizers != 45 {
+		t.Fatalf("expected total_organizers 45, got %d", res.TotalOrganizers)
+	}
+	if res.TotalParticipants != 980 {
+		t.Fatalf("expected total_participants 980, got %d", res.TotalParticipants)
+	}
+	if res.TotalTeams != 210 {
+		t.Fatalf("expected total_teams 210, got %d", res.TotalTeams)
 	}
 }
 

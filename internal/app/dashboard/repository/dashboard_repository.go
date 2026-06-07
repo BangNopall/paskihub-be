@@ -376,6 +376,38 @@ func (r *dashboardRepository) GetAdminEORegistrations(ctx context.Context, limit
 	return res, nil
 }
 
+func (r *dashboardRepository) GetHomeStats(ctx context.Context) (*dto.HomeStatsResponse, error) {
+	var stats dto.HomeStatsResponse
+
+	if err := r.db.WithContext(ctx).Model(&entity.Event{}).
+		Where("status <> ?", enums.Archived).
+		Count(&stats.TotalEvents).Error; err != nil {
+		return nil, err
+	}
+
+	if err := r.db.WithContext(ctx).Model(&entity.User{}).
+		Where("role = ? AND is_banned = ? AND email_is_verified = ? AND parent_id IS NULL", enums.Organizer, false, true).
+		Count(&stats.TotalOrganizers).Error; err != nil {
+		return nil, err
+	}
+
+	if err := r.db.WithContext(ctx).Model(&entity.User{}).
+		Where("role = ? AND is_banned = ? AND email_is_verified = ?", enums.Peserta, false, true).
+		Count(&stats.TotalParticipants).Error; err != nil {
+		return nil, err
+	}
+
+	if err := r.db.WithContext(ctx).Model(&entity.Team{}).
+		Joins("JOIN institutions ON institutions.id = teams.insti_id").
+		Joins("JOIN users ON users.id = institutions.user_id").
+		Where("users.role = ? AND users.is_banned = ? AND users.email_is_verified = ?", enums.Peserta, false, true).
+		Count(&stats.TotalTeams).Error; err != nil {
+		return nil, err
+	}
+
+	return &stats, nil
+}
+
 func (r *dashboardRepository) sumTopupAmount(ctx context.Context, status enums.TransactionStatus, start, end time.Time) (float64, error) {
 	var amount float64
 	query := r.db.WithContext(ctx).Model(&entity.WalletTransaction{}).

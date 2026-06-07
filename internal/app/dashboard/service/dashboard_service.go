@@ -84,3 +84,7 @@ func (s *dashboardService) GetAdminDashboard(ctx context.Context) (*dto.AdminDas
 		EORegistrations:    registrations,
 	}, nil
 }
+
+func (s *dashboardService) GetHomeStats(ctx context.Context) (*dto.HomeStatsResponse, error) {
+	return s.repo.GetHomeStats(ctx)
+}

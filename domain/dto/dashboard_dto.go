@@ -80,6 +80,13 @@ type AdminDashboardRes struct {
 	EORegistrations    []AdminDashboardEORegistrationRes `json:"eo_registrations"`
 }
 
+type HomeStatsResponse struct {
+	TotalEvents       int64 `json:"total_events"`
+	TotalOrganizers   int64 `json:"total_organizers"`
+	TotalParticipants int64 `json:"total_participants"`
+	TotalTeams        int64 `json:"total_teams"`
+}
+
 type AdminDashboardStats struct {
 	TotalRevenue      AdminDashboardStatValue `json:"total_revenue"`
 	TotalEO           AdminDashboardStatValue `json:"total_eo"`

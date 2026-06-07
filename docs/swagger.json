@@ -5058,6 +5058,61 @@
                 }
             }
         },
+        "/api/v1/public/home-stats": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Get aggregate public home page statistics. Events exclude ARCHIVED status. Organizers and participants include active verified accounts. Teams include teams owned by active verified participant accounts.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Dashboard"
+                ],
+                "summary": "Get public home stats",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.HomeStatsResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "429": {
+                        "description": "Too Many Requests",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/rekap/detail/{regisId}": {
             "get": {
                 "security": [
@@ -7551,6 +7606,23 @@
                     "items": {
                         "type": "string"
                     }
+                }
+            }
+        },
+        "dto.HomeStatsResponse": {
+            "type": "object",
+            "properties": {
+                "total_events": {
+                    "type": "integer"
+                },
+                "total_organizers": {
+                    "type": "integer"
+                },
+                "total_participants": {
+                    "type": "integer"
+                },
+                "total_teams": {
+                    "type": "integer"
                 }
             }
         },

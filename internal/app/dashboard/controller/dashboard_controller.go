@@ -24,6 +24,7 @@ func InitDashboardController(
 	app.Get("/api/v1/admin/dashboard", middleware.Authentication, middleware.RateLimiter(), middleware.AuthAdmin, c.GetAdminDashboard)
 	app.Get("/api/v1/organizer/dashboard", middleware.Authentication, middleware.RateLimiter(), middleware.AuthOrganizer, c.GetOrganizerDashboard)
 	app.Get("/api/v1/peserta/dashboard", middleware.Authentication, middleware.RateLimiter(), middleware.AuthPeserta, c.GetParticipantDashboard)
+	app.Get("/api/v1/public/home-stats", middleware.RateLimiter(), c.GetHomeStats)
 }
 
 // GetAdminDashboard godoc
@@ -95,5 +96,27 @@ func (c *dashboardController) GetParticipantDashboard(ctx *fiber.Ctx) error {
 	}
 
 	response.Send(ctx, http.StatusOK, "success to get dashboard", res, nil)
+	return nil
+}
+
+// GetHomeStats godoc
+// @Summary Get public home stats
+// @Description Get aggregate public home page statistics. Events exclude ARCHIVED status. Organizers and participants include active verified accounts. Teams include teams owned by active verified participant accounts.
+// @Tags Dashboard
+// @Security ApiKeyAuth
+// @Produce json
+// @Success 200 {object} response.Response{data=dto.HomeStatsResponse}
+// @Router /api/v1/public/home-stats [get]
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 429 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
+func (c *dashboardController) GetHomeStats(ctx *fiber.Ctx) error {
+	res, err := c.svc.GetHomeStats(ctx.Context())
+	if err != nil {
+		response.Send(ctx, http.StatusInternalServerError, "failed to get home stats", nil, err)
+		return nil
+	}
+
+	response.Send(ctx, http.StatusOK, "success to get home stats", res, nil)
 	return nil
 }

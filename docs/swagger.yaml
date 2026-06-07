@@ -784,6 +784,17 @@ definitions:
     - regis_id
     - scores
     type: object
+  dto.HomeStatsResponse:
+    properties:
+      total_events:
+        type: integer
+      total_organizers:
+        type: integer
+      total_participants:
+        type: integer
+      total_teams:
+        type: integer
+    type: object
   dto.InputScoreReq:
     properties:
       judges_id:
@@ -4856,6 +4867,40 @@ paths:
       summary: Update participant team
       tags:
       - Participant Team
+  /api/v1/public/home-stats:
+    get:
+      description: Get aggregate public home page statistics. Events exclude ARCHIVED
+        status. Organizers and participants include active verified accounts. Teams
+        include teams owned by active verified participant accounts.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.HomeStatsResponse'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "429":
+          description: Too Many Requests
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Get public home stats
+      tags:
+      - Dashboard
   /api/v1/rekap/detail/{regisId}:
     get:
       description: Get specific assessment detail for a team registration

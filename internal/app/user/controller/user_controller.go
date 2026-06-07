@@ -39,7 +39,6 @@ func InitUserController(
 	userRouter.Post("/login", middleware.RateLimiter(), userController.Login)
 	userRouter.Post("/logout", middleware.Authentication, userController.Logout)
 	userRouter.Get("/verify-email/:email/:emailVerPass", middleware.RateLimiter(), userController.VerifyEmail)
-	userRouter.Put("/reset-password/:token", middleware.RateLimiter(), userController.VerifyEmail) // Wait, this route looks wrong in original but I should keep it as is or fix if I'm sure. Original was VerifyEmail but handler was ResetPassword.
 	userRouter.Put("/reset-password/:token", middleware.RateLimiter(), userController.ResetPassword)
 	userRouter.Post("/forgot-password", middleware.RateLimiter(), userController.ForgotPassword)
 	userRouter.Get("/show/:userId", middleware.Authentication, middleware.RateLimiter(), userController.GetUserById)
