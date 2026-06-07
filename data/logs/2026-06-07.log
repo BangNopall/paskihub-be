@@ -25,3 +25,9 @@
 {"level":"info","msg":"Application is running on development mode","time":"2026-06-07T18:04:36+07:00"}
 {"level":"info","msg":"[PGSQL CONN][Migrate] Auto Migrating Tables","time":"2026-06-07T18:04:37+07:00"}
 {"level":"info","msg":"redis connected","time":"2026-06-07T18:04:38+07:00"}
+{"level":"info","msg":"Application is running on development mode","time":"2026-06-07T21:53:07+07:00"}
+{"level":"info","msg":"[PGSQL CONN][Migrate] Auto Migrating Tables","time":"2026-06-07T21:53:07+07:00"}
+{"error":"i/o timeout","level":"error","msg":"[REDIS][NewRedisClient] failed to ping redis","time":"2026-06-07T21:53:11+07:00"}
+{"level":"info","msg":"Application is running on development mode","time":"2026-06-07T21:53:17+07:00"}
+{"level":"info","msg":"[PGSQL CONN][Migrate] Auto Migrating Tables","time":"2026-06-07T21:53:17+07:00"}
+{"level":"info","msg":"redis connected","time":"2026-06-07T21:53:17+07:00"}
