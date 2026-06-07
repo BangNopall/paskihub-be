@@ -207,24 +207,39 @@ func (r *eventRepository) FetchAllEvent(ctx context.Context, params *dto.EventPa
 	return events, nil
 }
 
-func (r *eventRepository) UpdateEventLevel(ctx context.Context, eventLevel *entity.EventLevel) error {
-	err := r.conn.Save(eventLevel).Error
-	if err != nil {
+func (r *eventRepository) UpdateEventLevel(ctx context.Context, eventId uuid.UUID, eventLevel *entity.EventLevel) error {
+	result := r.conn.WithContext(ctx).
+		Model(&entity.EventLevel{}).
+		Where("id = ? AND event_id = ?", eventLevel.Id, eventId).
+		Updates(map[string]interface{}{
+			"name":      eventLevel.Name,
+			"regis_fee": eventLevel.RegisFee,
+			"dp_fee":    eventLevel.DpFee,
+		})
+	if result.Error != nil {
 		log.Warn(log.LogInfo{
-			"error": err.Error(),
+			"error": result.Error.Error(),
 		}, "[EVENT REPOSITORY][UpdateEventLevel] failed to update event level")
 		return domain.ErrInternalServer
+	}
+	if result.RowsAffected == 0 {
+		return domain.ErrNotFound
 	}
 	return nil
 }
 
-func (r *eventRepository) DeleteEventLevel(ctx context.Context, eventLevelId uuid.UUID) error {
-	err := r.conn.Delete(&entity.EventLevel{}, eventLevelId).Error
-	if err != nil {
+func (r *eventRepository) DeleteEventLevel(ctx context.Context, eventId, eventLevelId uuid.UUID) error {
+	result := r.conn.WithContext(ctx).
+		Where("id = ? AND event_id = ?", eventLevelId, eventId).
+		Delete(&entity.EventLevel{})
+	if result.Error != nil {
 		log.Warn(log.LogInfo{
-			"error": err.Error(),
+			"error": result.Error.Error(),
 		}, "[EVENT REPOSITORY][DeleteEventLevel] failed to delete event level")
 		return domain.ErrInternalServer
+	}
+	if result.RowsAffected == 0 {
+		return domain.ErrNotFound
 	}
 	return nil
 }

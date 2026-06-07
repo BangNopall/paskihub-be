@@ -204,6 +204,10 @@ func (s *userService) Login(ctx context.Context, user dto.UserLogin) (dto.UserLo
 
 	}
 
+	if registeredUser.IsBanned {
+		return dto.UserLoginResponse{}, domain.ErrAccountBanned
+	}
+
 	if !registeredUser.EmailIsVerified {
 		return dto.UserLoginResponse{}, domain.ErrCheckEmail
 	}

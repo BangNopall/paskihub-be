@@ -20,22 +20,25 @@ type redisClient struct {
 	rdb *redis.Client
 }
 
-func NewRedisClient() RedisInterface {
+func NewRedisClient() (RedisInterface, error) {
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     env.AppEnv.RedisHost + ":" + env.AppEnv.RedisPort,
 		Password: env.AppEnv.RedisPassword,
 		DB:       0,
 	})
 
-	if err := rdb.Ping(context.Background()).Err(); err != nil {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	if err := rdb.Ping(ctx).Err(); err != nil {
+		_ = rdb.Close()
 		log.Error(log.LogInfo{
 			"error": err.Error(),
-		}, "[REDIS][NewRedisClient] faield to ping redis")
-		return nil
+		}, "[REDIS][NewRedisClient] failed to ping redis")
+		return nil, err
 	}
 
 	log.Info(nil, "redis connected")
-	return &redisClient{rdb}
+	return &redisClient{rdb}, nil
 }
 
 func (r *redisClient) Set(

@@ -367,13 +367,13 @@ func (s *eventService) UpdateEventLevel(ctx context.Context, EventId string, Use
 
 	updatedLevel := entity.EventLevel{
 		Id:       id,
-		EventId:  EventLevel.EventId,
+		EventId:  eId,
 		Name:     EventLevel.Name,
 		RegisFee: EventLevel.RegisFee,
 		DpFee:    EventLevel.DpFee,
 	}
 
-	return s.eventRepo.UpdateEventLevel(ctx, &updatedLevel)
+	return s.eventRepo.UpdateEventLevel(ctx, eId, &updatedLevel)
 }
 
 func (s *eventService) DeleteEventLevel(ctx context.Context, EventId string, EventLevelId string, UserId string) error {
@@ -404,7 +404,7 @@ func (s *eventService) DeleteEventLevel(ctx context.Context, EventId string, Eve
 		return domain.ErrInternalServer
 	}
 
-	return s.eventRepo.DeleteEventLevel(ctx, id)
+	return s.eventRepo.DeleteEventLevel(ctx, eId, id)
 }
 
 func (s *eventService) DeleteEvent(ctx context.Context, EventId string, UserId string) error {

@@ -431,6 +431,8 @@ func (c *eventController) CreateEventLevel(ctx *fiber.Ctx) error {
 // @Success 200 {object} response.Response
 // @Failure 400 {object} response.ErrorResponse
 // @Failure 401 {object} response.ErrorResponse
+// @Failure 403 {object} response.ErrorResponse
+// @Failure 404 {object} response.ErrorResponse
 // @Failure 500 {object} response.ErrorResponse
 // @Router /api/v1/events/{id}/levels/{levelId} [put]
 func (c *eventController) UpdateEventLevel(ctx *fiber.Ctx) error {
@@ -490,6 +492,8 @@ func (c *eventController) UpdateEventLevel(ctx *fiber.Ctx) error {
 // @Success 200 {object} response.Response
 // @Failure 400 {object} response.ErrorResponse
 // @Failure 401 {object} response.ErrorResponse
+// @Failure 403 {object} response.ErrorResponse
+// @Failure 404 {object} response.ErrorResponse
 // @Failure 500 {object} response.ErrorResponse
 // @Router /api/v1/events/{id}/levels/{levelId} [delete]
 func (c *eventController) DeleteEventLevel(ctx *fiber.Ctx) error {

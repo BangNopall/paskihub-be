@@ -4,38 +4,32 @@ import (
 	"context"
 	"errors"
 
+	"github.com/BangNopall/paskihub-be/domain"
 	"github.com/BangNopall/paskihub-be/domain/contracts"
 	"github.com/BangNopall/paskihub-be/domain/dto"
-	"github.com/BangNopall/paskihub-be/domain/entity"
 	"github.com/BangNopall/paskihub-be/domain/enums"
+	"github.com/BangNopall/paskihub-be/pkg/helpers"
 	"github.com/google/uuid"
-	"gorm.io/gorm"
 )
 
 var (
-	ErrUnauthorized    = errors.New("unauthorized: you do not own this event")
-	ErrNotFound        = errors.New("registration not found for this event")
-	ErrInsufficientBalance = errors.New("insufficient wallet balance for approval fee")
+	ErrUnauthorized        = errors.New("unauthorized: you do not own this event")
+	ErrNotFound            = domain.ErrRegistrationNotFound
+	ErrInsufficientBalance = domain.ErrInsufficientBalance
 )
 
 type eoTeamService struct {
 	repo        contracts.IEOTeamRepository
-	walletRepo  contracts.WalletRepository
 	settingRepo contracts.SystemSettingRepository
-	db          *gorm.DB
 }
 
 func NewEOTeamService(
 	repo contracts.IEOTeamRepository,
-	walletRepo contracts.WalletRepository,
 	settingRepo contracts.SystemSettingRepository,
-	db *gorm.DB,
 ) contracts.IEOTeamService {
 	return &eoTeamService{
 		repo:        repo,
-		walletRepo:  walletRepo,
 		settingRepo: settingRepo,
-		db:          db,
 	}
 }
 
@@ -100,8 +94,8 @@ func (s *eoTeamService) GetDetailTeam(ctx context.Context, eventId, userId, regi
 			Id:         m.Id,
 			FullName:   m.FullName,
 			Role:       m.Role,
-			IdCardPath: m.IdCardPath,
-			PhotoPath:  m.PhotoPath,
+			IdCardPath: helpers.PrivateFileURL("member-id-card", m.Id),
+			PhotoPath:  helpers.PrivateFileURL("member-photo", m.Id),
 		})
 	}
 	if members == nil {
@@ -114,13 +108,13 @@ func (s *eoTeamService) GetDetailTeam(ctx context.Context, eventId, userId, regi
 		TeamName:           reg.Team.Name,
 		LogoPath:           reg.Team.LogoPath,
 		Pelatih:            reg.Team.Pelatih,
-		RecLetterPath:      reg.Team.RecLetterPath,
+		RecLetterPath:      helpers.PrivateFileURL("team-recommendation", reg.Team.Id),
 		Institution:        reg.Team.Institution.Name,
 		InstitutionAddress: reg.Team.Institution.Address,
 		ContactEmail:       reg.Team.Institution.User.Email,
 		EventLevel:         reg.EventLevel.Name,
 		PaymentStatus:      reg.PaymentStatus,
-		PaymentProofPath:   reg.PaymentProofPath,
+		PaymentProofPath:   helpers.PrivateFileURL("registration-payment", reg.Id),
 		RejectionReason:    reg.RejectionReason,
 		IsKick:             reg.IsKick,
 		Members:            members,
@@ -132,14 +126,6 @@ func (s *eoTeamService) ApproveTeam(ctx context.Context, eventId, userId, regist
 		return err
 	}
 
-	reg, err := s.repo.FindRegistrationByIdAndEvent(ctx, registrationId, eventId)
-	if err != nil {
-		return err
-	}
-	if reg == nil {
-		return ErrNotFound
-	}
-
 	setting, err := s.settingRepo.Get(ctx)
 	if err != nil {
 		return err
@@ -147,39 +133,7 @@ func (s *eoTeamService) ApproveTeam(ctx context.Context, eventId, userId, regist
 
 	totalFeeIDR := setting.ApprovalFee * setting.CoinRate
 
-	return s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-		wallet, err := s.walletRepo.GetWalletByEventId(ctx, eventId)
-		if err != nil {
-			return err
-		}
-
-		if wallet.Saldo < totalFeeIDR {
-			return ErrInsufficientBalance
-		}
-
-		wallet.Saldo -= totalFeeIDR
-		if err := tx.Save(wallet).Error; err != nil {
-			return err
-		}
-
-		transaction := &entity.WalletTransaction{
-			Id:       uuid.New(),
-			WalletId: wallet.Id,
-			Type:     enums.Withdraw,
-			Amount:   totalFeeIDR,
-			Status:   enums.Approve,
-		}
-		if err := tx.Create(transaction).Error; err != nil {
-			return err
-		}
-
-		reg.PaymentStatus = req.PaymentStatus
-		if err := tx.Save(reg).Error; err != nil {
-			return err
-		}
-
-		return nil
-	})
+	return s.repo.ApproveRegistration(ctx, eventId, registrationId, totalFeeIDR, req.PaymentStatus)
 }
 
 func (s *eoTeamService) RejectTeam(ctx context.Context, eventId, userId, registrationId uuid.UUID, req dto.EOTeamRejectReq) error {

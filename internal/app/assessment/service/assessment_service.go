@@ -114,6 +114,9 @@ func (s *assessmentService) CreateViolationType(ctx context.Context, eventId, us
 	if err := s.ensureOwnership(ctx, eventId, userId); err != nil {
 		return nil, err
 	}
+	if err := s.ensureEventLevelRelation(ctx, eventId, req.EventLevelID); err != nil {
+		return nil, err
+	}
 	vt := &entity.ViolationType{
 		EventID:      eventId,
 		EventLevelID: req.EventLevelID,
@@ -197,6 +200,9 @@ func (s *assessmentService) DeleteViolationType(ctx context.Context, eventId, us
 // ScoreCategory
 func (s *assessmentService) CreateScoreCategory(ctx context.Context, eventId, userId uuid.UUID, req dto.CreateScoreCategoryReq) (*dto.ScoreCategoryRes, error) {
 	if err := s.ensureOwnership(ctx, eventId, userId); err != nil {
+		return nil, err
+	}
+	if err := s.ensureEventLevelRelation(ctx, eventId, req.EventLevelID); err != nil {
 		return nil, err
 	}
 	sc := &entity.ScoreCategory{
@@ -443,6 +449,14 @@ func (s *assessmentService) InputScore(ctx context.Context, eventId, userId uuid
 		return nil, err
 	}
 
+	valid, err := s.repo.ValidateScoreInputRelations(ctx, eventId, req.RegisID, req.JudgesID, req.SubCategoryID)
+	if err != nil {
+		return nil, domain.ErrInternalServer
+	}
+	if !valid {
+		return nil, domain.ErrBadRequest
+	}
+
 	rules, err := s.repo.GetGradeRulesBySubCategory(ctx, req.SubCategoryID)
 	if err != nil {
 		return nil, domain.ErrInternalServer
@@ -489,6 +503,9 @@ func (s *assessmentService) InputScore(ctx context.Context, eventId, userId uuid
 // Award
 func (s *assessmentService) CreateAward(ctx context.Context, eventId, userId uuid.UUID, req dto.CreateAwardReq) (*dto.AwardRes, error) {
 	if err := s.ensureOwnership(ctx, eventId, userId); err != nil {
+		return nil, err
+	}
+	if err := s.ensureAwardRelations(ctx, eventId, req.EventLevelIDs, req.ScoreCategoryIDs); err != nil {
 		return nil, err
 	}
 
@@ -545,6 +562,9 @@ func (s *assessmentService) UpdateAward(ctx context.Context, eventId, userId, id
 	if award == nil || award.EventID != eventId {
 		return nil, domain.ErrNotFound
 	}
+	if err := s.ensureAwardRelations(ctx, eventId, req.EventLevelIDs, req.ScoreCategoryIDs); err != nil {
+		return nil, err
+	}
 
 	award.Name = req.Name
 	award.LimitRank = req.LimitRank
@@ -559,6 +579,33 @@ func (s *assessmentService) UpdateAward(ctx context.Context, eventId, userId, id
 		return nil, domain.ErrInternalServer
 	}
 	return s.mapToAwardRes(updatedAward), nil
+}
+
+func (s *assessmentService) ensureEventLevelRelation(ctx context.Context, eventId, eventLevelId uuid.UUID) error {
+	valid, err := s.repo.EventLevelBelongsToEvent(ctx, eventId, eventLevelId)
+	if err != nil {
+		return domain.ErrInternalServer
+	}
+	if !valid {
+		return domain.ErrBadRequest
+	}
+	return nil
+}
+
+func (s *assessmentService) ensureAwardRelations(
+	ctx context.Context,
+	eventId uuid.UUID,
+	eventLevelIds []uuid.UUID,
+	scoreCategoryIds []uuid.UUID,
+) error {
+	valid, err := s.repo.ValidateAwardRelations(ctx, eventId, eventLevelIds, scoreCategoryIds)
+	if err != nil {
+		return domain.ErrInternalServer
+	}
+	if !valid {
+		return domain.ErrBadRequest
+	}
+	return nil
 }
 
 func (s *assessmentService) DeleteAward(ctx context.Context, eventId, userId, id uuid.UUID) error {

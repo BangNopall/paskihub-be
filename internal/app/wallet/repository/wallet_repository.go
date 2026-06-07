@@ -9,6 +9,7 @@ import (
 	"github.com/BangNopall/paskihub-be/domain/enums"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type walletRepository struct {
@@ -47,7 +48,7 @@ func (r *walletRepository) ApproveTransaction(ctx context.Context, transactionId
 	err := r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		var transaction entity.WalletTransaction
 		// Fetch transaction with lock for update
-		if err := tx.Set("gorm:query_option", "FOR UPDATE").Where("id = ?", transactionId).First(&transaction).Error; err != nil {
+		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Where("id = ?", transactionId).First(&transaction).Error; err != nil {
 			if err == gorm.ErrRecordNotFound {
 				return domain.ErrNotFound
 			}
@@ -65,7 +66,7 @@ func (r *walletRepository) ApproveTransaction(ctx context.Context, transactionId
 
 		// Fetch wallet with lock for update
 		var wallet entity.Wallet
-		if err := tx.Set("gorm:query_option", "FOR UPDATE").Where("id = ?", transaction.WalletId).First(&wallet).Error; err != nil {
+		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Where("id = ?", transaction.WalletId).First(&wallet).Error; err != nil {
 			return err
 		}
 
@@ -85,7 +86,7 @@ func (r *walletRepository) RejectTransaction(ctx context.Context, transactionId 
 	err := r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		var transaction entity.WalletTransaction
 		// Fetch transaction with lock for update
-		if err := tx.Set("gorm:query_option", "FOR UPDATE").Where("id = ?", transactionId).First(&transaction).Error; err != nil {
+		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Where("id = ?", transactionId).First(&transaction).Error; err != nil {
 			if err == gorm.ErrRecordNotFound {
 				return domain.ErrNotFound
 			}

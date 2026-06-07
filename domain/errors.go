@@ -36,6 +36,9 @@ var (
 	ErrBadRequest              = errors.New("bad data request")
 	ErrInvalidRole             = errors.New("invalid user data")
 	ErrForbidden               = errors.New("forbidden access")
+	ErrAccountBanned           = errors.New("account is banned")
+	ErrRegistrationNotFound    = errors.New("registration not found for this event")
+	ErrInsufficientBalance     = errors.New("insufficient wallet balance for approval fee")
 )
 
 func GetCode(err error) int {
@@ -78,7 +81,7 @@ func GetCode(err error) int {
 		return http.StatusUnauthorized
 	case ErrFileTooBig:
 		return http.StatusRequestEntityTooLarge
-	case ErrForbiddenUpdate, ErrForbidden:
+	case ErrForbiddenUpdate, ErrForbidden, ErrAccountBanned:
 		return http.StatusForbidden
 	case ErrConfirmPasswordNotMatch, ErrInvalidRole:
 		return http.StatusBadRequest

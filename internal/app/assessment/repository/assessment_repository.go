@@ -30,6 +30,69 @@ func (r *assessmentRepository) CheckEventOwnership(ctx context.Context, eventId,
 	return count > 0, nil
 }
 
+func (r *assessmentRepository) EventLevelBelongsToEvent(ctx context.Context, eventId, eventLevelId uuid.UUID) (bool, error) {
+	var count int64
+	err := r.db.WithContext(ctx).
+		Model(&entity.EventLevel{}).
+		Where("id = ? AND event_id = ?", eventLevelId, eventId).
+		Count(&count).Error
+	return count == 1, err
+}
+
+func (r *assessmentRepository) ValidateScoreInputRelations(
+	ctx context.Context,
+	eventId uuid.UUID,
+	regisId uuid.UUID,
+	judgeId uuid.UUID,
+	subCategoryId uuid.UUID,
+) (bool, error) {
+	var count int64
+	err := r.db.WithContext(ctx).
+		Table("registrations AS r").
+		Joins("JOIN event_levels AS el ON el.id = r.event_level_id").
+		Joins("JOIN judges AS j ON j.id = ? AND j.event_id = el.event_id", judgeId).
+		Joins("JOIN score_sub_categories AS ssc ON ssc.id = ?", subCategoryId).
+		Joins("JOIN score_categories AS sc ON sc.id = ssc.score_categories_id AND sc.event_id = el.event_id AND sc.event_level_id = r.event_level_id").
+		Where("r.id = ? AND el.event_id = ?", regisId, eventId).
+		Count(&count).Error
+	return count == 1, err
+}
+
+func (r *assessmentRepository) ValidateAwardRelations(
+	ctx context.Context,
+	eventId uuid.UUID,
+	eventLevelIds []uuid.UUID,
+	scoreCategoryIds []uuid.UUID,
+) (bool, error) {
+	uniqueLevelIds := uniqueUUIDs(eventLevelIds)
+	uniqueCategoryIds := uniqueUUIDs(scoreCategoryIds)
+	if len(uniqueLevelIds) == 0 || len(uniqueCategoryIds) == 0 {
+		return false, nil
+	}
+
+	var count int64
+	if err := r.db.WithContext(ctx).
+		Model(&entity.EventLevel{}).
+		Where("id IN ? AND event_id = ?", uniqueLevelIds, eventId).
+		Distinct("id").
+		Count(&count).Error; err != nil {
+		return false, err
+	}
+	if count != int64(len(uniqueLevelIds)) {
+		return false, nil
+	}
+
+	count = 0
+	if err := r.db.WithContext(ctx).
+		Model(&entity.ScoreCategory{}).
+		Where("id IN ? AND event_id = ?", uniqueCategoryIds, eventId).
+		Distinct("id").
+		Count(&count).Error; err != nil {
+		return false, err
+	}
+	return count == int64(len(uniqueCategoryIds)), nil
+}
+
 func (r *assessmentRepository) CreateJudge(ctx context.Context, judge *entity.Judge) error {
 	return r.db.WithContext(ctx).Create(judge).Error
 }

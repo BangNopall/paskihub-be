@@ -3,12 +3,14 @@ package repository
 import (
 	"context"
 
+	"github.com/BangNopall/paskihub-be/domain"
 	"github.com/BangNopall/paskihub-be/domain/contracts"
 	"github.com/BangNopall/paskihub-be/domain/dto"
 	"github.com/BangNopall/paskihub-be/domain/entity"
 	"github.com/BangNopall/paskihub-be/domain/enums"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type eoTeamRepository struct {
@@ -86,6 +88,58 @@ func (r *eoTeamRepository) FindRegistrationByIdAndEvent(ctx context.Context, reg
 
 func (r *eoTeamRepository) UpdateRegistration(ctx context.Context, registration *entity.Registration) error {
 	return r.db.WithContext(ctx).Save(registration).Error
+}
+
+func (r *eoTeamRepository) ApproveRegistration(
+	ctx context.Context,
+	eventId uuid.UUID,
+	registrationId uuid.UUID,
+	totalFee float64,
+	status enums.RegistrationStatus,
+) error {
+	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		var registration entity.Registration
+		eventLevelIds := tx.Model(&entity.EventLevel{}).
+			Select("id").
+			Where("event_id = ?", eventId)
+		if err := tx.
+			Clauses(clause.Locking{Strength: "UPDATE"}).
+			Where("id = ? AND event_level_id IN (?)", registrationId, eventLevelIds).
+			First(&registration).Error; err != nil {
+			if err == gorm.ErrRecordNotFound {
+				return domain.ErrRegistrationNotFound
+			}
+			return err
+		}
+		if registration.PaymentStatus != enums.Waiting {
+			return domain.ErrBadRequest
+		}
+
+		var wallet entity.Wallet
+		if err := tx.
+			Clauses(clause.Locking{Strength: "UPDATE"}).
+			Where("event_id = ?", eventId).
+			First(&wallet).Error; err != nil {
+			return err
+		}
+		if wallet.Saldo < totalFee {
+			return domain.ErrInsufficientBalance
+		}
+
+		if err := tx.Model(&wallet).Update("saldo", wallet.Saldo-totalFee).Error; err != nil {
+			return err
+		}
+		if err := tx.Create(&entity.WalletTransaction{
+			Id:       uuid.New(),
+			WalletId: wallet.Id,
+			Type:     enums.Withdraw,
+			Amount:   totalFee,
+			Status:   enums.Approve,
+		}).Error; err != nil {
+			return err
+		}
+		return tx.Model(&registration).Update("payment_status", status).Error
+	})
 }
 
 func (r *eoTeamRepository) GetStats(ctx context.Context, eventId uuid.UUID) (*dto.EOTeamStatsRes, error) {

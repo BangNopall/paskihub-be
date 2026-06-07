@@ -6,6 +6,9 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/BangNopall/paskihub-be/domain"
+	"github.com/BangNopall/paskihub-be/domain/dto"
+	"github.com/BangNopall/paskihub-be/domain/entity"
 	"github.com/BangNopall/paskihub-be/domain/enums"
 	"github.com/BangNopall/paskihub-be/pkg/helpers/http/response"
 	"github.com/BangNopall/paskihub-be/pkg/log"
@@ -43,7 +46,7 @@ func (m *Middleware) Authentication(ctx *fiber.Ctx) error {
 	}
 
 	tokenString := splitted[1]
-	id, email, role, parentId, err := m.jwt.ValidateToken(tokenString)
+	id, _, _, _, err := m.jwt.ValidateToken(tokenString)
 	if err != nil {
 		log.Warn(log.LogInfo{
 			"error": err,
@@ -83,11 +86,38 @@ func (m *Middleware) Authentication(ctx *fiber.Ctx) error {
 		return nil
 	}
 
-	ctx.Locals("id", id.String())
-	ctx.Locals("email", email)
-	ctx.Locals("role", role)
-	if parentId != nil {
-		ctx.Locals("parent_id", parentId.String())
+	var currentUser entity.User
+	if err := m.userRepo.FindUser(&currentUser, &dto.UserParam{Id: id}); err != nil {
+		code := http.StatusInternalServerError
+		if err == domain.ErrNotFound {
+			code = http.StatusUnauthorized
+		}
+		response.SendErrResp(
+			ctx,
+			code,
+			response.Error,
+			"failed to authenticate user",
+			err,
+		)
+		return nil
+	}
+
+	if currentUser.IsBanned {
+		response.SendErrResp(
+			ctx,
+			http.StatusForbidden,
+			response.Fail,
+			"forbidden access",
+			domain.ErrAccountBanned,
+		)
+		return nil
+	}
+
+	ctx.Locals("id", currentUser.Id.String())
+	ctx.Locals("email", currentUser.Email)
+	ctx.Locals("role", string(currentUser.Role))
+	if currentUser.ParentId != nil {
+		ctx.Locals("parent_id", currentUser.ParentId.String())
 	}
 	ctx.Next()
 	return nil

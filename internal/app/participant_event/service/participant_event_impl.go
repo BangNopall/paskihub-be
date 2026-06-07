@@ -15,6 +15,7 @@ import (
 	"github.com/BangNopall/paskihub-be/domain/dto"
 	"github.com/BangNopall/paskihub-be/domain/entity"
 	"github.com/BangNopall/paskihub-be/domain/enums"
+	"github.com/BangNopall/paskihub-be/pkg/helpers"
 	"github.com/google/uuid"
 )
 
@@ -34,7 +35,7 @@ func saveFile(fileHeader *multipart.FileHeader, folderPath string) (string, erro
 	if fileHeader == nil {
 		return "", nil
 	}
-	if err := os.MkdirAll(folderPath, 0755); err != nil {
+	if err := os.MkdirAll(folderPath, 0750); err != nil {
 		return "", err
 	}
 
@@ -47,7 +48,7 @@ func saveFile(fileHeader *multipart.FileHeader, folderPath string) (string, erro
 	}
 	defer src.Close()
 
-	dst, err := os.Create(fullPath)
+	dst, err := os.OpenFile(fullPath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
 	if err != nil {
 		return "", err
 	}
@@ -150,7 +151,7 @@ func (s *participantEventService) RegisterEvent(ctx context.Context, userID stri
 		return errors.New("team is already registered for this event")
 	}
 
-	proofPath, err := saveFile(req.PaymentProof, "public/uploads/payments")
+	proofPath, err := saveFile(req.PaymentProof, "storage/private/payments")
 	if err != nil {
 		return err
 	}
@@ -197,7 +198,7 @@ func (s *participantEventService) PelunasanEvent(ctx context.Context, userID str
 		return errors.New("registration is already fully paid")
 	}
 
-	proofPath, err := saveFile(req.PaymentProof, "public/uploads/payments_pelunasan")
+	proofPath, err := saveFile(req.PaymentProof, "storage/private/payments_pelunasan")
 	if err != nil {
 		return err
 	}
@@ -288,7 +289,7 @@ func (s *participantEventService) GetRegistrationDetail(ctx context.Context, use
 	res.Team.PasukanCount = pasukanCount
 
 	res.Payment.Status = string(regis.PaymentStatus)
-	res.Payment.ProofUrl = regis.PaymentProofPath
+	res.Payment.ProofUrl = helpers.PrivateFileURL("registration-payment", regis.Id)
 	res.Payment.TotalAmount = regis.EventLevel.RegisFee
 
 	// Logic for amount paid and remaining amount

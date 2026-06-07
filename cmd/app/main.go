@@ -8,6 +8,7 @@ import (
 	"github.com/BangNopall/paskihub-be/internal/infra/env"
 	"github.com/BangNopall/paskihub-be/internal/infra/server"
 	"github.com/BangNopall/paskihub-be/pkg/helpers/flag"
+	"github.com/BangNopall/paskihub-be/pkg/log"
 )
 
 // @title						Paskihub API
@@ -26,14 +27,28 @@ import (
 // @name						x-api-key
 // @description				API Key for all endpoints. Format: Key {api_key}. Example: Key abc123
 func main() {
+	if err := flag.Parse(os.Args[1:]); err != nil {
+		log.Fatal(log.LogInfo{
+			"error": err.Error(),
+		}, "[APP][main] invalid command flags")
+	}
+
 	server := server.NewHttpServer()
 	pgsqldb := database.NewPgsqlConn()
 
-	database.Migrate(pgsqldb, os.Args)
+	if err := database.Migrate(pgsqldb, os.Args); err != nil {
+		log.Fatal(log.LogInfo{
+			"error": err.Error(),
+		}, "[APP][main] database migration failed")
+	}
 	database.Seeder(pgsqldb, flag.FlagVars)
 
 	server.MountMiddlewares()
-	server.MountRoutes(pgsqldb)
+	if err := server.MountRoutes(pgsqldb); err != nil {
+		log.Fatal(log.LogInfo{
+			"error": err.Error(),
+		}, "[APP][main] failed to mount routes")
+	}
 	server.RegistCustomValidation()
 	server.Start(env.AppEnv.AppPort)
 }

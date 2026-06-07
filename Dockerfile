@@ -20,13 +20,13 @@ RUN apk add --no-cache ca-certificates tzdata && \
     mkdir -p \
       /app/data/logs \
       /app/public/uploads/events \
-      /app/public/uploads/payments \
-      /app/public/uploads/payments_pelunasan \
-      /app/public/uploads/teams/id_cards \
       /app/public/uploads/teams/logos \
-      /app/public/uploads/teams/photos \
-      /app/public/uploads/teams/rekomendasi \
-      /app/public/uploads/wallets && \
+      /app/storage/private/payments \
+      /app/storage/private/payments_pelunasan \
+      /app/storage/private/teams/id_cards \
+      /app/storage/private/teams/photos \
+      /app/storage/private/teams/rekomendasi \
+      /app/storage/private/wallets && \
     chown -R app:app /app
 
 COPY --from=builder /out/paskihub-be /app/paskihub-be

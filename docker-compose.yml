@@ -9,13 +9,14 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-      # redis:
-      #   condition: service_healthy
+      redis:
+        condition: service_healthy
     ports:
       - "${APP_PORT:-3080}:${APP_PORT:-3080}"
     volumes:
       - ./.env:/app/.env:ro
       - paskihub_uploads:/app/public/uploads
+      - paskihub_private_uploads:/app/storage/private
       - paskihub_logs:/app/data/logs
     networks:
       - paskihub
@@ -42,24 +43,24 @@ services:
     networks:
       - paskihub
 
-  # redis:
-  #   image: redis:7-alpine
-  #   container_name: paskihub-redis
-  #   restart: unless-stopped
-  #   environment:
-  #     REDIS_PASS: ${REDIS_PASS:-paskihub_redis_password}
-  #   command: ["redis-server", "--appendonly", "yes", "--requirepass", "${REDIS_PASS:-paskihub_redis_password}"]
-  #   ports:
-  #     - "2021:6379"
-  #   volumes:
-  #     - paskihub_redis_data:/data
-  #   healthcheck:
-  #     test: ["CMD-SHELL", "redis-cli -a \"$${REDIS_PASS:-paskihub_redis_password}\" ping | grep PONG"]
-  #     interval: 10s
-  #     timeout: 5s
-  #     retries: 5
-  #   networks:
-  #     - paskihub
+  redis:
+    image: redis:7-alpine
+    container_name: paskihub-redis
+    restart: unless-stopped
+    environment:
+      REDIS_PASS: ${REDIS_PASS:-paskihub_redis_password}
+    command: ["redis-server", "--appendonly", "yes", "--requirepass", "${REDIS_PASS:-paskihub_redis_password}"]
+    ports:
+      - "2021:6379"
+    volumes:
+      - paskihub_redis_data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -a \"$${REDIS_PASS:-paskihub_redis_password}\" ping | grep PONG"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - paskihub
 
 networks:
   paskihub:
@@ -67,6 +68,7 @@ networks:
 
 volumes:
   paskihub_postgres_data:
-  # paskihub_redis_data:
+  paskihub_redis_data:
   paskihub_uploads:
+  paskihub_private_uploads:
   paskihub_logs:

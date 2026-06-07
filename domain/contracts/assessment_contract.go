@@ -10,6 +10,9 @@ import (
 
 type IAssessmentRepository interface {
 	CheckEventOwnership(ctx context.Context, eventId, userId uuid.UUID) (bool, error)
+	EventLevelBelongsToEvent(ctx context.Context, eventId, eventLevelId uuid.UUID) (bool, error)
+	ValidateScoreInputRelations(ctx context.Context, eventId, regisId, judgeId, subCategoryId uuid.UUID) (bool, error)
+	ValidateAwardRelations(ctx context.Context, eventId uuid.UUID, eventLevelIds, scoreCategoryIds []uuid.UUID) (bool, error)
 
 	CreateJudge(ctx context.Context, judge *entity.Judge) error
 	GetJudgesByEvent(ctx context.Context, eventId uuid.UUID) ([]entity.Judge, error)
