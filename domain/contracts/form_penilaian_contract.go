@@ -11,6 +11,7 @@ import (
 
 type FormPenilaianRepository interface {
 	WithTx(tx *gorm.DB) FormPenilaianRepository
+	ValidateAssessmentOwnership(ctx context.Context, organizerID, regisID, judgeID uuid.UUID, subCategoryIDs, violationTypeIDs []uuid.UUID) (bool, error)
 	GetSubCategoryGradeRules(ctx context.Context, subCategoryIDs []uuid.UUID) ([]entity.GradeRule, error)
 	GetEventIDByRegisID(ctx context.Context, regisID uuid.UUID) (uuid.UUID, error)
 	BulkUpsertScores(ctx context.Context, scores []entity.Score) error
@@ -19,7 +20,7 @@ type FormPenilaianRepository interface {
 }
 
 type FormPenilaianService interface {
-	BulkInsertScores(ctx context.Context, req dto.BulkInsertScoresRequest) error
-	BulkInsertTeamViolations(ctx context.Context, req dto.BulkInsertViolationsRequest) error
-	FinalizeAssessment(ctx context.Context, req dto.FinalizeAssessmentRequest) error
+	BulkInsertScores(ctx context.Context, organizerID uuid.UUID, req dto.BulkInsertScoresRequest) error
+	BulkInsertTeamViolations(ctx context.Context, organizerID uuid.UUID, req dto.BulkInsertViolationsRequest) error
+	FinalizeAssessment(ctx context.Context, organizerID uuid.UUID, req dto.FinalizeAssessmentRequest) error
 }

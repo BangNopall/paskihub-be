@@ -18,6 +18,27 @@ func NewRekapRepository(db *gorm.DB) contracts.RekapRepository {
 	return &rekapRepository{db: db}
 }
 
+func (r *rekapRepository) RegistrationBelongsToOrganizer(ctx context.Context, regisID, organizerID uuid.UUID) (bool, error) {
+	var count int64
+	err := r.db.WithContext(ctx).
+		Table("registrations AS r").
+		Joins("JOIN event_levels AS el ON el.id = r.event_level_id").
+		Joins("JOIN events AS e ON e.id = el.event_id").
+		Where("r.id = ? AND e.user_id = ?", regisID, organizerID).
+		Count(&count).Error
+	return count == 1, err
+}
+
+func (r *rekapRepository) EventLevelBelongsToOrganizer(ctx context.Context, eventLevelID, organizerID uuid.UUID) (bool, error) {
+	var count int64
+	err := r.db.WithContext(ctx).
+		Table("event_levels AS el").
+		Joins("JOIN events AS e ON e.id = el.event_id").
+		Where("el.id = ? AND e.user_id = ?", eventLevelID, organizerID).
+		Count(&count).Error
+	return count == 1, err
+}
+
 func (r *rekapRepository) GetTeamAssessmentDetail(ctx context.Context, regisID uuid.UUID) (dto.TeamAssessmentDetailResponse, error) {
 	var resp dto.TeamAssessmentDetailResponse
 

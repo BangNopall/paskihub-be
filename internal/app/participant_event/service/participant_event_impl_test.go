@@ -2,9 +2,11 @@ package service
 
 import (
 	"context"
+	"errors"
 	"testing"
 	"time"
 
+	"github.com/BangNopall/paskihub-be/domain"
 	"github.com/BangNopall/paskihub-be/domain/dto"
 	"github.com/BangNopall/paskihub-be/domain/entity"
 	"github.com/BangNopall/paskihub-be/domain/enums"
@@ -14,6 +16,7 @@ import (
 type stubParticipantEventRepo struct {
 	registration *entity.Registration
 	isOwner      bool
+	updateCalled *bool
 }
 
 func (r stubParticipantEventRepo) GetOpenEvents(ctx context.Context) ([]entity.Event, error) {
@@ -37,6 +40,9 @@ func (r stubParticipantEventRepo) GetRegistrationOwnership(ctx context.Context, 
 }
 
 func (r stubParticipantEventRepo) UpdateRegistration(ctx context.Context, registration *entity.Registration) error {
+	if r.updateCalled != nil {
+		*r.updateCalled = true
+	}
 	return nil
 }
 
@@ -57,6 +63,14 @@ func (r stubParticipantEventRepo) CheckExistingRegistration(ctx context.Context,
 }
 
 type stubRekapRepo struct{}
+
+func (r stubRekapRepo) RegistrationBelongsToOrganizer(ctx context.Context, regisID, organizerID uuid.UUID) (bool, error) {
+	return false, nil
+}
+
+func (r stubRekapRepo) EventLevelBelongsToOrganizer(ctx context.Context, eventLevelID, organizerID uuid.UUID) (bool, error) {
+	return false, nil
+}
 
 func (r stubRekapRepo) GetTeamAssessmentDetail(ctx context.Context, regisID uuid.UUID) (dto.TeamAssessmentDetailResponse, error) {
 	return dto.TeamAssessmentDetailResponse{}, nil
@@ -132,5 +146,30 @@ func TestGetRegistrationDetailIncludesFrontendOverviewFields(t *testing.T) {
 	}
 	if res.Event.LogoUrl != "/public/event-logo.png" {
 		t.Fatalf("expected event logo url to be mapped, got %q", res.Event.LogoUrl)
+	}
+}
+
+func TestPelunasanEventRejectsForeignRegistrationBeforeUpdate(t *testing.T) {
+	updateCalled := false
+	svc := &participantEventService{
+		repo: stubParticipantEventRepo{
+			isOwner:      false,
+			registration: &entity.Registration{Id: uuid.New()},
+			updateCalled: &updateCalled,
+		},
+	}
+
+	err := svc.PelunasanEvent(
+		context.Background(),
+		uuid.NewString(),
+		uuid.NewString(),
+		dto.PelunasanEventRequest{},
+	)
+
+	if !errors.Is(err, domain.ErrForbidden) {
+		t.Fatalf("expected ErrForbidden, got %v", err)
+	}
+	if updateCalled {
+		t.Fatal("UpdateRegistration was called for a foreign registration")
 	}
 }

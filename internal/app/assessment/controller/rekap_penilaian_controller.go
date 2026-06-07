@@ -41,6 +41,7 @@ func InitRekapController(
 // @Router /api/v1/rekap/detail/{regisId} [get]
 // @Failure 400 {object} response.ErrorResponse
 // @Failure 401 {object} response.ErrorResponse
+// @Failure 403 {object} response.ErrorResponse
 // @Failure 500 {object} response.ErrorResponse
 func (c *rekapController) GetTeamAssessmentDetail(ctx *fiber.Ctx) error {
 	var (
@@ -61,7 +62,14 @@ func (c *rekapController) GetTeamAssessmentDetail(ctx *fiber.Ctx) error {
 		return nil
 	}
 
-	res, err = c.service.GetTeamAssessmentDetail(ctx.Context(), regisId)
+	userId, parseErr := uuid.Parse(ctx.Locals("id").(string))
+	if parseErr != nil {
+		err = parseErr
+		code = http.StatusUnauthorized
+		return nil
+	}
+
+	res, err = c.service.GetTeamAssessmentDetail(ctx.Context(), regisId, userId)
 	code = domain.GetCode(err)
 	if err != nil {
 		return nil
@@ -82,6 +90,7 @@ func (c *rekapController) GetTeamAssessmentDetail(ctx *fiber.Ctx) error {
 // @Router /api/v1/rekap/scoreboard/{eventLevelId} [get]
 // @Failure 400 {object} response.ErrorResponse
 // @Failure 401 {object} response.ErrorResponse
+// @Failure 403 {object} response.ErrorResponse
 // @Failure 500 {object} response.ErrorResponse
 func (c *rekapController) GetScoreboard(ctx *fiber.Ctx) error {
 	var (
@@ -102,7 +111,14 @@ func (c *rekapController) GetScoreboard(ctx *fiber.Ctx) error {
 		return nil
 	}
 
-	res, err = c.service.GetScoreboard(ctx.Context(), eventLevelId)
+	userId, parseErr := uuid.Parse(ctx.Locals("id").(string))
+	if parseErr != nil {
+		err = parseErr
+		code = http.StatusUnauthorized
+		return nil
+	}
+
+	res, err = c.service.GetScoreboard(ctx.Context(), eventLevelId, userId)
 	code = domain.GetCode(err)
 	if err != nil {
 		return nil
@@ -125,6 +141,7 @@ func (c *rekapController) GetScoreboard(ctx *fiber.Ctx) error {
 // @Router /api/v1/rekap/leaderboard/custom/{eventLevelId} [post]
 // @Failure 400 {object} response.ErrorResponse
 // @Failure 401 {object} response.ErrorResponse
+// @Failure 403 {object} response.ErrorResponse
 // @Failure 500 {object} response.ErrorResponse
 func (c *rekapController) GetLeaderboardCustom(ctx *fiber.Ctx) error {
 	var (
@@ -150,7 +167,14 @@ func (c *rekapController) GetLeaderboardCustom(ctx *fiber.Ctx) error {
 		return nil
 	}
 
-	res, err = c.service.GetLeaderboardCustom(ctx.Context(), req, eventLevelId)
+	userId, parseErr := uuid.Parse(ctx.Locals("id").(string))
+	if parseErr != nil {
+		err = parseErr
+		code = http.StatusUnauthorized
+		return nil
+	}
+
+	res, err = c.service.GetLeaderboardCustom(ctx.Context(), req, eventLevelId, userId)
 	code = domain.GetCode(err)
 	if err != nil {
 		return nil
@@ -173,6 +197,7 @@ func (c *rekapController) GetLeaderboardCustom(ctx *fiber.Ctx) error {
 // @Router /api/v1/rekap/publish/{eventLevelId} [put]
 // @Failure 400 {object} response.ErrorResponse
 // @Failure 401 {object} response.ErrorResponse
+// @Failure 403 {object} response.ErrorResponse
 // @Failure 500 {object} response.ErrorResponse
 func (c *rekapController) PublishScoreboard(ctx *fiber.Ctx) error {
 	var (

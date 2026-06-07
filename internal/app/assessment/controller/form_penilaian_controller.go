@@ -9,6 +9,7 @@ import (
 	"github.com/BangNopall/paskihub-be/internal/middlewares"
 	"github.com/BangNopall/paskihub-be/pkg/helpers/http/response"
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 )
 
 type formPenilaianController struct {
@@ -40,6 +41,7 @@ func InitFormPenilaianController(
 // @Router /api/v1/assessment/scores/bulk [post]
 // @Failure 400 {object} response.ErrorResponse
 // @Failure 401 {object} response.ErrorResponse
+// @Failure 403 {object} response.ErrorResponse
 // @Failure 500 {object} response.ErrorResponse
 func (c *formPenilaianController) BulkInsertScores(ctx *fiber.Ctx) error {
 	var (
@@ -59,7 +61,14 @@ func (c *formPenilaianController) BulkInsertScores(ctx *fiber.Ctx) error {
 		return nil
 	}
 
-	err = c.service.BulkInsertScores(ctx.Context(), req)
+	organizerID, parseErr := uuid.Parse(ctx.Locals("id").(string))
+	if parseErr != nil {
+		err = parseErr
+		code = fiber.StatusUnauthorized
+		return nil
+	}
+
+	err = c.service.BulkInsertScores(ctx.Context(), organizerID, req)
 	code = domain.GetCode(err)
 	if err != nil {
 		return nil
@@ -81,6 +90,7 @@ func (c *formPenilaianController) BulkInsertScores(ctx *fiber.Ctx) error {
 // @Router /api/v1/assessment/violations/bulk [post]
 // @Failure 400 {object} response.ErrorResponse
 // @Failure 401 {object} response.ErrorResponse
+// @Failure 403 {object} response.ErrorResponse
 // @Failure 500 {object} response.ErrorResponse
 func (c *formPenilaianController) BulkInsertViolations(ctx *fiber.Ctx) error {
 	var (
@@ -100,7 +110,14 @@ func (c *formPenilaianController) BulkInsertViolations(ctx *fiber.Ctx) error {
 		return nil
 	}
 
-	err = c.service.BulkInsertTeamViolations(ctx.Context(), req)
+	organizerID, parseErr := uuid.Parse(ctx.Locals("id").(string))
+	if parseErr != nil {
+		err = parseErr
+		code = fiber.StatusUnauthorized
+		return nil
+	}
+
+	err = c.service.BulkInsertTeamViolations(ctx.Context(), organizerID, req)
 	code = domain.GetCode(err)
 	if err != nil {
 		return nil
@@ -122,6 +139,7 @@ func (c *formPenilaianController) BulkInsertViolations(ctx *fiber.Ctx) error {
 // @Router /api/v1/assessment/finalize [post]
 // @Failure 400 {object} response.ErrorResponse
 // @Failure 401 {object} response.ErrorResponse
+// @Failure 403 {object} response.ErrorResponse
 // @Failure 500 {object} response.ErrorResponse
 func (c *formPenilaianController) FinalizeAssessment(ctx *fiber.Ctx) error {
 	var (
@@ -141,7 +159,14 @@ func (c *formPenilaianController) FinalizeAssessment(ctx *fiber.Ctx) error {
 		return nil
 	}
 
-	err = c.service.FinalizeAssessment(ctx.Context(), req)
+	organizerID, parseErr := uuid.Parse(ctx.Locals("id").(string))
+	if parseErr != nil {
+		err = parseErr
+		code = fiber.StatusUnauthorized
+		return nil
+	}
+
+	err = c.service.FinalizeAssessment(ctx.Context(), organizerID, req)
 	code = domain.GetCode(err)
 	if err != nil {
 		return nil

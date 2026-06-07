@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/BangNopall/paskihub-be/domain"
 	"github.com/BangNopall/paskihub-be/domain/contracts"
 	"github.com/BangNopall/paskihub-be/domain/dto"
 	"github.com/BangNopall/paskihub-be/domain/entity"
@@ -209,7 +210,7 @@ func (s *participantTeamService) GetTeams(ctx context.Context, userID string) ([
 			Pelatih:         t.Pelatih,
 			InstitutionType: string(t.Institution.InstitutionType),
 			PaymentStatus:   paymentStatus,
-                        MembersCount:    len(t.TeamMembers),
+			MembersCount:    len(t.TeamMembers),
 		})
 	}
 
@@ -217,14 +218,27 @@ func (s *participantTeamService) GetTeams(ctx context.Context, userID string) ([
 }
 
 func (s *participantTeamService) GetTeamDetail(ctx context.Context, userID string, teamID string) (*dto.TeamDetailResponse, error) {
+	parsedUserID, err := uuid.Parse(userID)
+	if err != nil {
+		return nil, errors.New("invalid user id")
+	}
+
 	parsedTeamID, err := uuid.Parse(teamID)
 	if err != nil {
 		return nil, errors.New("invalid team id")
 	}
 
+	institution, err := s.profileRepo.GetInstitutionByUserID(ctx, parsedUserID)
+	if err != nil {
+		return nil, errors.New("institution not found")
+	}
+
 	team, err := s.repo.GetTeamByID(ctx, parsedTeamID)
 	if err != nil {
 		return nil, err
+	}
+	if team.InstiId != institution.Id {
+		return nil, domain.ErrForbidden
 	}
 
 	groupedMembers := make(map[string][]dto.ParticipantTeamMemberResponse)
@@ -253,14 +267,27 @@ func (s *participantTeamService) GetTeamDetail(ctx context.Context, userID strin
 }
 
 func (s *participantTeamService) DeleteTeam(ctx context.Context, userID string, teamID string) error {
+	parsedUserID, err := uuid.Parse(userID)
+	if err != nil {
+		return errors.New("invalid user id")
+	}
+
 	parsedTeamID, err := uuid.Parse(teamID)
 	if err != nil {
 		return errors.New("invalid team id")
 	}
 
+	institution, err := s.profileRepo.GetInstitutionByUserID(ctx, parsedUserID)
+	if err != nil {
+		return errors.New("institution not found")
+	}
+
 	team, err := s.repo.GetTeamByID(ctx, parsedTeamID)
 	if err != nil {
 		return err
+	}
+	if team.InstiId != institution.Id {
+		return domain.ErrForbidden
 	}
 
 	if len(team.Registrations) > 0 && (team.Registrations[0].PaymentStatus == enums.FullPaid) {

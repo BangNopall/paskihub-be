@@ -1,8 +1,10 @@
 package controller
 
 import (
+	"errors"
 	"fmt"
 
+	"github.com/BangNopall/paskihub-be/domain"
 	"github.com/BangNopall/paskihub-be/domain/contracts"
 	"github.com/BangNopall/paskihub-be/domain/dto"
 	"github.com/BangNopall/paskihub-be/pkg/helpers/http/response"
@@ -243,6 +245,7 @@ func (c *ParticipantTeamController) GetTeams(ctx *fiber.Ctx) error {
 // @Param id path string true "Team ID"
 // @Success 200 {object} response.Response{data=dto.TeamDetailResponse}
 // @Failure 401 {object} response.ErrorResponse
+// @Failure 403 {object} response.ErrorResponse
 // @Failure 404 {object} response.ErrorResponse
 // @Failure 500 {object} response.ErrorResponse
 // @Router /api/v1/peserta/teams/{id} [get]
@@ -252,7 +255,11 @@ func (c *ParticipantTeamController) GetTeamDetail(ctx *fiber.Ctx) error {
 
 	res, err := c.service.GetTeamDetail(ctx.Context(), userID, teamID)
 	if err != nil {
-		response.Send(ctx, fiber.StatusInternalServerError, "Failed to get team detail", nil, err)
+		code := fiber.StatusInternalServerError
+		if errors.Is(err, domain.ErrForbidden) {
+			code = fiber.StatusForbidden
+		}
+		response.Send(ctx, code, "Failed to get team detail", nil, err)
 		return nil
 	}
 
@@ -270,6 +277,7 @@ func (c *ParticipantTeamController) GetTeamDetail(ctx *fiber.Ctx) error {
 // @Success 200 {object} response.Response
 // @Failure 400 {object} response.ErrorResponse
 // @Failure 401 {object} response.ErrorResponse
+// @Failure 403 {object} response.ErrorResponse
 // @Failure 404 {object} response.ErrorResponse
 // @Failure 500 {object} response.ErrorResponse
 // @Router /api/v1/peserta/teams/{id} [delete]
@@ -279,7 +287,11 @@ func (c *ParticipantTeamController) DeleteTeam(ctx *fiber.Ctx) error {
 
 	err := c.service.DeleteTeam(ctx.Context(), userID, teamID)
 	if err != nil {
-		response.Send(ctx, fiber.StatusBadRequest, "Failed to delete team", nil, err)
+		code := fiber.StatusBadRequest
+		if errors.Is(err, domain.ErrForbidden) {
+			code = fiber.StatusForbidden
+		}
+		response.Send(ctx, code, "Failed to delete team", nil, err)
 		return nil
 	}
 

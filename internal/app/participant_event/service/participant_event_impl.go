@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/BangNopall/paskihub-be/domain"
 	"github.com/BangNopall/paskihub-be/domain/contracts"
 	"github.com/BangNopall/paskihub-be/domain/dto"
 	"github.com/BangNopall/paskihub-be/domain/entity"
@@ -168,10 +169,23 @@ func (s *participantEventService) RegisterEvent(ctx context.Context, userID stri
 	return s.repo.CreateRegistration(ctx, regis)
 }
 
-func (s *participantEventService) PelunasanEvent(ctx context.Context, regisID string, req dto.PelunasanEventRequest) error {
+func (s *participantEventService) PelunasanEvent(ctx context.Context, userID string, regisID string, req dto.PelunasanEventRequest) error {
+	parsedUserID, err := uuid.Parse(userID)
+	if err != nil {
+		return errors.New("invalid user id")
+	}
+
 	parsedRegisID, err := uuid.Parse(regisID)
 	if err != nil {
 		return errors.New("invalid regis id")
+	}
+
+	isOwner, err := s.repo.GetRegistrationOwnership(ctx, parsedRegisID, parsedUserID)
+	if err != nil {
+		return err
+	}
+	if !isOwner {
+		return domain.ErrForbidden
 	}
 
 	regis, err := s.repo.GetRegistrationByID(ctx, parsedRegisID)

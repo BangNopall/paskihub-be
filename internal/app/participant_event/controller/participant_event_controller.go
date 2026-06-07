@@ -1,6 +1,9 @@
 package controller
 
 import (
+	"errors"
+
+	"github.com/BangNopall/paskihub-be/domain"
 	"github.com/BangNopall/paskihub-be/domain/contracts"
 	"github.com/BangNopall/paskihub-be/domain/dto"
 	"github.com/BangNopall/paskihub-be/pkg/helpers/http/response"
@@ -121,9 +124,11 @@ func (c *ParticipantEventController) RegisterEvent(ctx *fiber.Ctx) error {
 // @Success 200 {object} response.Response
 // @Failure 400 {object} response.ErrorResponse
 // @Failure 401 {object} response.ErrorResponse
+// @Failure 403 {object} response.ErrorResponse
 // @Failure 500 {object} response.ErrorResponse
 // @Router /api/v1/peserta/events/register/{id}/pelunasan [put]
 func (c *ParticipantEventController) PelunasanEvent(ctx *fiber.Ctx) error {
+	userID := ctx.Locals("id").(string)
 	regisID := ctx.Params("id")
 
 	form, err := ctx.MultipartForm()
@@ -137,9 +142,13 @@ func (c *ParticipantEventController) PelunasanEvent(ctx *fiber.Ctx) error {
 		req.PaymentProof = proofFiles[0]
 	}
 
-	err = c.service.PelunasanEvent(ctx.Context(), regisID, req)
+	err = c.service.PelunasanEvent(ctx.Context(), userID, regisID, req)
 	if err != nil {
-		response.Send(ctx, fiber.StatusInternalServerError, "Failed to upload pelunasan", nil, err)
+		code := fiber.StatusInternalServerError
+		if errors.Is(err, domain.ErrForbidden) {
+			code = fiber.StatusForbidden
+		}
+		response.Send(ctx, code, "Failed to upload pelunasan", nil, err)
 		return nil
 	}
 
