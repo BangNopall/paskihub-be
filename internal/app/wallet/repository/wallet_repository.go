@@ -70,9 +70,17 @@ func (r *walletRepository) ApproveTransaction(ctx context.Context, transactionId
 			return err
 		}
 
-		// Increase saldo
+		// Increase saldo and coin balance
 		newSaldo := wallet.Saldo + transaction.Amount
-		if err := tx.Model(&wallet).Update("saldo", newSaldo).Error; err != nil {
+		newCoinBalance := wallet.CoinBalance
+		if transaction.CoinRateSnapshot > 0 {
+			newCoinBalance += transaction.Amount / transaction.CoinRateSnapshot
+		}
+
+		if err := tx.Model(&wallet).Updates(map[string]interface{}{
+			"saldo":        newSaldo,
+			"coin_balance": newCoinBalance,
+		}).Error; err != nil {
 			return err
 		}
 

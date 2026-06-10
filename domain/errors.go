@@ -37,8 +37,13 @@ var (
 	ErrInvalidRole             = errors.New("invalid user data")
 	ErrForbidden               = errors.New("forbidden access")
 	ErrAccountBanned           = errors.New("account is banned")
-	ErrRegistrationNotFound    = errors.New("registration not found for this event")
-	ErrInsufficientBalance     = errors.New("insufficient wallet balance for approval fee")
+	ErrRegistrationNotFound        = errors.New("registration not found for this event")
+	ErrInsufficientBalance         = errors.New("insufficient wallet balance for approval fee")
+	ErrTeamNotBelongToInstitution  = errors.New("team does not belong to your institution")
+	ErrInstitutionCategoryMismatch = errors.New("team institution category does not match event category")
+	ErrInvalidTeamMembersCount     = errors.New("invalid team members count for this event")
+	ErrAlreadyRegisteredForEvent   = errors.New("team is already registered for this event")
+	ErrAlreadyFullyPaid            = errors.New("registration is already fully paid")
 )
 
 func GetCode(err error) int {
@@ -46,46 +51,51 @@ func GetCode(err error) int {
 		return http.StatusOK
 	}
 
-	switch err {
-	case ErrInternalServer:
-		return http.StatusInternalServerError
-	case ErrNotFound,
-		ErrVoucherNotFound,
-		ErrUserNotFound:
-		return http.StatusNotFound
-	case ErrInvalidEnumInput:
-		return http.StatusBadRequest
-	case ErrUserNotTeamLeader,
-		ErrAnnouncementNotFound,
-		ErrCompetitionNotFound,
-		ErrTeamNotFound,
-		ErrIllegalEntry,
-		ErrMissingAttribute,
-		ErrTeamFull,
-		ErrInvalidCompeTeamID,
-		ErrInvalidProofType,
-		ErrUniversityNotFound,
-		ErrBadRequest:
-		return http.StatusBadRequest
-	case ErrTimeout:
-		return http.StatusRequestTimeout
-	case ErrDuplicateEntry, ErrUserAlreadyRegistered, ErrEmailRegistered, ErrVoucherAlreadyRedeemed:
-		return http.StatusConflict
-	case ErrAlreadyAttend:
-		return http.StatusUnprocessableEntity
-	case ErrCheckEmail:
-		return http.StatusBadRequest
-	case ErrInvalidToken:
-		return http.StatusUnauthorized
-	case ErrWrongEmailOrPassword:
-		return http.StatusUnauthorized
-	case ErrFileTooBig:
-		return http.StatusRequestEntityTooLarge
-	case ErrForbiddenUpdate, ErrForbidden, ErrAccountBanned:
-		return http.StatusForbidden
-	case ErrConfirmPasswordNotMatch, ErrInvalidRole:
-		return http.StatusBadRequest
-	default:
+	if errors.Is(err, ErrInternalServer) {
 		return http.StatusInternalServerError
 	}
+	if errors.Is(err, ErrNotFound) || errors.Is(err, ErrVoucherNotFound) || errors.Is(err, ErrUserNotFound) {
+		return http.StatusNotFound
+	}
+	if errors.Is(err, ErrInvalidEnumInput) {
+		return http.StatusBadRequest
+	}
+	if errors.Is(err, ErrUserNotTeamLeader) || errors.Is(err, ErrAnnouncementNotFound) ||
+		errors.Is(err, ErrCompetitionNotFound) || errors.Is(err, ErrTeamNotFound) ||
+		errors.Is(err, ErrIllegalEntry) || errors.Is(err, ErrMissingAttribute) ||
+		errors.Is(err, ErrTeamFull) || errors.Is(err, ErrInvalidCompeTeamID) ||
+		errors.Is(err, ErrInvalidProofType) || errors.Is(err, ErrUniversityNotFound) ||
+		errors.Is(err, ErrTeamNotBelongToInstitution) || errors.Is(err, ErrInstitutionCategoryMismatch) ||
+		errors.Is(err, ErrInvalidTeamMembersCount) || errors.Is(err, ErrAlreadyFullyPaid) ||
+		errors.Is(err, ErrBadRequest) {
+		return http.StatusBadRequest
+	}
+	if errors.Is(err, ErrTimeout) {
+		return http.StatusRequestTimeout
+	}
+	if errors.Is(err, ErrDuplicateEntry) || errors.Is(err, ErrUserAlreadyRegistered) ||
+		errors.Is(err, ErrEmailRegistered) || errors.Is(err, ErrVoucherAlreadyRedeemed) ||
+		errors.Is(err, ErrAlreadyRegisteredForEvent) {
+		return http.StatusConflict
+	}
+	if errors.Is(err, ErrAlreadyAttend) {
+		return http.StatusUnprocessableEntity
+	}
+	if errors.Is(err, ErrCheckEmail) {
+		return http.StatusBadRequest
+	}
+	if errors.Is(err, ErrInvalidToken) || errors.Is(err, ErrWrongEmailOrPassword) {
+		return http.StatusUnauthorized
+	}
+	if errors.Is(err, ErrFileTooBig) {
+		return http.StatusRequestEntityTooLarge
+	}
+	if errors.Is(err, ErrForbiddenUpdate) || errors.Is(err, ErrForbidden) || errors.Is(err, ErrAccountBanned) {
+		return http.StatusForbidden
+	}
+	if errors.Is(err, ErrConfirmPasswordNotMatch) || errors.Is(err, ErrInvalidRole) {
+		return http.StatusBadRequest
+	}
+
+	return http.StatusInternalServerError
 }

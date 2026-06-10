@@ -54,9 +54,7 @@ func (s *privateFileService) ResolvePrivateFile(
 		return "", domain.ErrNotFound
 	}
 	path := record.Path
-	if strings.HasPrefix(path, "/public/") {
-		path = strings.TrimPrefix(path, "/")
-	}
+	path = strings.TrimPrefix(path, "/")
 	if _, err := os.Stat(path); err != nil {
 		if os.IsNotExist(err) {
 			return "", domain.ErrNotFound

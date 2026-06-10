@@ -1,8 +1,6 @@
 package controller
 
 import (
-	"errors"
-
 	"github.com/BangNopall/paskihub-be/domain"
 	"github.com/BangNopall/paskihub-be/domain/contracts"
 	"github.com/BangNopall/paskihub-be/domain/dto"
@@ -42,14 +40,18 @@ func (c *ParticipantEventController) Route(router fiber.Router) {
 // @Tags Participant Event
 // @Security ApiKeyAuth && BearerAuth
 // @Produce json
+// @Param location query string false "Filter by location"
+// @Param search query string false "Search by event name"
 // @Success 200 {object} response.Response{data=[]dto.OpenEventResponse}
 // @Failure 401 {object} response.ErrorResponse
 // @Failure 500 {object} response.ErrorResponse
 // @Router /api/v1/peserta/events/open [get]
 func (c *ParticipantEventController) GetOpenEvents(ctx *fiber.Ctx) error {
-	res, err := c.service.GetOpenEvents(ctx.Context())
+	location := ctx.Query("location")
+	search := ctx.Query("search")
+	res, err := c.service.GetOpenEvents(ctx.Context(), location, search)
 	if err != nil {
-		response.Send(ctx, fiber.StatusInternalServerError, "Failed to get open events", nil, err)
+		response.Send(ctx, domain.GetCode(err), "Failed to get open events", nil, err)
 		return nil
 	}
 
@@ -104,7 +106,7 @@ func (c *ParticipantEventController) RegisterEvent(ctx *fiber.Ctx) error {
 
 	err = c.service.RegisterEvent(ctx.Context(), userID, req)
 	if err != nil {
-		response.Send(ctx, fiber.StatusInternalServerError, "Failed to register event", nil, err)
+		response.Send(ctx, domain.GetCode(err), "Failed to register event", nil, err)
 		return nil
 	}
 
@@ -144,11 +146,7 @@ func (c *ParticipantEventController) PelunasanEvent(ctx *fiber.Ctx) error {
 
 	err = c.service.PelunasanEvent(ctx.Context(), userID, regisID, req)
 	if err != nil {
-		code := fiber.StatusInternalServerError
-		if errors.Is(err, domain.ErrForbidden) {
-			code = fiber.StatusForbidden
-		}
-		response.Send(ctx, code, "Failed to upload pelunasan", nil, err)
+		response.Send(ctx, domain.GetCode(err), "Failed to upload pelunasan", nil, err)
 		return nil
 	}
 
@@ -171,7 +169,7 @@ func (c *ParticipantEventController) GetActiveEvents(ctx *fiber.Ctx) error {
 
 	res, err := c.service.GetActiveEvents(ctx.Context(), userID)
 	if err != nil {
-		response.Send(ctx, fiber.StatusInternalServerError, "Failed to get active events", nil, err)
+		response.Send(ctx, domain.GetCode(err), "Failed to get active events", nil, err)
 		return nil
 	}
 
@@ -197,7 +195,7 @@ func (c *ParticipantEventController) GetRegistrationDetail(ctx *fiber.Ctx) error
 
 	res, err := c.service.GetRegistrationDetail(ctx.Context(), userID, regisID)
 	if err != nil {
-		response.Send(ctx, fiber.StatusInternalServerError, "Failed to get registration detail", nil, err)
+		response.Send(ctx, domain.GetCode(err), "Failed to get registration detail", nil, err)
 		return nil
 	}
 
@@ -222,7 +220,7 @@ func (c *ParticipantEventController) GetScoreboard(ctx *fiber.Ctx) error {
 
 	res, err := c.service.GetScoreboard(ctx.Context(), eventLevelID)
 	if err != nil {
-		response.Send(ctx, fiber.StatusInternalServerError, "Failed to get scoreboard", nil, err)
+		response.Send(ctx, domain.GetCode(err), "Failed to get scoreboard", nil, err)
 		return nil
 	}
 

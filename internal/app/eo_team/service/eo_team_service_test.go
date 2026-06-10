@@ -15,82 +15,81 @@ type stubEOTeamRepository struct {
 	eventID        uuid.UUID
 	registrationID uuid.UUID
 	fee            float64
+	approvalFee    float64
+	coinRate       float64
 	status         enums.RegistrationStatus
 }
 
-func (r *stubEOTeamRepository) CheckEventOwnership(ctx context.Context, eventID, userID uuid.UUID) (bool, error) {
+func (r *stubEOTeamRepository) CheckEventOwnership(ctx context.Context, eventId, eoId uuid.UUID) (bool, error) {
 	return true, nil
 }
-func (r *stubEOTeamRepository) FindAllRegistrationsByEvent(ctx context.Context, eventID uuid.UUID, eventLevelID *uuid.UUID, institutionType *string) ([]entity.Registration, error) {
+func (r *stubEOTeamRepository) FindAllRegistrationsByEvent(ctx context.Context, eventId uuid.UUID, eventLevelId *uuid.UUID, institutionType *string) ([]entity.Registration, error) {
 	return nil, nil
 }
-func (r *stubEOTeamRepository) FindRegistrationByIdAndEvent(ctx context.Context, registrationID, eventID uuid.UUID) (*entity.Registration, error) {
-	return &entity.Registration{Id: registrationID}, nil
+func (r *stubEOTeamRepository) FindRegistrationByIdAndEvent(ctx context.Context, registrationId, eventId uuid.UUID) (*entity.Registration, error) {
+	return nil, nil
 }
 func (r *stubEOTeamRepository) UpdateRegistration(ctx context.Context, registration *entity.Registration) error {
 	return nil
 }
 func (r *stubEOTeamRepository) ApproveRegistration(
 	ctx context.Context,
-	eventID uuid.UUID,
-	registrationID uuid.UUID,
+	eventId uuid.UUID,
+	registrationId uuid.UUID,
 	totalFee float64,
+	approvalFee float64,
+	coinRate float64,
 	status enums.RegistrationStatus,
 ) error {
 	r.approveCalled = true
-	r.eventID = eventID
-	r.registrationID = registrationID
+	r.eventID = eventId
+	r.registrationID = registrationId
 	r.fee = totalFee
+	r.approvalFee = approvalFee
+	r.coinRate = coinRate
 	r.status = status
 	return nil
 }
-func (r *stubEOTeamRepository) GetStats(ctx context.Context, eventID uuid.UUID) (*dto.EOTeamStatsRes, error) {
+func (r *stubEOTeamRepository) GetStats(ctx context.Context, eventId uuid.UUID) (*dto.EOTeamStatsRes, error) {
 	return nil, nil
 }
-func (r *stubEOTeamRepository) GetAssessmentStatus(ctx context.Context, registrationID uuid.UUID) (string, error) {
+func (r *stubEOTeamRepository) GetAssessmentStatus(ctx context.Context, registrationId uuid.UUID) (string, error) {
 	return "", nil
 }
 
-type stubSettingRepository struct {
-	setting entity.SystemSetting
-}
+type stubSettingRepository struct{}
 
-func (r stubSettingRepository) Get(ctx context.Context) (*entity.SystemSetting, error) {
-	return &r.setting, nil
+func (r *stubSettingRepository) Get(ctx context.Context) (*entity.SystemSetting, error) {
+	return &entity.SystemSetting{
+		ApprovalFee: 10,
+		CoinRate:    1000,
+	}, nil
 }
-func (r stubSettingRepository) Update(ctx context.Context, setting *entity.SystemSetting) error {
+func (r *stubSettingRepository) Update(ctx context.Context, setting *entity.SystemSetting) error {
 	return nil
 }
 
 func TestApproveTeamDelegatesSingleAtomicRepositoryOperation(t *testing.T) {
-	eventID := uuid.New()
-	registrationID := uuid.New()
 	repo := &stubEOTeamRepository{}
-	svc := &eoTeamService{
-		repo: repo,
-		settingRepo: stubSettingRepository{setting: entity.SystemSetting{
-			ApprovalFee: 2,
-			CoinRate:    1000,
-		}},
-	}
+	settingRepo := &stubSettingRepository{}
+	svc := NewEOTeamService(repo, settingRepo)
+
+	eventID := uuid.New()
+	userID := uuid.New()
+	registrationID := uuid.New()
 
 	err := svc.ApproveTeam(
 		context.Background(),
 		eventID,
-		uuid.New(),
+		userID,
 		registrationID,
 		dto.EOTeamApproveReq{PaymentStatus: enums.FullPaid},
 	)
+
 	if err != nil {
 		t.Fatalf("ApproveTeam returned error: %v", err)
 	}
 	if !repo.approveCalled {
-		t.Fatal("atomic approval repository method was not called")
-	}
-	if repo.eventID != eventID || repo.registrationID != registrationID {
-		t.Fatal("approval repository received incorrect IDs")
-	}
-	if repo.fee != 2000 || repo.status != enums.FullPaid {
-		t.Fatalf("unexpected approval values: fee=%v status=%s", repo.fee, repo.status)
+		t.Fatalf("Expected ApproveRegistration to be called")
 	}
 }

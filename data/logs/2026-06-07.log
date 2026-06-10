@@ -31,3 +31,12 @@
 {"level":"info","msg":"Application is running on development mode","time":"2026-06-07T21:53:17+07:00"}
 {"level":"info","msg":"[PGSQL CONN][Migrate] Auto Migrating Tables","time":"2026-06-07T21:53:17+07:00"}
 {"level":"info","msg":"redis connected","time":"2026-06-07T21:53:17+07:00"}
+{"level":"info","msg":"Application is running on development mode","time":"2026-06-07T22:13:04+07:00"}
+{"level":"info","msg":"[PGSQL CONN][Migrate] Dropping All Tables","time":"2026-06-07T22:13:04+07:00"}
+{"level":"info","msg":"[PGSQL CONN][Migrate] Auto Migrating Tables","time":"2026-06-07T22:13:04+07:00"}
+{"level":"info","msg":"[PGSQL CONN][EnsureDefaultSettings] Seeding default system settings","time":"2026-06-07T22:13:04+07:00"}
+{"level":"info","msg":"redis connected","time":"2026-06-07T22:13:05+07:00"}
+{"level":"info","msg":"Application is running on development mode","time":"2026-06-07T22:13:13+07:00"}
+{"level":"info","msg":"[PGSQL CONN][Migrate] Auto Migrating Tables","time":"2026-06-07T22:13:13+07:00"}
+{"level":"info","msg":"[USER SEEDER] Admin user seeded successfully","time":"2026-06-07T22:13:13+07:00"}
+{"level":"info","msg":"redis connected","time":"2026-06-07T22:13:13+07:00"}

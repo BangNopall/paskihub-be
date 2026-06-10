@@ -77,11 +77,6 @@ func (s *walletService) GetWalletInfo(ctx context.Context, eventId string, userI
 		return nil, err
 	}
 
-	setting, err := s.settingRepo.Get(ctx)
-	if err != nil {
-		return nil, err
-	}
-
 	successCount, _ := s.walletRepo.CountTransactionsByStatus(ctx, wallet.Id, string(enums.Approve))
 	pendingCount, _ := s.walletRepo.CountTransactionsByStatus(ctx, wallet.Id, string(enums.Pending))
 
@@ -89,7 +84,7 @@ func (s *walletService) GetWalletInfo(ctx context.Context, eventId string, userI
 		Id:                   wallet.Id,
 		EventId:              wallet.EventId,
 		Saldo:                wallet.Saldo,
-		SaldoKoin:            wallet.Saldo / setting.CoinRate,
+		SaldoKoin:            wallet.CoinBalance,
 		SuccessfulTopupCount: successCount,
 		PendingTopupCount:    pendingCount,
 	}
@@ -191,11 +186,12 @@ func (s *walletService) RequestTopUp(ctx context.Context, eventId string, userId
 	}
 
 	transaction := &entity.WalletTransaction{
-		Id:        txId,
-		WalletId:  wallet.Id,
-		Type:      enums.TopUp,
-		Amount:    req.Amount * setting.CoinRate,
-		ProofPath: path,
+		Id:               txId,
+		WalletId:         wallet.Id,
+		Type:             enums.TopUp,
+		Amount:           req.Amount * setting.CoinRate,
+		CoinRateSnapshot: setting.CoinRate,
+		ProofPath:        path,
 		Status:    enums.Pending,
 	}
 

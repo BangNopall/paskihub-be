@@ -133,7 +133,7 @@ func (s *eoTeamService) ApproveTeam(ctx context.Context, eventId, userId, regist
 
 	totalFeeIDR := setting.ApprovalFee * setting.CoinRate
 
-	return s.repo.ApproveRegistration(ctx, eventId, registrationId, totalFeeIDR, req.PaymentStatus)
+	return s.repo.ApproveRegistration(ctx, eventId, registrationId, totalFeeIDR, setting.ApprovalFee, setting.CoinRate, req.PaymentStatus)
 }
 
 func (s *eoTeamService) RejectTeam(ctx context.Context, eventId, userId, registrationId uuid.UUID, req dto.EOTeamRejectReq) error {

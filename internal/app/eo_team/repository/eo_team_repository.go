@@ -95,6 +95,8 @@ func (r *eoTeamRepository) ApproveRegistration(
 	eventId uuid.UUID,
 	registrationId uuid.UUID,
 	totalFee float64,
+	approvalFee float64,
+	coinRate float64,
 	status enums.RegistrationStatus,
 ) error {
 	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
@@ -122,19 +124,25 @@ func (r *eoTeamRepository) ApproveRegistration(
 			First(&wallet).Error; err != nil {
 			return err
 		}
-		if wallet.Saldo < totalFee {
+		if wallet.CoinBalance < approvalFee {
 			return domain.ErrInsufficientBalance
 		}
 
-		if err := tx.Model(&wallet).Update("saldo", wallet.Saldo-totalFee).Error; err != nil {
+		approvalFeeIDR := approvalFee * coinRate
+
+		if err := tx.Model(&wallet).Updates(map[string]interface{}{
+			"saldo":        gorm.Expr("saldo - ?", approvalFeeIDR),
+			"coin_balance": gorm.Expr("coin_balance - ?", approvalFee),
+		}).Error; err != nil {
 			return err
 		}
 		if err := tx.Create(&entity.WalletTransaction{
-			Id:       uuid.New(),
-			WalletId: wallet.Id,
-			Type:     enums.Withdraw,
-			Amount:   totalFee,
-			Status:   enums.Approve,
+			Id:               uuid.New(),
+			WalletId:         wallet.Id,
+			Type:             enums.Withdraw,
+			Amount:           -approvalFeeIDR,
+			CoinRateSnapshot: coinRate,
+			Status:           enums.Approve,
 		}).Error; err != nil {
 			return err
 		}
