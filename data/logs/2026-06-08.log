@@ -1,6 +1,0 @@
-{"level":"info","msg":"Application is running on development mode","time":"2026-06-08T09:52:59+07:00"}
-{"level":"info","msg":"[PGSQL CONN][Migrate] Auto Migrating Tables","time":"2026-06-08T09:52:59+07:00"}
-{"level":"info","msg":"redis connected","time":"2026-06-08T09:53:01+07:00"}
-{"level":"info","msg":"Application is running on development mode","time":"2026-06-08T09:53:14+07:00"}
-{"level":"info","msg":"[PGSQL CONN][Migrate] Auto Migrating Tables","time":"2026-06-08T09:53:14+07:00"}
-{"level":"info","msg":"redis connected","time":"2026-06-08T09:53:14+07:00"}

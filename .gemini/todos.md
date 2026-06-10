@@ -1,3 +1,0 @@
-- [ ] Task 1: Update DTO
-- [ ] Task 2: Update Service Implementation
-- [ ] Task 3: Build and Verify
