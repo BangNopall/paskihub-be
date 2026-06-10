@@ -100,7 +100,7 @@ type EventPaginationResponse struct {
 }
 
 type UpdateEventStatusRequest struct {
-	Status string `json:"status" binding:"required"`
+	Status string `json:"status" validate:"required"`
 }
 
 func EventLevelEntityToResponse(eventLevel *entity.EventLevel) *EventLevelResponse {

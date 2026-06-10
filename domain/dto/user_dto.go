@@ -8,9 +8,9 @@ import (
 )
 
 type UserRegister struct {
-	Email           string `json:"email" binding:"required,email"`
-	Password        string `json:"password" binding:"required,min=6,max=40,validpassword"`
-	ConfirmPassword string `json:"confirm_password" binding:"required,min=6,max=40,validpassword"`
+	Email           string `json:"email" validate:"required,email"`
+	Password        string `json:"password" validate:"required,min=6,max=40,validpassword"`
+	ConfirmPassword string `json:"confirm_password" validate:"required,min=6,max=40,validpassword"`
 }
 
 type UserParam struct {
@@ -20,17 +20,17 @@ type UserParam struct {
 }
 
 type UserLogin struct {
-	Email    string `json:"email" binding:"required,email"`
-	Password string `json:"password" binding:"required"`
+	Email    string `json:"email" validate:"required,email"`
+	Password string `json:"password" validate:"required"`
 }
 
 type UserForgotPassword struct {
-	Email string `json:"email" binding:"required,email"`
+	Email string `json:"email" validate:"required,email"`
 }
 
 type UserResetPassword struct {
-	Password        string `json:"password" binding:"required,min=6,max=20"`
-	ConfirmPassword string `json:"confirm_password" binding:"required,min=6,max=20"`
+	Password        string `json:"password" validate:"required,min=6,max=20"`
+	ConfirmPassword string `json:"confirm_password" validate:"required,min=6,max=20"`
 }
 
 type UserLoginResponse struct {
@@ -61,7 +61,7 @@ type UserResponse struct {
 }
 
 type UserUpdate struct {
-	Password            string     `json:"password" binding:"omitempty,validpassword"`
+	Password            string     `json:"password" validate:"omitempty,validpassword"`
 	LastLoginAt         *time.Time `json:"last_login_at"`
 	EmailIsVerified     bool       `json:"-"`
 	EmailVerifiedToken  string     `json:"-"`
@@ -194,6 +194,6 @@ func UserEntityToResponse(user *entity.User) *UserResponse {
 }
 
 type AdminCreateRequest struct {
-	Email    string `json:"email" binding:"required,email"`
-	Password string `json:"password" binding:"required,min=8"`
+	Email    string `json:"email" validate:"required,email"`
+	Password string `json:"password" validate:"required,min=8"`
 }

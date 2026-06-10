@@ -1,6 +1,8 @@
 package log
 
 import (
+	"flag"
+	"io"
 	"time"
 
 	"github.com/rifflock/lfshook"
@@ -10,6 +12,13 @@ import (
 type LogInfo map[string]interface{}
 
 func getLogger() *logrus.Logger {
+	log := logrus.New()
+	
+	if flag.Lookup("test.v") != nil {
+		log.SetOutput(io.Discard)
+		return log
+	}
+
 	currDate := time.Now().Format("2006-01-02")
 
 	pathMap := lfshook.PathMap{
@@ -17,8 +26,6 @@ func getLogger() *logrus.Logger {
 		logrus.WarnLevel: "./data/logs/"+ currDate + ".log",
 		logrus.ErrorLevel: "./data/logs/"+ currDate + ".log",
 	}
-
-	log := logrus.New()
 
 	log.Hooks.Add(lfshook.NewHook(
 		pathMap,

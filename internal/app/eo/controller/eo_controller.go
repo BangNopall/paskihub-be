@@ -34,6 +34,9 @@ func (c *eoController) Route(router fiber.Router, middleware *middlewares.Middle
 }
 
 func getUserId(ctx *fiber.Ctx) (uuid.UUID, error) {
+	if parentIdStr, ok := ctx.Locals("parent_id").(string); ok && parentIdStr != "" {
+		return uuid.Parse(parentIdStr)
+	}
 	userIdStr := ctx.Locals("id").(string)
 	return uuid.Parse(userIdStr)
 }

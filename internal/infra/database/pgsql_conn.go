@@ -63,7 +63,7 @@ func NewPgsqlConn() *gorm.DB {
 	return db
 }
 
-func Migrate(db *gorm.DB, args []string) {
+func Migrate(db *gorm.DB, args []string) error {
 	if flag.FlagVars.Fresh {
 
 		if env.AppEnv.AppEnv == "production" {
@@ -78,13 +78,15 @@ func Migrate(db *gorm.DB, args []string) {
 		}
 
 		log.Info(nil, "[PGSQL CONN][Migrate] Dropping All Tables")
-		db.Migrator().DropTable(getInterfaces()...)
+		if err := db.Migrator().DropTable(getInterfaces()...); err != nil {
+			return fmt.Errorf("drop tables: %w", err)
+		}
 
 	}
 
 	log.Info(nil, "[PGSQL CONN][Migrate] Auto Migrating Tables")
 
-	db.Exec(`
+	if err := db.Exec(`
 		CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 		DO $$ BEGIN
@@ -132,17 +134,6 @@ func Migrate(db *gorm.DB, args []string) {
 		END $$;
 
 		DO $$ BEGIN
-			CREATE TYPE registration_status AS ENUM (
-				'WAITING',
-				'DP_PAID',
-				'FULL_PAID',
-				'REJECTED'
-			);
-		EXCEPTION
-			WHEN duplicate_object THEN null;
-		END $$;
-
-		DO $$ BEGIN
 			CREATE TYPE wallet_type AS ENUM (
 				'TOPUP',
 				'WITHDRAW'
@@ -160,16 +151,47 @@ func Migrate(db *gorm.DB, args []string) {
 		EXCEPTION
 			WHEN duplicate_object THEN null;
 		END $$;
-	`)
+	`).Error; err != nil {
+		return fmt.Errorf("create database enums: %w", err)
+	}
 
-	db.AutoMigrate(getInterfaces()...)
+	if err := db.Exec(registrationStatusEnumSQL()).Error; err != nil {
+		return fmt.Errorf("create registration status enum: %w", err)
+	}
 
-	EnsureDefaultSettings(db)
+	if err := db.AutoMigrate(getInterfaces()...); err != nil {
+		return fmt.Errorf("auto migrate tables: %w", err)
+	}
+
+	if err := EnsureDefaultSettings(db); err != nil {
+		return err
+	}
+	return nil
 }
 
-func EnsureDefaultSettings(db *gorm.DB) {
+func registrationStatusEnumSQL() string {
+	return `
+		DO $$ BEGIN
+			CREATE TYPE registration_status AS ENUM (
+				'WAITING',
+				'DP_PAID',
+				'FULL_PAID',
+				'REJECTED',
+				'KICKED'
+			);
+		EXCEPTION
+			WHEN duplicate_object THEN null;
+		END $$;
+
+		ALTER TYPE registration_status ADD VALUE IF NOT EXISTS 'KICKED';
+	`
+}
+
+func EnsureDefaultSettings(db *gorm.DB) error {
 	var count int64
-	db.Model(&entity.SystemSetting{}).Count(&count)
+	if err := db.Model(&entity.SystemSetting{}).Count(&count).Error; err != nil {
+		return fmt.Errorf("count system settings: %w", err)
+	}
 
 	if count == 0 {
 		log.Info(nil, "[PGSQL CONN][EnsureDefaultSettings] Seeding default system settings")
@@ -181,8 +203,11 @@ func EnsureDefaultSettings(db *gorm.DB) {
 			AccountNumber: "1234567890",
 			AccountName:   "PaskiHub Indonesia",
 		}
-		db.Create(&defaultSettings)
+		if err := db.Create(&defaultSettings).Error; err != nil {
+			return fmt.Errorf("create default system settings: %w", err)
+		}
 	}
+	return nil
 }
 
 func Seeder(db *gorm.DB, flagVars *flag.Flag) {

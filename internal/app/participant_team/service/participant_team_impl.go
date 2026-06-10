@@ -8,12 +8,14 @@ import (
 	"mime/multipart"
 	"os"
 	"path/filepath"
-	"time"
+	"strings"
 
+	"github.com/BangNopall/paskihub-be/domain"
 	"github.com/BangNopall/paskihub-be/domain/contracts"
 	"github.com/BangNopall/paskihub-be/domain/dto"
 	"github.com/BangNopall/paskihub-be/domain/entity"
 	"github.com/BangNopall/paskihub-be/domain/enums"
+	"github.com/BangNopall/paskihub-be/pkg/helpers"
 	"github.com/google/uuid"
 )
 
@@ -33,11 +35,18 @@ func saveFile(fileHeader *multipart.FileHeader, folderPath string) (string, erro
 	if fileHeader == nil {
 		return "", nil
 	}
-	if err := os.MkdirAll(folderPath, 0755); err != nil {
+	dirMode := os.FileMode(0755)
+	fileMode := os.FileMode(0644)
+	if strings.HasPrefix(filepath.Clean(folderPath), filepath.Clean("storage/private")) {
+		dirMode = 0750
+		fileMode = 0600
+	}
+	if err := os.MkdirAll(folderPath, dirMode); err != nil {
 		return "", err
 	}
 
-	filename := fmt.Sprintf("%d_%s", time.Now().UnixNano(), fileHeader.Filename)
+	ext := filepath.Ext(fileHeader.Filename)
+	filename := fmt.Sprintf("%s%s", uuid.New().String(), ext)
 	fullPath := filepath.Join(folderPath, filename)
 
 	src, err := fileHeader.Open()
@@ -46,7 +55,7 @@ func saveFile(fileHeader *multipart.FileHeader, folderPath string) (string, erro
 	}
 	defer src.Close()
 
-	dst, err := os.Create(fullPath)
+	dst, err := os.OpenFile(fullPath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, fileMode)
 	if err != nil {
 		return "", err
 	}
@@ -77,7 +86,7 @@ func (s *participantTeamService) CreateTeam(ctx context.Context, userID string, 
 		return err
 	}
 
-	recLetterPath, err := saveFile(req.SuratRekomendasi, "public/uploads/teams/rekomendasi")
+	recLetterPath, err := saveFile(req.SuratRekomendasi, "storage/private/teams/rekomendasi")
 	if err != nil {
 		return err
 	}
@@ -93,11 +102,11 @@ func (s *participantTeamService) CreateTeam(ctx context.Context, userID string, 
 
 	var members []entity.TeamMember
 	for _, m := range req.Members {
-		idCardPath, err := saveFile(m.IdCard, "public/uploads/teams/id_cards")
+		idCardPath, err := saveFile(m.IdCard, "storage/private/teams/id_cards")
 		if err != nil {
 			return err
 		}
-		photoPath, err := saveFile(m.Photo, "public/uploads/teams/photos")
+		photoPath, err := saveFile(m.Photo, "storage/private/teams/photos")
 		if err != nil {
 			return err
 		}
@@ -147,7 +156,7 @@ func (s *participantTeamService) UpdateTeam(ctx context.Context, userID string, 
 	}
 
 	if req.SuratRekomendasi != nil {
-		recLetterPath, err := saveFile(req.SuratRekomendasi, "public/uploads/teams/rekomendasi")
+		recLetterPath, err := saveFile(req.SuratRekomendasi, "storage/private/teams/rekomendasi")
 		if err == nil {
 			existingTeam.RecLetterPath = recLetterPath
 		}
@@ -158,11 +167,11 @@ func (s *participantTeamService) UpdateTeam(ctx context.Context, userID string, 
 
 	var members []entity.TeamMember
 	for _, m := range req.Members {
-		idCardPath, err := saveFile(m.IdCard, "public/uploads/teams/id_cards")
+		idCardPath, err := saveFile(m.IdCard, "storage/private/teams/id_cards")
 		if err != nil {
 			return err
 		}
-		photoPath, err := saveFile(m.Photo, "public/uploads/teams/photos")
+		photoPath, err := saveFile(m.Photo, "storage/private/teams/photos")
 		if err != nil {
 			return err
 		}
@@ -209,7 +218,7 @@ func (s *participantTeamService) GetTeams(ctx context.Context, userID string) ([
 			Pelatih:         t.Pelatih,
 			InstitutionType: string(t.Institution.InstitutionType),
 			PaymentStatus:   paymentStatus,
-                        MembersCount:    len(t.TeamMembers),
+			MembersCount:    len(t.TeamMembers),
 		})
 	}
 
@@ -217,14 +226,27 @@ func (s *participantTeamService) GetTeams(ctx context.Context, userID string) ([
 }
 
 func (s *participantTeamService) GetTeamDetail(ctx context.Context, userID string, teamID string) (*dto.TeamDetailResponse, error) {
+	parsedUserID, err := uuid.Parse(userID)
+	if err != nil {
+		return nil, errors.New("invalid user id")
+	}
+
 	parsedTeamID, err := uuid.Parse(teamID)
 	if err != nil {
 		return nil, errors.New("invalid team id")
 	}
 
+	institution, err := s.profileRepo.GetInstitutionByUserID(ctx, parsedUserID)
+	if err != nil {
+		return nil, errors.New("institution not found")
+	}
+
 	team, err := s.repo.GetTeamByID(ctx, parsedTeamID)
 	if err != nil {
 		return nil, err
+	}
+	if team.InstiId != institution.Id {
+		return nil, domain.ErrForbidden
 	}
 
 	groupedMembers := make(map[string][]dto.ParticipantTeamMemberResponse)
@@ -234,8 +256,8 @@ func (s *participantTeamService) GetTeamDetail(ctx context.Context, userID strin
 			Id:         m.Id.String(),
 			FullName:   m.FullName,
 			Role:       roleStr,
-			IdCardPath: m.IdCardPath,
-			PhotoPath:  m.PhotoPath,
+			IdCardPath: helpers.PrivateFileURL("member-id-card", m.Id),
+			PhotoPath:  helpers.PrivateFileURL("member-photo", m.Id),
 		})
 	}
 
@@ -245,7 +267,7 @@ func (s *participantTeamService) GetTeamDetail(ctx context.Context, userID strin
 		LogoPath:        team.LogoPath,
 		Pelatih:         team.Pelatih,
 		InstitutionType: string(team.Institution.InstitutionType),
-		RecLetterPath:   team.RecLetterPath,
+		RecLetterPath:   helpers.PrivateFileURL("team-recommendation", team.Id),
 		MembersGrouped:  groupedMembers,
 	}
 
@@ -253,14 +275,27 @@ func (s *participantTeamService) GetTeamDetail(ctx context.Context, userID strin
 }
 
 func (s *participantTeamService) DeleteTeam(ctx context.Context, userID string, teamID string) error {
+	parsedUserID, err := uuid.Parse(userID)
+	if err != nil {
+		return errors.New("invalid user id")
+	}
+
 	parsedTeamID, err := uuid.Parse(teamID)
 	if err != nil {
 		return errors.New("invalid team id")
 	}
 
+	institution, err := s.profileRepo.GetInstitutionByUserID(ctx, parsedUserID)
+	if err != nil {
+		return errors.New("institution not found")
+	}
+
 	team, err := s.repo.GetTeamByID(ctx, parsedTeamID)
 	if err != nil {
 		return err
+	}
+	if team.InstiId != institution.Id {
+		return domain.ErrForbidden
 	}
 
 	if len(team.Registrations) > 0 && (team.Registrations[0].PaymentStatus == enums.FullPaid) {

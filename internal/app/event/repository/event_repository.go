@@ -36,8 +36,32 @@ func (r *eventRepository) CreateEvent(ctx context.Context, event *entity.Event) 
 	return nil
 }
 
+func (r *eventRepository) CreateEventWithWallet(ctx context.Context, event *entity.Event, wallet *entity.Wallet) error {
+	err := r.conn.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Create(event).Error; err != nil {
+			return err
+		}
+		if err := tx.Create(wallet).Error; err != nil {
+			return err
+		}
+		return nil
+	})
+
+	if err != nil {
+		if err == gorm.ErrDuplicatedKey {
+			return domain.ErrDuplicateEntry
+		}
+		log.Warn(log.LogInfo{
+			"error": err.Error(),
+		}, "[EVENT REPOSITORY][CreateEventWithWallet] failed to create event and wallet")
+		return domain.ErrInternalServer
+	}
+	return nil
+}
+
 func (r *eventRepository) UpdateEvent(ctx context.Context, updateEvent *entity.Event, eventId uuid.UUID) error {
-	err := r.conn.Model(&entity.Event{}).Where("id = ?", eventId).Updates(updateEvent).Error
+	result := r.conn.Model(&entity.Event{}).Where("id = ?", eventId).Updates(updateEvent)
+	err := result.Error
 	if err != nil {
 		if err == gorm.ErrDuplicatedKey {
 			return domain.ErrDuplicateEntry
@@ -48,6 +72,9 @@ func (r *eventRepository) UpdateEvent(ctx context.Context, updateEvent *entity.E
 		}, "[EVENT REPOSITORY][UpdateEvent] failed to update event")
 
 		return domain.ErrInternalServer
+	}
+	if result.RowsAffected == 0 {
+		return domain.ErrNotFound
 	}
 	return nil
 }
@@ -97,12 +124,16 @@ func (r *eventRepository) FetchAllByConditionAndRelation(
 }
 
 func (r *eventRepository) DeleteEvent(ctx context.Context, eventId uuid.UUID) error {
-	err := r.conn.Where("id = ?", eventId).Delete(&entity.Event{}).Error
+	result := r.conn.Where("id = ?", eventId).Delete(&entity.Event{})
+	err := result.Error
 	if err != nil {
 		log.Warn(log.LogInfo{
 			"error": err.Error(),
 		}, "[EVENT REPOSITORY][DeleteEvent] failed to delete event")
 		return domain.ErrInternalServer
+	}
+	if result.RowsAffected == 0 {
+		return domain.ErrNotFound
 	}
 	return nil
 }
@@ -207,35 +238,54 @@ func (r *eventRepository) FetchAllEvent(ctx context.Context, params *dto.EventPa
 	return events, nil
 }
 
-func (r *eventRepository) UpdateEventLevel(ctx context.Context, eventLevel *entity.EventLevel) error {
-	err := r.conn.Save(eventLevel).Error
-	if err != nil {
+func (r *eventRepository) UpdateEventLevel(ctx context.Context, eventId uuid.UUID, eventLevel *entity.EventLevel) error {
+	result := r.conn.WithContext(ctx).
+		Model(&entity.EventLevel{}).
+		Where("id = ? AND event_id = ?", eventLevel.Id, eventId).
+		Updates(map[string]interface{}{
+			"name":      eventLevel.Name,
+			"regis_fee": eventLevel.RegisFee,
+			"dp_fee":    eventLevel.DpFee,
+		})
+	if result.Error != nil {
 		log.Warn(log.LogInfo{
-			"error": err.Error(),
+			"error": result.Error.Error(),
 		}, "[EVENT REPOSITORY][UpdateEventLevel] failed to update event level")
 		return domain.ErrInternalServer
+	}
+	if result.RowsAffected == 0 {
+		return domain.ErrNotFound
 	}
 	return nil
 }
 
-func (r *eventRepository) DeleteEventLevel(ctx context.Context, eventLevelId uuid.UUID) error {
-	err := r.conn.Delete(&entity.EventLevel{}, eventLevelId).Error
-	if err != nil {
+func (r *eventRepository) DeleteEventLevel(ctx context.Context, eventId, eventLevelId uuid.UUID) error {
+	result := r.conn.WithContext(ctx).
+		Where("id = ? AND event_id = ?", eventLevelId, eventId).
+		Delete(&entity.EventLevel{})
+	if result.Error != nil {
 		log.Warn(log.LogInfo{
-			"error": err.Error(),
+			"error": result.Error.Error(),
 		}, "[EVENT REPOSITORY][DeleteEventLevel] failed to delete event level")
 		return domain.ErrInternalServer
+	}
+	if result.RowsAffected == 0 {
+		return domain.ErrNotFound
 	}
 	return nil
 }
 
 func (r *eventRepository) UpdateStatus(ctx context.Context, eventId uuid.UUID, status string) error {
-	err := r.conn.WithContext(ctx).Model(&entity.Event{}).Where("id = ?", eventId).Update("status", status).Error
+	result := r.conn.WithContext(ctx).Model(&entity.Event{}).Where("id = ?", eventId).Update("status", status)
+	err := result.Error
 	if err != nil {
 		log.Warn(log.LogInfo{
 			"error": err.Error(),
 		}, "[EVENT REPOSITORY][UpdateStatus] failed to update status")
 		return domain.ErrInternalServer
+	}
+	if result.RowsAffected == 0 {
+		return domain.ErrNotFound
 	}
 	return nil
 }

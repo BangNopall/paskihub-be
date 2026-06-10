@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"strings"
 
 	"github.com/BangNopall/paskihub-be/domain/contracts"
 	"github.com/BangNopall/paskihub-be/domain/entity"
@@ -19,9 +20,18 @@ func NewParticipantEventRepository(db *gorm.DB) contracts.ParticipantEventReposi
 	}
 }
 
-func (r *participantEventRepository) GetOpenEvents(ctx context.Context) ([]entity.Event, error) {
+func (r *participantEventRepository) GetOpenEvents(ctx context.Context, location string, search string) ([]entity.Event, error) {
 	var events []entity.Event
-	err := r.db.WithContext(ctx).Preload("EventLevels").Where("status = ?", "OPEN").Find(&events).Error
+	query := r.db.WithContext(ctx).Preload("EventLevels").Where("status = ?", "OPEN")
+
+	if location != "" && location != "all" {
+		query = query.Where("LOWER(location) LIKE ?", "%"+strings.ToLower(location)+"%")
+	}
+	if search != "" {
+		query = query.Where("LOWER(name) LIKE ?", "%"+strings.ToLower(search)+"%")
+	}
+
+	err := query.Find(&events).Error
 	return events, err
 }
 

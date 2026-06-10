@@ -11,14 +11,16 @@ import (
 	"github.com/BangNopall/paskihub-be/internal/middlewares"
 	"github.com/BangNopall/paskihub-be/pkg/helpers/http/response"
 	"github.com/BangNopall/paskihub-be/pkg/redis"
+	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 )
 
 type userController struct {
-	userSvc  contracts.UserService
-	eventSvc contracts.EventService
-	redis    redis.RedisInterface
+	userSvc   contracts.UserService
+	eventSvc  contracts.EventService
+	redis     redis.RedisInterface
+	validator *validator.Validate
 }
 
 func InitUserController(
@@ -27,11 +29,13 @@ func InitUserController(
 	router fiber.Router,
 	middleware *middlewares.Middleware,
 	redis redis.RedisInterface,
+	validator *validator.Validate,
 ) {
 	userController := &userController{
-		userSvc:  userSvc,
-		eventSvc: eventSvc,
-		redis:    redis,
+		userSvc:   userSvc,
+		eventSvc:  eventSvc,
+		redis:     redis,
+		validator: validator,
 	}
 
 	userRouter := router.Group("/api/v1/users")
@@ -78,6 +82,10 @@ func (c *userController) CreateAdmin(ctx *fiber.Ctx) error {
 	var req dto.AdminCreateRequest
 	if err := ctx.BodyParser(&req); err != nil {
 		response.Send(ctx, http.StatusBadRequest, "invalid request", nil, err)
+		return nil
+	}
+	if err := c.validator.Struct(req); err != nil {
+		response.Send(ctx, http.StatusBadRequest, "validation failed", nil, err)
 		return nil
 	}
 
@@ -478,6 +486,11 @@ func (c *userController) Register(ctx *fiber.Ctx) error {
 	if err != nil {
 		return nil
 	}
+	if err := c.validator.Struct(user); err != nil {
+		code = http.StatusBadRequest
+		message = "validation failed"
+		return nil
+	}
 
 	err = c.userSvc.Register(ctx.Context(), role, user)
 	code = domain.GetCode(err)
@@ -500,6 +513,7 @@ func (c *userController) Register(ctx *fiber.Ctx) error {
 // @Success 200 {object} response.Response{data=dto.UserLoginResponse}
 // @Failure 400 {object} response.ErrorResponse
 // @Failure 401 {object} response.ErrorResponse
+// @Failure 403 {object} response.ErrorResponse
 // @Failure 500 {object} response.ErrorResponse
 // @Security ApiKeyAuth
 // @Router /api/v1/users/login [post]
@@ -528,6 +542,11 @@ func (c *userController) Login(ctx *fiber.Ctx) error {
 	err = ctx.BodyParser(&user)
 
 	if err != nil {
+		return nil
+	}
+	if err := c.validator.Struct(user); err != nil {
+		code = http.StatusBadRequest
+		message = "validation failed"
 		return nil
 	}
 
@@ -631,6 +650,11 @@ func (c *userController) ResetPassword(ctx *fiber.Ctx) error {
 	if err != nil {
 		return nil
 	}
+	if err := c.validator.Struct(user); err != nil {
+		code = http.StatusBadRequest
+		message = "validation failed"
+		return nil
+	}
 
 	err = c.userSvc.ResetPassword(ctx.Context(), user, token)
 	code = domain.GetCode(err)
@@ -681,6 +705,11 @@ func (c *userController) ForgotPassword(ctx *fiber.Ctx) error {
 	err = ctx.BodyParser(&user)
 
 	if err != nil {
+		return nil
+	}
+	if err := c.validator.Struct(user); err != nil {
+		code = http.StatusBadRequest
+		message = "validation failed"
 		return nil
 	}
 
@@ -760,6 +789,10 @@ func (c *userController) UpdateEventStatus(ctx *fiber.Ctx) error {
 
 	var req dto.UpdateEventStatusRequest
 	if err := ctx.BodyParser(&req); err != nil {
+		return nil
+	}
+	if err := c.validator.Struct(req); err != nil {
+		response.Send(ctx, http.StatusBadRequest, "validation failed", nil, err)
 		return nil
 	}
 

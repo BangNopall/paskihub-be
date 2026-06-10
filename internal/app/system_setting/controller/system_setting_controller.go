@@ -8,26 +8,30 @@ import (
 	"github.com/BangNopall/paskihub-be/domain/dto"
 	"github.com/BangNopall/paskihub-be/internal/middlewares"
 	"github.com/BangNopall/paskihub-be/pkg/helpers/http/response"
+	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 )
 
 type systemSettingController struct {
 	settingSvc contracts.SystemSettingService
+	validator  *validator.Validate
 }
 
 func InitSystemSettingController(
 	settingSvc contracts.SystemSettingService,
 	router fiber.Router,
 	middleware *middlewares.Middleware,
+	validator *validator.Validate,
 ) {
 	controller := &systemSettingController{
 		settingSvc: settingSvc,
+		validator:  validator,
 	}
 
 	settingRouter := router.Group("/api/v1/settings")
 
 	// Public Route
-	settingRouter.Get("/public", middleware.Authentication, middleware.AuthOrganizer, controller.GetPublicSettings)
+	settingRouter.Get("/public", middleware.RateLimiter(), controller.GetPublicSettings)
 
 	// Admin Routes
 	settingRouter.Get("/", middleware.Authentication, middleware.AuthAdmin, controller.GetSettings)
@@ -131,6 +135,12 @@ func (c *systemSettingController) UpdateSettings(ctx *fiber.Ctx) error {
 	req := new(dto.UpdateSystemSettingRequest)
 	if err := ctx.BodyParser(req); err != nil {
 		code = http.StatusBadRequest
+		return nil
+	}
+
+	if err := c.validator.Struct(req); err != nil {
+		code = http.StatusBadRequest
+		message = "validation failed"
 		return nil
 	}
 

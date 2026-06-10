@@ -18,6 +18,27 @@ func NewRekapRepository(db *gorm.DB) contracts.RekapRepository {
 	return &rekapRepository{db: db}
 }
 
+func (r *rekapRepository) RegistrationBelongsToOrganizer(ctx context.Context, regisID, organizerID uuid.UUID) (bool, error) {
+	var count int64
+	err := r.db.WithContext(ctx).
+		Table("registrations AS r").
+		Joins("JOIN event_levels AS el ON el.id = r.event_level_id").
+		Joins("JOIN events AS e ON e.id = el.event_id").
+		Where("r.id = ? AND e.user_id = ?", regisID, organizerID).
+		Count(&count).Error
+	return count == 1, err
+}
+
+func (r *rekapRepository) EventLevelBelongsToOrganizer(ctx context.Context, eventLevelID, organizerID uuid.UUID) (bool, error) {
+	var count int64
+	err := r.db.WithContext(ctx).
+		Table("event_levels AS el").
+		Joins("JOIN events AS e ON e.id = el.event_id").
+		Where("el.id = ? AND e.user_id = ?", eventLevelID, organizerID).
+		Count(&count).Error
+	return count == 1, err
+}
+
 func (r *rekapRepository) GetTeamAssessmentDetail(ctx context.Context, regisID uuid.UUID) (dto.TeamAssessmentDetailResponse, error) {
 	var resp dto.TeamAssessmentDetailResponse
 
@@ -43,13 +64,16 @@ func (r *rekapRepository) GetTeamAssessmentDetail(ctx context.Context, regisID u
 		Grade           string
 	}
 	var flatScores []ScoreFlat
-	r.db.WithContext(ctx).Table("scores").
+	err := r.db.WithContext(ctx).Table("scores").
 		Select("sc.id as category_id, sc.name as category_name, ssc.id as sub_category_id, ssc.name as sub_category_name, j.name as judge_name, scores.score_value, scores.grade").
 		Joins("JOIN score_sub_categories ssc ON scores.sub_category_id = ssc.id").
 		Joins("JOIN score_categories sc ON ssc.score_categories_id = sc.id").
 		Joins("JOIN judges j ON scores.judges_id = j.id").
 		Where("scores.regis_id = ?", regisID).
-		Scan(&flatScores)
+		Scan(&flatScores).Error
+	if err != nil {
+		return resp, err
+	}
 
 	catMap := make(map[uuid.UUID]*dto.CategoryScoreDetail)
 	var totalScore float64
@@ -77,10 +101,13 @@ func (r *rekapRepository) GetTeamAssessmentDetail(ctx context.Context, regisID u
 	}
 
 	var tvs []entity.TeamViolation
-	r.db.WithContext(ctx).
+	err = r.db.WithContext(ctx).
 		Preload("ViolationType").
 		Preload("Judge").
-		Where("regis_id = ?", regisID).Find(&tvs)
+		Where("regis_id = ?", regisID).Find(&tvs).Error
+	if err != nil {
+		return resp, err
+	}
 
 	var totalViolation float64
 	for _, tv := range tvs {

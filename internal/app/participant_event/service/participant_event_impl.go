@@ -8,12 +8,15 @@ import (
 	"mime/multipart"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
+	"github.com/BangNopall/paskihub-be/domain"
 	"github.com/BangNopall/paskihub-be/domain/contracts"
 	"github.com/BangNopall/paskihub-be/domain/dto"
 	"github.com/BangNopall/paskihub-be/domain/entity"
 	"github.com/BangNopall/paskihub-be/domain/enums"
+	"github.com/BangNopall/paskihub-be/pkg/helpers"
 	"github.com/google/uuid"
 )
 
@@ -33,11 +36,12 @@ func saveFile(fileHeader *multipart.FileHeader, folderPath string) (string, erro
 	if fileHeader == nil {
 		return "", nil
 	}
-	if err := os.MkdirAll(folderPath, 0755); err != nil {
+	if err := os.MkdirAll(folderPath, 0750); err != nil {
 		return "", err
 	}
 
-	filename := fmt.Sprintf("%d_%s", time.Now().UnixNano(), fileHeader.Filename)
+	ext := filepath.Ext(fileHeader.Filename)
+	filename := fmt.Sprintf("%s%s", uuid.New().String(), ext)
 	fullPath := filepath.Join(folderPath, filename)
 
 	src, err := fileHeader.Open()
@@ -46,7 +50,7 @@ func saveFile(fileHeader *multipart.FileHeader, folderPath string) (string, erro
 	}
 	defer src.Close()
 
-	dst, err := os.Create(fullPath)
+	dst, err := os.OpenFile(fullPath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
 	if err != nil {
 		return "", err
 	}
@@ -59,8 +63,8 @@ func saveFile(fileHeader *multipart.FileHeader, folderPath string) (string, erro
 	return "/" + filepath.ToSlash(fullPath), nil
 }
 
-func (s *participantEventService) GetOpenEvents(ctx context.Context) ([]dto.OpenEventResponse, error) {
-	events, err := s.repo.GetOpenEvents(ctx)
+func (s *participantEventService) GetOpenEvents(ctx context.Context, location string, search string) ([]dto.OpenEventResponse, error) {
+	events, err := s.repo.GetOpenEvents(ctx, location, search)
 	if err != nil {
 		return nil, err
 	}
@@ -130,14 +134,19 @@ func (s *participantEventService) RegisterEvent(ctx context.Context, userID stri
 
 	// 3. Verify team belongs to the user's institution
 	if team.Institution.UserId != parsedUserID {
-		return errors.New("team does not belong to your institution")
+		return domain.ErrTeamNotBelongToInstitution
+	}
+
+	// 3.1 Validate category match
+	if !strings.Contains(strings.ToUpper(level.Name), string(team.Institution.InstitutionType)) && strings.ToUpper(level.Name) != "UMUM" {
+		return domain.ErrInstitutionCategoryMismatch
 	}
 
 	// 4. Validate team members count
 	memberCount := len(team.TeamMembers)
 	if memberCount < level.Event.MinTeamMembers || memberCount > level.Event.MaxTeamMembers {
-		return fmt.Errorf("team members count (%d) must be between %d and %d",
-			memberCount, level.Event.MinTeamMembers, level.Event.MaxTeamMembers)
+		return fmt.Errorf("%w: required between %d and %d members, but got %d",
+			domain.ErrInvalidTeamMembersCount, level.Event.MinTeamMembers, level.Event.MaxTeamMembers, memberCount)
 	}
 
 	// 5. Check if already registered for this event
@@ -146,10 +155,10 @@ func (s *participantEventService) RegisterEvent(ctx context.Context, userID stri
 		return err
 	}
 	if exists {
-		return errors.New("team is already registered for this event")
+		return domain.ErrAlreadyRegisteredForEvent
 	}
 
-	proofPath, err := saveFile(req.PaymentProof, "public/uploads/payments")
+	proofPath, err := saveFile(req.PaymentProof, "storage/private/payments")
 	if err != nil {
 		return err
 	}
@@ -168,10 +177,23 @@ func (s *participantEventService) RegisterEvent(ctx context.Context, userID stri
 	return s.repo.CreateRegistration(ctx, regis)
 }
 
-func (s *participantEventService) PelunasanEvent(ctx context.Context, regisID string, req dto.PelunasanEventRequest) error {
+func (s *participantEventService) PelunasanEvent(ctx context.Context, userID string, regisID string, req dto.PelunasanEventRequest) error {
+	parsedUserID, err := uuid.Parse(userID)
+	if err != nil {
+		return errors.New("invalid user id")
+	}
+
 	parsedRegisID, err := uuid.Parse(regisID)
 	if err != nil {
 		return errors.New("invalid regis id")
+	}
+
+	isOwner, err := s.repo.GetRegistrationOwnership(ctx, parsedRegisID, parsedUserID)
+	if err != nil {
+		return err
+	}
+	if !isOwner {
+		return domain.ErrForbidden
 	}
 
 	regis, err := s.repo.GetRegistrationByID(ctx, parsedRegisID)
@@ -180,10 +202,10 @@ func (s *participantEventService) PelunasanEvent(ctx context.Context, regisID st
 	}
 
 	if regis.PaymentStatus == enums.FullPaid {
-		return errors.New("registration is already fully paid")
+		return domain.ErrAlreadyFullyPaid
 	}
 
-	proofPath, err := saveFile(req.PaymentProof, "public/uploads/payments_pelunasan")
+	proofPath, err := saveFile(req.PaymentProof, "storage/private/payments_pelunasan")
 	if err != nil {
 		return err
 	}
@@ -274,7 +296,7 @@ func (s *participantEventService) GetRegistrationDetail(ctx context.Context, use
 	res.Team.PasukanCount = pasukanCount
 
 	res.Payment.Status = string(regis.PaymentStatus)
-	res.Payment.ProofUrl = regis.PaymentProofPath
+	res.Payment.ProofUrl = helpers.PrivateFileURL("registration-payment", regis.Id)
 	res.Payment.TotalAmount = regis.EventLevel.RegisFee
 
 	// Logic for amount paid and remaining amount

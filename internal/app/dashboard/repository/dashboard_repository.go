@@ -56,7 +56,7 @@ func (r *dashboardRepository) GetOrganizerStats(ctx context.Context, userId uuid
 		TotalTeam:  dto.StatValue{Value: float64(totalTeam), Trend: "+0%"},
 		CoinBalance: dto.CoinValue{
 			Value: wallet.Saldo,
-			Coins: wallet.Saldo / 1000, // Example conversion
+			Coins: wallet.CoinBalance,
 		},
 		Revenue: dto.StatValue{Value: revenue, Trend: "+0%"},
 	}, nil

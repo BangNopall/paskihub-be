@@ -10,20 +10,22 @@ type Flag struct {
 	SeederModel string
 }
 
-var FlagVars = getFlags()
+var FlagVars = &Flag{}
 
-func getFlags() *Flag {
-	fresh := flag.Bool("fresh", false, "Dropping all database tables before running new migration")
-	seeder := flag.Bool("seeder", false, "Inserting all seeders to database")
-	seederModel := flag.String("model", "", "Specify seeder model to run\nMust be used with flag seeder\nAvailable models can be looked up at pgsql_conn.go file func Seeder")
+func Parse(args []string) error {
+	flagSet := flag.NewFlagSet("paskihub-be", flag.ContinueOnError)
+	fresh := flagSet.Bool("fresh", false, "Dropping all database tables before running new migration")
+	seeder := flagSet.Bool("seeder", false, "Inserting all seeders to database")
+	seederModel := flagSet.String("model", "", "Specify seeder model to run\nMust be used with flag seeder\nAvailable models can be looked up at pgsql_conn.go file func Seeder")
 
-	flag.Parse()
+	if err := flagSet.Parse(args); err != nil {
+		return err
+	}
 
-	flag := &Flag{
+	FlagVars = &Flag{
 		Fresh:       *fresh,
 		Seeder:      *seeder,
 		SeederModel: *seederModel,
 	}
-
-	return flag
+	return nil
 }

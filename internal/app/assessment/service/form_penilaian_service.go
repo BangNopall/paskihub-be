@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 
+	"github.com/BangNopall/paskihub-be/domain"
 	"github.com/BangNopall/paskihub-be/domain/contracts"
 	"github.com/BangNopall/paskihub-be/domain/dto"
 	"github.com/BangNopall/paskihub-be/domain/entity"
@@ -26,7 +27,7 @@ func NewFormPenilaianService(repo contracts.FormPenilaianRepository, db *gorm.DB
 	}
 }
 
-func (s *formPenilaianService) BulkInsertScores(ctx context.Context, req dto.BulkInsertScoresRequest) error {
+func (s *formPenilaianService) BulkInsertScores(ctx context.Context, organizerID uuid.UUID, req dto.BulkInsertScoresRequest) error {
 	if s.validate != nil {
 		if err := s.validate.Struct(req); err != nil {
 			return err
@@ -38,6 +39,10 @@ func (s *formPenilaianService) BulkInsertScores(ctx context.Context, req dto.Bul
 		subCatIDs = append(subCatIDs, sc.SubCategoryID)
 	}
 
+	if err := validateAssessmentOwnership(ctx, s.repo, organizerID, req.RegisID, req.JudgesID, subCatIDs, nil); err != nil {
+		return err
+	}
+
 	rules, err := s.repo.GetSubCategoryGradeRules(ctx, subCatIDs)
 	if err != nil || len(rules) == 0 {
 		return errors.New("grade rules not found for some sub categories")
@@ -45,7 +50,10 @@ func (s *formPenilaianService) BulkInsertScores(ctx context.Context, req dto.Bul
 
 	var scores []entity.Score
 	for _, sc := range req.Scores {
-		grade := getGrade(sc.ScoreValue, sc.SubCategoryID, rules)
+		grade, err := getGrade(sc.ScoreValue, sc.SubCategoryID, rules)
+		if err != nil {
+			return err
+		}
 		scores = append(scores, entity.Score{
 			RegisID:       req.RegisID,
 			JudgesID:      req.JudgesID,
@@ -57,15 +65,22 @@ func (s *formPenilaianService) BulkInsertScores(ctx context.Context, req dto.Bul
 
 	return s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		txRepo := s.repo.WithTx(tx)
+		if err := validateAssessmentOwnership(ctx, txRepo, organizerID, req.RegisID, req.JudgesID, subCatIDs, nil); err != nil {
+			return err
+		}
 		return txRepo.BulkUpsertScores(ctx, scores)
 	})
 }
 
-func (s *formPenilaianService) BulkInsertTeamViolations(ctx context.Context, req dto.BulkInsertViolationsRequest) error {
+func (s *formPenilaianService) BulkInsertTeamViolations(ctx context.Context, organizerID uuid.UUID, req dto.BulkInsertViolationsRequest) error {
 	if s.validate != nil {
 		if err := s.validate.Struct(req); err != nil {
 			return err
 		}
+	}
+
+	if err := validateAssessmentOwnership(ctx, s.repo, organizerID, req.RegisID, req.JudgesID, nil, req.ViolationTypeIDs); err != nil {
+		return err
 	}
 
 	var violations []entity.TeamViolation
@@ -79,11 +94,14 @@ func (s *formPenilaianService) BulkInsertTeamViolations(ctx context.Context, req
 
 	return s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		txRepo := s.repo.WithTx(tx)
+		if err := validateAssessmentOwnership(ctx, txRepo, organizerID, req.RegisID, req.JudgesID, nil, req.ViolationTypeIDs); err != nil {
+			return err
+		}
 		return txRepo.BulkInsertTeamViolations(ctx, violations)
 	})
 }
 
-func (s *formPenilaianService) FinalizeAssessment(ctx context.Context, req dto.FinalizeAssessmentRequest) error {
+func (s *formPenilaianService) FinalizeAssessment(ctx context.Context, organizerID uuid.UUID, req dto.FinalizeAssessmentRequest) error {
 	if s.validate != nil {
 		if err := s.validate.Struct(req); err != nil {
 			return err
@@ -95,6 +113,10 @@ func (s *formPenilaianService) FinalizeAssessment(ctx context.Context, req dto.F
 		subCatIDs = append(subCatIDs, sc.SubCategoryID)
 	}
 
+	if err := validateAssessmentOwnership(ctx, s.repo, organizerID, req.RegisID, req.JudgesID, subCatIDs, req.ViolationTypeIDs); err != nil {
+		return err
+	}
+
 	rules, err := s.repo.GetSubCategoryGradeRules(ctx, subCatIDs)
 	if err != nil || len(rules) == 0 {
 		return errors.New("grade rules not found for some sub categories")
@@ -102,7 +124,10 @@ func (s *formPenilaianService) FinalizeAssessment(ctx context.Context, req dto.F
 
 	var scores []entity.Score
 	for _, sc := range req.Scores {
-		grade := getGrade(sc.ScoreValue, sc.SubCategoryID, rules)
+		grade, err := getGrade(sc.ScoreValue, sc.SubCategoryID, rules)
+		if err != nil {
+			return err
+		}
 		scores = append(scores, entity.Score{
 			RegisID:       req.RegisID,
 			JudgesID:      req.JudgesID,
@@ -123,6 +148,9 @@ func (s *formPenilaianService) FinalizeAssessment(ctx context.Context, req dto.F
 
 	return s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		txRepo := s.repo.WithTx(tx)
+		if err := validateAssessmentOwnership(ctx, txRepo, organizerID, req.RegisID, req.JudgesID, subCatIDs, req.ViolationTypeIDs); err != nil {
+			return err
+		}
 
 		// 1. Bulk Upsert Scores
 		if err := txRepo.BulkUpsertScores(ctx, scores); err != nil {
@@ -145,11 +173,37 @@ func (s *formPenilaianService) FinalizeAssessment(ctx context.Context, req dto.F
 	})
 }
 
-func getGrade(score float64, subCatID uuid.UUID, rules []entity.GradeRule) string {
+func validateAssessmentOwnership(
+	ctx context.Context,
+	repo contracts.FormPenilaianRepository,
+	organizerID uuid.UUID,
+	regisID uuid.UUID,
+	judgeID uuid.UUID,
+	subCategoryIDs []uuid.UUID,
+	violationTypeIDs []uuid.UUID,
+) error {
+	authorized, err := repo.ValidateAssessmentOwnership(
+		ctx,
+		organizerID,
+		regisID,
+		judgeID,
+		subCategoryIDs,
+		violationTypeIDs,
+	)
+	if err != nil {
+		return err
+	}
+	if !authorized {
+		return domain.ErrForbidden
+	}
+	return nil
+}
+
+func getGrade(score float64, subCatID uuid.UUID, rules []entity.GradeRule) (string, error) {
 	for _, rule := range rules {
 		if rule.ScoreSubCategoryID == subCatID && score >= rule.MinScore && score <= rule.MaxScore {
-			return rule.GradeName
+			return rule.GradeName, nil
 		}
 	}
-	return "Undefined"
+	return "", errors.New("score does not match any grade rules")
 }

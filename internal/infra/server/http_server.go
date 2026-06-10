@@ -66,13 +66,17 @@ import (
 	systemSettingCtr "github.com/BangNopall/paskihub-be/internal/app/system_setting/controller"
 	systemSettingRepo "github.com/BangNopall/paskihub-be/internal/app/system_setting/repository"
 	systemSettingSvc "github.com/BangNopall/paskihub-be/internal/app/system_setting/service"
+
+	privateFileCtr "github.com/BangNopall/paskihub-be/internal/app/private_file/controller"
+	privateFileRepo "github.com/BangNopall/paskihub-be/internal/app/private_file/repository"
+	privateFileSvc "github.com/BangNopall/paskihub-be/internal/app/private_file/service"
 )
 
 type Server interface {
 	Start(port string)
 	MountMiddlewares()
 	RegistCustomValidation()
-	MountRoutes(db *gorm.DB)
+	MountRoutes(db *gorm.DB) error
 }
 
 type httpServer struct {
@@ -83,7 +87,7 @@ type httpServer struct {
 
 func NewHttpServer() Server {
 	app := fiber.New(fiber.Config{
-		BodyLimit: 100 * 1024 * 1024, // 10MB limit for file uploads
+		BodyLimit: 500 * 1024 * 1024, // 500MB limit for file uploads
 	})
 	scheduler := cron.New()
 	validator := validator.New()
@@ -115,7 +119,8 @@ func (s *httpServer) MountMiddlewares() {
 	}
 
 	s.app.Use(middlewares.CORS())
-	s.app.Static("/public", "./public")
+	s.app.Static("/public/uploads/events", "./public/uploads/events")
+	s.app.Static("/public/uploads/teams/logos", "./public/uploads/teams/logos")
 	s.app.Use(middlewares.ApiKey())
 }
 
@@ -126,13 +131,16 @@ func (s *httpServer) RegistCustomValidation() {
 	s.validator.RegisterValidation("validpassword", validators.PasswordValidation)
 }
 
-func (s *httpServer) MountRoutes(db *gorm.DB) {
+func (s *httpServer) MountRoutes(db *gorm.DB) error {
 	uuid := uuid.UUID
 	bcrypt := bcrypt.Bcrypt
 	gomail := gomail.Gomail
 	jwt := jwt.Jwt
 	timePkg := timePkg.Time
-	redis := redis.NewRedisClient()
+	redisClient, err := redis.NewRedisClient()
+	if err != nil {
+		return err
+	}
 
 	// Repository
 	userRepo := userRepo.NewUserRepository(db)
@@ -151,16 +159,17 @@ func (s *httpServer) MountRoutes(db *gorm.DB) {
 	dashboardRepoIns := dashboardRepo.NewDashboardRepository(db)
 	eoRepoIns := eoRepo.NewEORepository(db)
 	settingRepoIns := systemSettingRepo.NewSystemSettingRepository(db)
+	privateFileRepoIns := privateFileRepo.NewPrivateFileRepository(db)
 
 	// middleware
 	middleware := middlewares.NewMiddleware(
 		jwt,
 		userRepo,
-		redis,
+		redisClient,
 	)
 
 	// Service
-	userSvc := userSvc.NewUserService(userRepo, eventRepo, uuid, bcrypt, timePkg, gomail, jwt, redis, time.Second*15)
+	userSvc := userSvc.NewUserService(userRepo, eventRepo, uuid, bcrypt, timePkg, gomail, jwt, redisClient, time.Second*15)
 	eventSvc := eventSvc.NewEventService(eventRepo, walletRepo, uuid, timePkg, time.Second*15)
 	walletSvc := walletSvc.NewWalletService(walletRepo, eventRepo, settingRepoIns, uuid, time.Second*15)
 	formPenilaianSvc := assessmentSvc.NewFormPenilaianService(formPenilaianRepo, db, s.validator)
@@ -171,21 +180,23 @@ func (s *httpServer) MountRoutes(db *gorm.DB) {
 	pTeamSvcIns := pTeamSvc.NewParticipantTeamService(pTeamRepoIns, pProfileRepoIns)
 	pEventSvcIns := pEventSvc.NewParticipantEventService(pEventRepoIns, rekapRepo)
 	pAssessSvcIns := pAssessSvc.NewParticipantAssessmentService(pAssessRepoIns)
-	eoTeamSvcIns := eoTeamSvc.NewEOTeamService(eoTeamRepoIns, walletRepo, settingRepoIns, db)
+	eoTeamSvcIns := eoTeamSvc.NewEOTeamService(eoTeamRepoIns, settingRepoIns)
 	dashboardSvcIns := dashboardSvc.NewDashboardService(dashboardRepoIns)
 	eoSvcIns := eoSvc.NewEOService(eoRepoIns, userRepo, bcrypt, uuid, time.Second*15)
 	settingSvcIns := systemSettingSvc.NewSystemSettingService(settingRepoIns, time.Second*15)
+	privateFileSvcIns := privateFileSvc.NewPrivateFileService(privateFileRepoIns)
 
 	// Controller
-	userCtr.InitUserController(userSvc, eventSvc, s.app, middleware, redis)
-	eventCtr.InitEventController(eventSvc, s.app, middleware, redis)
-	walletCtr.InitWalletController(walletSvc, s.app, middleware, redis)
+	userCtr.InitUserController(userSvc, eventSvc, s.app, middleware, redisClient, s.validator)
+	eventCtr.InitEventController(eventSvc, s.app, middleware, redisClient, s.validator)
+	walletCtr.InitWalletController(walletSvc, s.app, middleware, redisClient)
 	assessmentCtr.InitFormPenilaianController(formPenilaianSvc, s.app, middleware)
 	assessmentCtr.InitRekapController(rekapSvc, s.app, middleware)
 	assessmentCtr.InitAssessmentController(assessmentSvcIns, s.app, middleware)
 	eoTeamCtr.InitEOTeamController(eoTeamSvcIns, s.app, middleware)
 	dashboardCtr.InitDashboardController(dashboardSvcIns, s.app, middleware)
-	systemSettingCtr.InitSystemSettingController(settingSvcIns, s.app, middleware)
+	systemSettingCtr.InitSystemSettingController(settingSvcIns, s.app, middleware, s.validator)
+	privateFileCtr.InitPrivateFileController(privateFileSvcIns, s.app, middleware)
 
 	eoControllerIns := eoCtr.NewEOController(eoSvcIns, s.validator)
 	eoControllerIns.Route(s.app, middleware)
@@ -205,13 +216,12 @@ func (s *httpServer) MountRoutes(db *gorm.DB) {
 	pAssessController.Route(pesertaGrp)
 
 	// cronjob
-	_, err := s.scheduler.AddFunc("0 0 * * 0", userSvc.DeleteUnverifiedUsers)
+	_, err = s.scheduler.AddFunc("0 0 * * 0", userSvc.DeleteUnverifiedUsers)
 
 	if err != nil {
-		log.Fatal(log.LogInfo{
-			"error": err.Error(),
-		}, "[HTTP SERVER][Mount routes] failed to add cron job delete unverified users")
+		return err
 	}
 
 	s.scheduler.Start()
+	return nil
 }

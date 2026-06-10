@@ -14,6 +14,7 @@ import (
 	"github.com/BangNopall/paskihub-be/domain/dto"
 	"github.com/BangNopall/paskihub-be/domain/entity"
 	"github.com/BangNopall/paskihub-be/domain/enums"
+	"github.com/BangNopall/paskihub-be/pkg/helpers"
 	uuidPkg "github.com/BangNopall/paskihub-be/pkg/uuid"
 	"github.com/google/uuid"
 )
@@ -76,11 +77,6 @@ func (s *walletService) GetWalletInfo(ctx context.Context, eventId string, userI
 		return nil, err
 	}
 
-	setting, err := s.settingRepo.Get(ctx)
-	if err != nil {
-		return nil, err
-	}
-
 	successCount, _ := s.walletRepo.CountTransactionsByStatus(ctx, wallet.Id, string(enums.Approve))
 	pendingCount, _ := s.walletRepo.CountTransactionsByStatus(ctx, wallet.Id, string(enums.Pending))
 
@@ -88,7 +84,7 @@ func (s *walletService) GetWalletInfo(ctx context.Context, eventId string, userI
 		Id:                   wallet.Id,
 		EventId:              wallet.EventId,
 		Saldo:                wallet.Saldo,
-		SaldoKoin:            wallet.Saldo / setting.CoinRate,
+		SaldoKoin:            wallet.CoinBalance,
 		SuccessfulTopupCount: successCount,
 		PendingTopupCount:    pendingCount,
 	}
@@ -132,6 +128,7 @@ func (s *walletService) GetTransactionLogs(ctx context.Context, eventId string, 
 	var responses []dto.WalletTransactionResponse
 	for _, tx := range transactions {
 		resp := dto.WalletTransactionEntityToResponse(&tx, setting.CoinRate)
+		resp.ProofPath = helpers.PrivateFileURL("wallet-topup-proof", tx.Id)
 		responses = append(responses, *resp)
 	}
 
@@ -182,18 +179,19 @@ func (s *walletService) RequestTopUp(ctx context.Context, eventId string, userId
 	}
 
 	filename := fmt.Sprintf("%s-topup-%d%s", txId.String(), time.Now().Unix(), ext)
-	path := filepath.Join("public", "uploads", "wallets", filename)
+	path := filepath.Join("storage", "private", "wallets", filename)
 
 	if err := s.saveFile(proofFile, path); err != nil {
 		return domain.ErrInternalServer
 	}
 
 	transaction := &entity.WalletTransaction{
-		Id:        txId,
-		WalletId:  wallet.Id,
-		Type:      enums.TopUp,
-		Amount:    req.Amount * setting.CoinRate,
-		ProofPath: path,
+		Id:               txId,
+		WalletId:         wallet.Id,
+		Type:             enums.TopUp,
+		Amount:           req.Amount * setting.CoinRate,
+		CoinRateSnapshot: setting.CoinRate,
+		ProofPath:        path,
 		Status:    enums.Pending,
 	}
 
@@ -263,7 +261,7 @@ func (s *walletService) GetAllTransactions(ctx context.Context, status string, p
 			Amount:          tx.Amount,
 			AmountKoin:      tx.Amount / setting.CoinRate,
 			Status:          tx.Status,
-			ProofPath:       tx.ProofPath,
+			ProofPath:       helpers.PrivateFileURL("wallet-topup-proof", tx.Id),
 			RejectionReason: tx.RejectionReason,
 			CreatedAt:       tx.CreatedAt,
 		})
@@ -283,7 +281,7 @@ func (s *walletService) saveFile(file *multipart.FileHeader, dst string) error {
 		return err
 	}
 
-	out, err := os.Create(dst)
+	out, err := os.OpenFile(dst, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
 	if err != nil {
 		return err
 	}

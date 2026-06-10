@@ -9,7 +9,7 @@ import (
 )
 
 type ParticipantEventRepository interface {
-	GetOpenEvents(ctx context.Context) ([]entity.Event, error)
+	GetOpenEvents(ctx context.Context, location string, search string) ([]entity.Event, error)
 	CreateRegistration(ctx context.Context, registration *entity.Registration) error
 	GetRegistrationByID(ctx context.Context, regisID uuid.UUID) (*entity.Registration, error)
 	GetRegistrationWithDetails(ctx context.Context, regisID uuid.UUID) (*entity.Registration, error)
@@ -22,9 +22,9 @@ type ParticipantEventRepository interface {
 }
 
 type ParticipantEventService interface {
-	GetOpenEvents(ctx context.Context) ([]dto.OpenEventResponse, error)
+	GetOpenEvents(ctx context.Context, location string, search string) ([]dto.OpenEventResponse, error)
 	RegisterEvent(ctx context.Context, userID string, req dto.RegisterEventRequest) error
-	PelunasanEvent(ctx context.Context, regisID string, req dto.PelunasanEventRequest) error
+	PelunasanEvent(ctx context.Context, userID string, regisID string, req dto.PelunasanEventRequest) error
 	GetActiveEvents(ctx context.Context, userID string) ([]dto.ActiveEventResponse, error)
 	GetRegistrationDetail(ctx context.Context, userID string, regisID string) (dto.RegistrationDetailResponse, error)
 	GetScoreboard(ctx context.Context, eventLevelID string) (dto.ScoreboardResponse, error)

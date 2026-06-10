@@ -21,7 +21,7 @@ func (s stubParticipantEventService) RegisterEvent(ctx context.Context, userID s
 	return nil
 }
 
-func (s stubParticipantEventService) PelunasanEvent(ctx context.Context, regisID string, req dto.PelunasanEventRequest) error {
+func (s stubParticipantEventService) PelunasanEvent(ctx context.Context, userID string, regisID string, req dto.PelunasanEventRequest) error {
 	return nil
 }
 

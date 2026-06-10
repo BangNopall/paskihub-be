@@ -84,23 +84,14 @@ func (s *eventService) CreateEvent(ctx context.Context, UserId uuid.UUID, event 
 		Status:     "DRAFT",
 	}
 
-	err = s.eventRepo.CreateEvent(ctx, &newEvent)
-	if err != nil {
-		return err
-	}
-
-	walletId, err := s.uuid.New()
-	if err != nil {
-		return err
-	}
-
+	walletId := uuid.New()
 	newWallet := entity.Wallet{
 		Id:      walletId,
 		EventId: eventId,
 		Saldo:   0,
 	}
 
-	err = s.walletRepo.CreateWallet(ctx, &newWallet)
+	err = s.eventRepo.CreateEventWithWallet(ctx, &newEvent, &newWallet)
 	if err != nil {
 		return err
 	}
@@ -175,7 +166,8 @@ func (s *eventService) UploadLogo(ctx context.Context, Id string, UserId string,
 		return domain.ErrForbiddenUpdate // Or unauthorized
 	}
 
-	filename := fmt.Sprintf("%s-%s-%s", Id, "logo", logoFile.Filename)
+	ext := filepath.Ext(logoFile.Filename)
+	filename := fmt.Sprintf("%s-logo-%s%s", Id, uuid.New().String(), ext)
 	path := filepath.Join("public", "uploads", "events", filename)
 
 	if err := s.saveFile(logoFile, path); err != nil {
@@ -212,7 +204,8 @@ func (s *eventService) UploadPoster(ctx context.Context, Id string, UserId strin
 		return domain.ErrForbiddenUpdate
 	}
 
-	filename := fmt.Sprintf("%s-%s-%s", Id, "poster", posterFile.Filename)
+	ext := filepath.Ext(posterFile.Filename)
+	filename := fmt.Sprintf("%s-poster-%s%s", Id, uuid.New().String(), ext)
 	path := filepath.Join("public", "uploads", "events", filename)
 
 	if err := s.saveFile(posterFile, path); err != nil {
@@ -367,13 +360,13 @@ func (s *eventService) UpdateEventLevel(ctx context.Context, EventId string, Use
 
 	updatedLevel := entity.EventLevel{
 		Id:       id,
-		EventId:  EventLevel.EventId,
+		EventId:  eId,
 		Name:     EventLevel.Name,
 		RegisFee: EventLevel.RegisFee,
 		DpFee:    EventLevel.DpFee,
 	}
 
-	return s.eventRepo.UpdateEventLevel(ctx, &updatedLevel)
+	return s.eventRepo.UpdateEventLevel(ctx, eId, &updatedLevel)
 }
 
 func (s *eventService) DeleteEventLevel(ctx context.Context, EventId string, EventLevelId string, UserId string) error {
@@ -404,7 +397,7 @@ func (s *eventService) DeleteEventLevel(ctx context.Context, EventId string, Eve
 		return domain.ErrInternalServer
 	}
 
-	return s.eventRepo.DeleteEventLevel(ctx, id)
+	return s.eventRepo.DeleteEventLevel(ctx, eId, id)
 }
 
 func (s *eventService) DeleteEvent(ctx context.Context, EventId string, UserId string) error {

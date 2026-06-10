@@ -9,13 +9,22 @@ import (
 	"github.com/BangNopall/paskihub-be/internal/middlewares"
 	"github.com/BangNopall/paskihub-be/pkg/helpers/http/response"
 	"github.com/BangNopall/paskihub-be/pkg/redis"
+	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 )
 
 type eventController struct {
-	eventSvc contracts.EventService
-	redis    redis.RedisInterface
+	eventSvc  contracts.EventService
+	redis     redis.RedisInterface
+	validator *validator.Validate
+}
+
+func getEffectiveUserId(ctx *fiber.Ctx) string {
+	if parentId, ok := ctx.Locals("parent_id").(string); ok && parentId != "" {
+		return parentId
+	}
+	return ctx.Locals("id").(string)
 }
 
 func InitEventController(
@@ -23,10 +32,12 @@ func InitEventController(
 	router fiber.Router,
 	middleware *middlewares.Middleware,
 	redis redis.RedisInterface,
+	validator *validator.Validate,
 ) {
 	eventController := &eventController{
-		eventSvc: eventSvc,
-		redis:    redis,
+		eventSvc:  eventSvc,
+		redis:     redis,
+		validator: validator,
 	}
 
 	eventRouter := router.Group("/api/v1/events")
@@ -77,8 +88,13 @@ func (c *eventController) CreateEvent(ctx *fiber.Ctx) error {
 	if err = ctx.BodyParser(&event); err != nil {
 		return nil
 	}
+	if err = c.validator.Struct(event); err != nil {
+		code = http.StatusBadRequest
+		message = "validation failed"
+		return nil
+	}
 
-	userIdStr := ctx.Locals("id").(string)
+	userIdStr := getEffectiveUserId(ctx)
 	userId, err := uuid.Parse(userIdStr)
 	if err != nil {
 		code = http.StatusUnauthorized
@@ -215,7 +231,7 @@ func (c *eventController) UploadLogo(ctx *fiber.Ctx) error {
 	defer sendResp()
 
 	id := ctx.Params("id")
-	userId := ctx.Locals("id").(string)
+	userId := getEffectiveUserId(ctx)
 
 	file, err := ctx.FormFile("logo")
 	if err != nil {
@@ -260,7 +276,7 @@ func (c *eventController) UploadPoster(ctx *fiber.Ctx) error {
 	defer sendResp()
 
 	id := ctx.Params("id")
-	userId := ctx.Locals("id").(string)
+	userId := getEffectiveUserId(ctx)
 
 	file, err := ctx.FormFile("poster")
 	if err != nil {
@@ -305,7 +321,7 @@ func (c *eventController) UpdateEvent(ctx *fiber.Ctx) error {
 	defer sendResp()
 
 	id := ctx.Params("id")
-	userIdStr := ctx.Locals("id").(string)
+	userIdStr := getEffectiveUserId(ctx)
 
 	eventId, err := uuid.Parse(id)
 	if err != nil {
@@ -314,6 +330,11 @@ func (c *eventController) UpdateEvent(ctx *fiber.Ctx) error {
 
 	var event dto.EventUpdate
 	if err = ctx.BodyParser(&event); err != nil {
+		return nil
+	}
+	if err = c.validator.Struct(event); err != nil {
+		code = http.StatusBadRequest
+		message = "validation failed"
 		return nil
 	}
 
@@ -361,7 +382,7 @@ func (c *eventController) DeleteEvent(ctx *fiber.Ctx) error {
 	defer sendResp()
 
 	id := ctx.Params("id")
-	userId := ctx.Locals("id").(string)
+	userId := getEffectiveUserId(ctx)
 
 	err = c.eventSvc.DeleteEvent(ctx.Context(), id, userId)
 	code = domain.GetCode(err)
@@ -401,10 +422,15 @@ func (c *eventController) CreateEventLevel(ctx *fiber.Ctx) error {
 	defer sendResp()
 
 	id := ctx.Params("id")
-	userId := ctx.Locals("id").(string)
+	userId := getEffectiveUserId(ctx)
 
 	var level dto.EventLevelCreate
 	if err = ctx.BodyParser(&level); err != nil {
+		return nil
+	}
+	if err = c.validator.Struct(level); err != nil {
+		code = http.StatusBadRequest
+		message = "validation failed"
 		return nil
 	}
 
@@ -431,6 +457,8 @@ func (c *eventController) CreateEventLevel(ctx *fiber.Ctx) error {
 // @Success 200 {object} response.Response
 // @Failure 400 {object} response.ErrorResponse
 // @Failure 401 {object} response.ErrorResponse
+// @Failure 403 {object} response.ErrorResponse
+// @Failure 404 {object} response.ErrorResponse
 // @Failure 500 {object} response.ErrorResponse
 // @Router /api/v1/events/{id}/levels/{levelId} [put]
 func (c *eventController) UpdateEventLevel(ctx *fiber.Ctx) error {
@@ -448,7 +476,7 @@ func (c *eventController) UpdateEventLevel(ctx *fiber.Ctx) error {
 
 	id := ctx.Params("id")
 	levelId := ctx.Params("levelId")
-	userId := ctx.Locals("id").(string)
+	userId := getEffectiveUserId(ctx)
 
 	levelUUID, err := uuid.Parse(levelId)
 	if err != nil {
@@ -462,6 +490,11 @@ func (c *eventController) UpdateEventLevel(ctx *fiber.Ctx) error {
 
 	var level dto.EventLevelUpdate
 	if err = ctx.BodyParser(&level); err != nil {
+		return nil
+	}
+	if err = c.validator.Struct(level); err != nil {
+		code = http.StatusBadRequest
+		message = "validation failed"
 		return nil
 	}
 
@@ -490,6 +523,8 @@ func (c *eventController) UpdateEventLevel(ctx *fiber.Ctx) error {
 // @Success 200 {object} response.Response
 // @Failure 400 {object} response.ErrorResponse
 // @Failure 401 {object} response.ErrorResponse
+// @Failure 403 {object} response.ErrorResponse
+// @Failure 404 {object} response.ErrorResponse
 // @Failure 500 {object} response.ErrorResponse
 // @Router /api/v1/events/{id}/levels/{levelId} [delete]
 func (c *eventController) DeleteEventLevel(ctx *fiber.Ctx) error {
@@ -507,7 +542,7 @@ func (c *eventController) DeleteEventLevel(ctx *fiber.Ctx) error {
 
 	id := ctx.Params("id")
 	levelId := ctx.Params("levelId")
-	userId := ctx.Locals("id").(string)
+	userId := getEffectiveUserId(ctx)
 
 	err = c.eventSvc.DeleteEventLevel(ctx.Context(), id, levelId, userId)
 	code = domain.GetCode(err)
